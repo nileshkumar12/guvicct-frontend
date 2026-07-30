@@ -1,8 +1,5 @@
-<<<<<<< HEAD
+
 ## Ecommerce Website
-
-
-
 
 
 
@@ -19,6 +16,4 @@ npm install dotenv
 
 
 
-=======
-# guvicct
->>>>>>> d837ceb81371a938e733b2e816e2441ebf62d937
+
