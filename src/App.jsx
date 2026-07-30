@@ -5,11 +5,10 @@ import Header from './Header/Header'
 import Home from './pages/homepage/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
-
+import Footer from "./Footer/Footer";
 const App = () => {
   const location = useLocation()
   const hideHeader = location.pathname === '/login' || location.pathname === '/register'
-
   return (
     <>
       {!hideHeader && <Header />}
@@ -19,6 +18,9 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+
+
+      <Footer/>
     </>
   )
 }
