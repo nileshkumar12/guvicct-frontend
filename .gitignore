@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -58,3 +59,12 @@ yarn-error.log*
 
 # Local history for editors
 .history/
+=======
+
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+>>>>>>> d837ceb81371a938e733b2e816e2441ebf62d937
