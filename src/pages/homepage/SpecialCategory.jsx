@@ -3,7 +3,7 @@ import React from 'react'
 const SpecialCategory = () => {
   return (
     <>
-    <section className="py-16 bg-slate-50">
+    <section className="py-16 bg-[#fffdfa]">
     <div className="max-w-7xl mx-auto px-4">
 
 
@@ -14,7 +14,7 @@ const SpecialCategory = () => {
                 Through Personalized Products
             </h2>
 
-            <p className="mt-4 text-gray-500 text-lg">
+            <p className="mt-4 text-[#5d4e3f] text-lg">
                 Our products come with lots of different options to make your product extra special
             </p>
         </div>

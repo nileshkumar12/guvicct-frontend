@@ -3,7 +3,7 @@ import React from 'react'
 const Footer=()=> {
   return (
     <>
-    <footer className="bg-slate-950 px-4 py-10 text-slate-300 sm:px-6 lg:px-8">
+    <footer className="bg-[#141414] px-4 py-10 text-[#d4c5a4] sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <h2 className="text-lg font-semibold text-white">ShopKart</h2>
@@ -35,9 +35,9 @@ const Footer=()=> {
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                className="min-w-0 flex-1 rounded-md border border-[#d5bea8] bg-[#1a1a1a] px-3 py-2 text-sm text-white outline-none focus:border-[#b68a3b]"
               />
-              <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              <button className="rounded-md bg-[#b68a3b] px-4 py-2 text-sm font-semibold text-white hover:bg-[#906e30]">
                 Submit
               </button>
             </form>

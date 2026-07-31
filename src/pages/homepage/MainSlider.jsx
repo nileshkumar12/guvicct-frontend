@@ -28,7 +28,7 @@ const slides = [
 
 const MainSlider = () => {
   return (
-    <section className="bg-white">
+    <section className="bg-[#fffdfa]">
 
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
@@ -59,7 +59,7 @@ const MainSlider = () => {
                     <p className="text-lg md:text-xl text-white/90 mb-8">
                       {slide.subtitle}
                     </p>
-                    <button className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-slate-900/10 transition hover:bg-slate-100">
+                    <button className="inline-flex items-center justify-center rounded-full bg-[#fffdfa] px-8 py-3 text-sm font-semibold text-[#1c1c1c] shadow-lg shadow-slate-900/10 transition hover:bg-[#f4e9d7]">
                       {slide.button}
                     </button>
                   </div>

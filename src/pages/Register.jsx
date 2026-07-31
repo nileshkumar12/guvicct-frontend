@@ -53,16 +53,16 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Create Account</h1>
-          <p className="text-gray-500 mt-2">Sign up to start using your account</p>
+          <h1 className="text-3xl font-bold text-[#111111]">Create Account</h1>
+          <p className="text-[#5d4e3f] mt-2">Sign up to start using your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Full name</label>
+            <label className="block text-[#5d4e3f] mb-2 font-medium">Full name</label>
             <input
               name="name"
               value={formData.name}
@@ -73,7 +73,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Email</label>
+            <label className="block text-[#5d4e3f] mb-2 font-medium">Email</label>
             <input
               name="email"
               type="email"
@@ -85,7 +85,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Phone</label>
+            <label className="block text-[#5d4e3f] mb-2 font-medium">Phone</label>
             <input
               name="phone"
               value={formData.phone}
@@ -95,7 +95,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Password</label>
+            <label className="block text-[#5d4e3f] mb-2 font-medium">Password</label>
             <input
               name="password"
               type="password"
@@ -107,7 +107,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">Account type</label>
+            <label className="block text-[#5d4e3f] mb-2 font-medium">Account type</label>
             <select
               name="role"
               value={formData.role}
@@ -123,12 +123,12 @@ export default function Register() {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-300"
+            className="w-full bg-[#b68a3b] hover:bg-[#906e30] text-white py-3 rounded-lg font-semibold transition duration-300"
           >
             Register
           </button>
 
-          {status === 'loading' && <p className="text-center text-sm text-blue-600">Creating account...</p>}
+          {status === 'loading' && <p className="text-center text-sm text-[#b68a3b]">Creating account...</p>}
           {status === 'success' && <p className="text-center text-sm text-green-600">Registered successfully.</p>}
           {status === 'error' && <p className="text-center text-sm text-red-600">{error}</p>}
 
@@ -137,13 +137,13 @@ export default function Register() {
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-gray-500 text-sm">OR</span>
+              <span className="bg-white px-3 text-[#5d4e3f] text-sm">OR</span>
             </div>
           </div>
 
-          <p className="text-center text-gray-600 text-sm">
+          <p className="text-center text-[#5d4e3f] text-sm">
             Already have an account?{' '}
-            <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+            <Link to="/login" className="text-[#b68a3b] font-semibold hover:underline">
               Sign In
             </Link>
           </p>

@@ -15,7 +15,7 @@ const Categories = () => {
                             Product Guide
                         </h2>
 
-                        <p className="mt-3 text-gray-500 text-xl">
+                        <p className="mt-3 text-[#5d4e3f] text-xl">
                             — Find the perfect product —
                         </p>
 

@@ -51,7 +51,7 @@ const Login = () => {
 
         const loginData = await loginResponse.json()
         token = loginData.token || loginData.accessToken
-        const loggedInUser = loginData.user || loginData.userData || loginData.data
+        let loggedInUser = loginData.user || loginData.userData || loginData.data
 
         if (!token) {
           throw new Error('Token not returned from login API.')
@@ -59,38 +59,62 @@ const Login = () => {
 
         localStorage.setItem('token', token)
 
+        // If the login response included user data, persist it. Otherwise try to fetch profile.
+        if (!loggedInUser) {
+          try {
+            const profileRes = await fetch(`${API_URL}/api/auth/profile`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            if (profileRes.ok) {
+              const profileData = await profileRes.json()
+              loggedInUser = profileData.data || profileData.user || profileData
+            }
+          } catch (e) {
+            // ignore - we'll try other ways to discover role
+          }
+        }
+
+        if (loggedInUser) {
+          localStorage.setItem('user', JSON.stringify(loggedInUser))
+        }
+
         if (loggedInUser?.role) {
           setRole(loggedInUser.role)
           setStatus('success')
-          return
+          // navigate below based on role
         }
       }
 
-      const usersResponse = await fetch(`${API_URL}/users`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      // Decide navigation based on stored user role (fallback to fetching users list)
+      let finalUser = null
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) finalUser = JSON.parse(storedUser)
 
-      if (!usersResponse.ok) {
-        const errorText = await usersResponse.text()
-        throw new Error(`Unable to fetch users from API with token. ${usersResponse.status} ${usersResponse.statusText}: ${errorText}`)
+      if (!finalUser) {
+        const usersResponse = await fetch(`${API_URL}/users`, {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json()
+          const users = Array.isArray(usersData) ? usersData : usersData.users || usersData.data || []
+          const normalizedEmail = formData.email.trim().toLowerCase()
+          finalUser = users.find((u) => u.email?.toLowerCase() === normalizedEmail) || null
+          if (finalUser) localStorage.setItem('user', JSON.stringify(finalUser))
+        }
       }
-      const usersData = await usersResponse.json()
-      const users = Array.isArray(usersData) ? usersData : usersData.users || usersData.data || []
-      const normalizedEmail = formData.email.trim().toLowerCase()
-      const currentUser = users.find((user) => user.email?.toLowerCase() === normalizedEmail)
 
-      if (!currentUser) {
-        throw new Error('Logged-in user not found in users list.')
-      }
-
-      const userRole = currentUser.role || 'unknown'
-
+      const userRole = finalUser?.role || 'buyer'
       setRole(userRole)
       setStatus('success')
+
+      // navigate depending on role
+      if (userRole === 'seller') {
+        navigate('/admin/dashboard')
+      } else {
         navigate('/')
+      }
     } catch (fetchError) {
       setError(fetchError.message)
       setStatus('error')
@@ -100,19 +124,19 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-500 mt-2">
+          <h1 className="text-3xl font-bold text-[#111111]">Welcome Back</h1>
+          <p className="text-[#5d4e3f] mt-2">
             Sign in to continue to your account
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5  ">
           {/* Email */}
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">
+            <label className="block text-[#5d4e3f] mb-2 font-medium">
               Email
             </label>
             <input
@@ -128,7 +152,7 @@ const Login = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-gray-700 mb-2 font-medium">
+            <label className="block text-[#5d4e3f] mb-2 font-medium">
               Password
             </label>
             <input
@@ -145,13 +169,13 @@ const Login = () => {
           {/* Remember Me */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2">
-              <input type="checkbox" className="accent-blue-600" />
+              <input type="checkbox" className="accent-[#b68a3b]" />
               Remember me
             </label>
 
             <a
               href="#"
-              className="text-blue-600 hover:text-blue-700 hover:underline"
+              className="text-[#b68a3b] hover:text-[#906e30] hover:underline"
             >
               Forgot Password?
             </a>
@@ -160,7 +184,7 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-300"
+            className="w-full bg-[#b68a3b] hover:bg-[#906e30] text-white py-3 rounded-lg font-semibold transition duration-300"
           >
             Login
           </button>
@@ -171,14 +195,14 @@ const Login = () => {
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-gray-500 text-sm">
+              <span className="bg-white px-3 text-[#5d4e3f] text-sm">
                 OR
               </span>
             </div>
           </div>
 
           {status === 'loading' && (
-            <p className="text-center text-sm text-blue-600">Checking your credentials...</p>
+            <p className="text-center text-sm text-[#b68a3b]">Checking your credentials...</p>
           )}
 
           {status === 'success' && (
@@ -192,11 +216,11 @@ const Login = () => {
           )}
 
           {/* Signup */}
-          <p className="text-center text-gray-600 text-sm">
+          <p className="text-center text-[#5d4e3f] text-sm">
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="text-blue-600 font-semibold hover:underline"
+              className="text-[#b68a3b] font-semibold hover:underline"
             >
               Sign Up
             </Link>

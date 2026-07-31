@@ -14,12 +14,28 @@ const Header = () => {
     const [mobileMenu, setMobileMenu] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
     const [isLogged, setIsLogged] = useState(!!localStorage.getItem('token'));
+    const [userRole, setUserRole] = useState(() => {
+        try {
+            const u = localStorage.getItem('user')
+            return u ? JSON.parse(u).role : null
+        } catch (e) {
+            return null
+        }
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
         const onStorage = (e) => {
             if (e.key === 'token') {
                 setIsLogged(!!e.newValue)
+            }
+
+            if (e.key === 'user') {
+                try {
+                    setUserRole(e.newValue ? JSON.parse(e.newValue).role : null)
+                } catch (err) {
+                    setUserRole(null)
+                }
             }
         }
 
@@ -29,8 +45,10 @@ const Header = () => {
 
     const handleSignOut = () => {
         localStorage.removeItem('token')
+        localStorage.removeItem('user')
         setAccountOpen(false)
         setIsLogged(false)
+        setUserRole(null)
         navigate('/')
     }
     return (
@@ -39,10 +57,9 @@ const Header = () => {
 
             <header className="sticky top-0 z-50 bg-white shadow-md">
                 {/* Top Bar */}
-                <div className="bg-gray-900 text-white text-sm">
+                <div className="bg-[#111111] text-white text-sm">
                     <div className="container mx-auto flex justify-between items-center px-4 py-2">
                         <p>🚚 Free Shipping on Orders Over ₹999</p>
-
                         <div className="flex gap-5">
                             <a href="#">Track Order</a>
                             <a href="#">Help</a>
@@ -55,7 +72,7 @@ const Header = () => {
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
 
                     {/* Logo */}
-                    <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-3xl font-bold text-[#1c1c1c]">
                         ShopKart
                     </div>
 
@@ -76,7 +93,7 @@ const Header = () => {
                             className="w-full border px-4 outline-none"
                         />
 
-                        <button className="bg-blue-600 text-white px-6 rounded-r-lg hover:bg-blue-700">
+                        <button className="bg-[#b68a3b] text-white px-6 rounded-r-lg hover:bg-[#906e30]">
                             <Search size={20} />
                         </button>
                     </div>
@@ -93,7 +110,7 @@ const Header = () => {
 
                         <button className="relative">
                             <ShoppingCart />
-                            <span className="absolute -top-2 -right-2 bg-blue-600 text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
+                            <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
                                 4
                             </span>
                         </button>
@@ -132,10 +149,10 @@ const Header = () => {
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
-                                <Link to="/login" className="text-gray-700 hover:text-blue-600">
+                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#b68a3b]">
                                     Login
                                 </Link>
-                                <Link to="/register" className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                <Link to="/register" className="bg-[#b68a3b] text-white px-3 py-1 rounded hover:bg-[#906e30]">
                                     Register
                                 </Link>
                             </div>
@@ -159,20 +176,20 @@ const Header = () => {
                         <ul className="flex gap-8 px-4 py-4 font-medium">
 
                             <li>
-                                <Link to="/" className="hover:text-blue-600">
+                                <Link to="/" className="hover:text-[#b68a3b]">
                                     Home
                                 </Link>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     Shop
                                 </a>
                             </li>
 
                             <li className="group relative">
 
-                                <button className="flex items-center gap-1 hover:text-blue-600">
+                                <button className="flex items-center gap-1 hover:text-[#b68a3b]">
                                     Categories <ChevronDown size={16} />
                                 </button>
 
@@ -203,34 +220,42 @@ const Header = () => {
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     New Arrivals
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     Best Sellers
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     Deals
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     Brands
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-blue-600">
+                                <a href="#" className="hover:text-[#b68a3b]">
                                     Contact
                                 </a>
                             </li>
+
+                            {userRole === 'seller' && (
+                                <li>
+                                    <Link to="/admin/dashboard" className="hover:text-[#b68a3b]">
+                                        Admin
+                                    </Link>
+                                </li>
+                            )}
 
                         </ul>
 

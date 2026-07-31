@@ -21,7 +21,7 @@ const Testimonials = () => {
          <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#b68a3b]">
               Testimonials
             </p>
             <h2 className="mt-2 text-3xl font-bold">Customers love producting with us</h2>
@@ -31,12 +31,12 @@ const Testimonials = () => {
             {testimonials.map((testimonial) => (
               <article
                 key={testimonial.name}
-                className="rounded-lg border border-slate-200 bg-slate-50 p-6"
+                className="rounded-lg border border-[#d5bea8] bg-[#fffdfa] p-6"
               >
                 <div className="text-amber-500" aria-label={`${testimonial.rating} stars`}>
                   {'★'.repeat(testimonial.rating)}
                 </div>
-                <p className="mt-4 text-sm text-slate-600">{testimonial.text}</p>
+                <p className="mt-4 text-sm text-[#5d4e3f]">{testimonial.text}</p>
                 <h3 className="mt-5 font-semibold">{testimonial.name}</h3>
               </article>
             ))}
