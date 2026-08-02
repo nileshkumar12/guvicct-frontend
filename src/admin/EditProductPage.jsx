@@ -184,6 +184,13 @@ const EditProductPage = () => {
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
             />
+            {formData.image && (
+              <img
+                src={formData.image}
+                alt="Product"
+                className="mt-3 h-28 w-full max-w-xs rounded-lg object-cover border border-[#d5bea8]"
+              />
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Price</label>

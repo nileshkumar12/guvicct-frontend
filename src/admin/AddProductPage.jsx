@@ -6,6 +6,7 @@ import { useToast } from "../components/ToastProvider.jsx"
 const AddProductPage = () => {
   const [sellerId, setSellerId] = useState('')
   const [submitStatus, setSubmitStatus] = useState('')
+  const [imageError, setImageError] = useState('')
   const { addToast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
@@ -15,7 +16,8 @@ const AddProductPage = () => {
     price: '',
     rating: '',
     stock: '',
-    image: '',
+    imageFile: null,
+    imagePreview: '',
     seller: '',
   })
   const navigate = useNavigate()
@@ -39,9 +41,37 @@ const AddProductPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] ?? null
+    if (!file) {
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: '' }))
+      setImageError('')
+      return
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+      setImageError('Image file is too large. Please choose a file under 3MB.')
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: '' }))
+      return
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      imageFile: file,
+      imagePreview: URL.createObjectURL(file),
+    }))
+    setImageError('')
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitStatus('loading')
+
+    if (!formData.imageFile) {
+      setImageError('Product image is required.')
+      setSubmitStatus('error')
+      return
+    }
 
     try {
       if (!API_URL) {
@@ -53,21 +83,23 @@ const AddProductPage = () => {
         throw new Error('Authentication token is missing')
       }
 
-      const payload = {
-        ...formData,
-        seller: sellerId || formData.seller,
-        price: Number(formData.price),
-        rating: Number(formData.rating),
-        stock: Number(formData.stock),
-      }
+      const formPayload = new FormData()
+      formPayload.append('name', formData.name)
+      formPayload.append('description', formData.description)
+      formPayload.append('category', formData.category)
+      formPayload.append('brand', formData.brand)
+      formPayload.append('price', Number(formData.price))
+      formPayload.append('rating', Number(formData.rating))
+      formPayload.append('stock', Number(formData.stock))
+      formPayload.append('seller', sellerId || formData.seller)
+      formPayload.append('image', formData.imageFile)
 
       const response = await fetch(`${API_URL}/api/products`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: formPayload,
       })
 
       if (!response.ok) {
@@ -153,13 +185,22 @@ const AddProductPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#5d4e3f]">Image URL</label>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Product Image</label>
             <input
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              type="file"
+              accept="image/*"
+              required
+              onChange={handleImageChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
             />
+            {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
+            {formData.imagePreview && (
+              <img
+                src={formData.imagePreview}
+                alt="Preview"
+                className="mt-3 h-28 w-full max-w-xs rounded-lg object-cover border border-[#d5bea8]"
+              />
+            )}
           </div>
 
           <div>
