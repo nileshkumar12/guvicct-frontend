@@ -2,39 +2,65 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { API_URL } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
+import { fetchProductOptions, getOptionValue } from "./productOptions.js"
 
 const AddProductPage = () => {
-  const [sellerId, setSellerId] = useState('')
-  const [submitStatus, setSubmitStatus] = useState('')
-  const [imageError, setImageError] = useState('')
+  const [sellerId, setSellerId] = useState("")
+  const [submitStatus, setSubmitStatus] = useState("")
+  const [imageError, setImageError] = useState("")
+  const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
+  const [optionsLoading, setOptionsLoading] = useState(true)
+  const [optionsError, setOptionsError] = useState("")
   const { addToast } = useToast()
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: '',
-    brand: '',
-    price: '',
-    rating: '',
-    stock: '',
+    name: "",
+    description: "",
+    category: "",
+    brand: "",
+    price: "",
+    rating: "",
+    stock: "",
     imageFile: null,
-    imagePreview: '',
-    seller: '',
+    imagePreview: "",
+    seller: "",
   })
   const navigate = useNavigate()
 
   useEffect(() => {
-    const rawUser = localStorage.getItem('user')
+    const rawUser = localStorage.getItem("user")
     if (rawUser) {
       try {
         const user = JSON.parse(rawUser)
-        const id = user._id || user.id || ''
+        const id = user._id || user.id || ""
         setSellerId(id)
         setFormData((prev) => ({ ...prev, seller: id }))
       } catch {
-        setSellerId('')
+        setSellerId("")
       }
     }
   }, [])
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      setOptionsLoading(true)
+      setOptionsError("")
+
+      try {
+        const options = await fetchProductOptions()
+        setBrands(options.brands)
+        setCategories(options.categories)
+      } catch (optionError) {
+        const message = optionError.message || "Failed to load brands and categories."
+        setOptionsError(message)
+        addToast(message, "error")
+      } finally {
+        setOptionsLoading(false)
+      }
+    }
+
+    loadOptions()
+  }, [addToast])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -44,14 +70,14 @@ const AddProductPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0] ?? null
     if (!file) {
-      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: '' }))
-      setImageError('')
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: "" }))
+      setImageError("")
       return
     }
 
     if (file.size > 3 * 1024 * 1024) {
-      setImageError('Image file is too large. Please choose a file under 3MB.')
-      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: '' }))
+      setImageError("Image file is too large. Please choose a file under 3MB.")
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: "" }))
       return
     }
 
@@ -60,42 +86,42 @@ const AddProductPage = () => {
       imageFile: file,
       imagePreview: URL.createObjectURL(file),
     }))
-    setImageError('')
+    setImageError("")
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitStatus('loading')
+    setSubmitStatus("loading")
 
     if (!formData.imageFile) {
-      setImageError('Product image is required.')
-      setSubmitStatus('error')
+      setImageError("Product image is required.")
+      setSubmitStatus("error")
       return
     }
 
     try {
       if (!API_URL) {
-        throw new Error('API_URL is not configured')
+        throw new Error("API_URL is not configured")
       }
 
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem("token")
       if (!token) {
-        throw new Error('Authentication token is missing')
+        throw new Error("Authentication token is missing")
       }
 
       const formPayload = new FormData()
-      formPayload.append('name', formData.name)
-      formPayload.append('description', formData.description)
-      formPayload.append('category', formData.category)
-      formPayload.append('brand', formData.brand)
-      formPayload.append('price', Number(formData.price))
-      formPayload.append('rating', Number(formData.rating))
-      formPayload.append('stock', Number(formData.stock))
-      formPayload.append('seller', sellerId || formData.seller)
-      formPayload.append('image', formData.imageFile)
+      formPayload.append("name", formData.name)
+      formPayload.append("description", formData.description)
+      formPayload.append("category", formData.category)
+      formPayload.append("brand", formData.brand)
+      formPayload.append("price", Number(formData.price))
+      formPayload.append("rating", Number(formData.rating))
+      formPayload.append("stock", Number(formData.stock))
+      formPayload.append("seller", sellerId || formData.seller)
+      formPayload.append("image", formData.imageFile)
 
       const response = await fetch(`${API_URL}/api/products`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -108,13 +134,13 @@ const AddProductPage = () => {
       }
 
       await response.json()
-      setSubmitStatus('success')
-      addToast('Product added successfully.', 'success')
-      setTimeout(() => navigate('/admin/products'), 700)
+      setSubmitStatus("success")
+      addToast("Product added successfully.", "success")
+      setTimeout(() => navigate("/admin/products"), 700)
     } catch (submitError) {
-      const message = submitError.message || 'Failed to add product.'
+      const message = submitError.message || "Failed to add product."
       setSubmitStatus(message)
-      addToast(message, 'error')
+      addToast(message, "error")
     }
   }
 
@@ -132,7 +158,7 @@ const AddProductPage = () => {
           </div>
           <button
             type="button"
-            onClick={() => navigate('/admin/products')}
+            onClick={() => navigate("/admin/products")}
             className="rounded-full bg-[#f4e5d4] px-5 py-2 text-[#1c1c1c] hover:bg-[#e7d7b8] transition"
           >
             Back to Products
@@ -153,13 +179,25 @@ const AddProductPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Brand</label>
-            <input
+            <select
               name="brand"
               value={formData.brand}
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
               required
-            />
+              disabled={optionsLoading}
+            >
+              <option value="">{optionsLoading ? "Loading brands..." : "Select brand"}</option>
+              {brands.map((brand) => {
+                const value = getOptionValue(brand)
+                return (
+                  <option key={brand._id || brand.id || value} value={value}>
+                    {brand.name || brand.title || value}
+                  </option>
+                )
+              })}
+            </select>
+            {optionsError && <p className="mt-2 text-sm text-red-600">{optionsError}</p>}
           </div>
 
           <div className="md:col-span-2">
@@ -176,12 +214,24 @@ const AddProductPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Category</label>
-            <input
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
-            />
+              disabled={optionsLoading}
+              required
+            >
+              <option value="">{optionsLoading ? "Loading categories..." : "Select category"}</option>
+              {categories.map((category) => {
+                const value = getOptionValue(category)
+                return (
+                  <option key={category._id || category.id || value} value={value}>
+                    {category.name || category.title || value}
+                  </option>
+                )
+              })}
+            </select>
           </div>
 
           <div>
@@ -259,12 +309,7 @@ const AddProductPage = () => {
             >
               Add Product
             </button>
-            {submitStatus === 'loading' && <span className="text-sm text-[#5d4e3f]">Saving...</span>}
-            {submitStatus === 'success' && <span className="text-sm text-green-600">Product added, redirecting...</span>}
-            {submitStatus && submitStatus !== 'loading' && submitStatus !== 'success' && submitStatus !== 'error' && (
-              <span className="text-sm text-red-600">{submitStatus}</span>
-            )}
-            {submitStatus === 'error' && <span className="text-sm text-red-600">Failed to add product.</span>}
+           
           </div>
         </form>
       </div>

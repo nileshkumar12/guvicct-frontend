@@ -4,6 +4,7 @@ import AdminLogout from './AdminLogout'
 
 const AdminLayout = () => {
   const location = useLocation()
+  const isAdminPath = (path) => location.pathname === `/admin/${path}` || location.pathname.startsWith(`/admin/${path}/`)
 
   return (
     <div className="min-h-screen bg-[#f7f1e3]">
@@ -35,7 +36,7 @@ const AdminLayout = () => {
 
             <Link
               to="products"
-              className={`block rounded-xl px-4 py-3 transition ${location.pathname.endsWith('/products') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('products') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
             >
               <div className="flex items-center gap-3">
                 <Monitor size={18} />
@@ -44,8 +45,28 @@ const AdminLayout = () => {
             </Link>
 
             <Link
+              to="brands"
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('brands') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+            >
+              <div className="flex items-center gap-3">
+                <Monitor size={18} />
+                <span>Brands</span>
+              </div>
+            </Link>
+
+            <Link
+              to="categories"
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('categories') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard size={18} />
+                <span>Categories</span>
+              </div>
+            </Link>
+
+            <Link
               to="users"
-              className={`block rounded-xl px-4 py-3 transition ${location.pathname.endsWith('/users') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('users') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
             >
               <div className="flex items-center gap-3">
                 <LayoutDashboard size={18} />

@@ -12,6 +12,12 @@ import DashboardPage from './admin/DashboardPage'
 import ProductsPage from './admin/ProductsPage'
 import AddProductPage from './admin/AddProductPage'
 import EditProductPage from './admin/EditProductPage'
+import BrandsPage from './admin/BrandsPage'
+import AddBrandPage from './admin/AddBrandPage'
+import EditBrandPage from './admin/EditBrandPage'
+import CategoriesPage from './admin/CategoriesPage'
+import AddCategoryPage from './admin/AddCategoryPage'
+import EditCategoryPage from './admin/EditCategoryPage'
 import UsersPage from './admin/UsersPage'
 import AddUserPage from './admin/AddUserPage'
 import EditUserPage from './admin/EditUserPage'
@@ -34,6 +40,12 @@ const App = () => {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/add" element={<AddProductPage />} />
           <Route path="products/:id/edit" element={<EditProductPage />} />
+          <Route path="brands" element={<BrandsPage />} />
+          <Route path="brands/add" element={<AddBrandPage />} />
+          <Route path="brands/:id/edit" element={<EditBrandPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="categories/add" element={<AddCategoryPage />} />
+          <Route path="categories/:id/edit" element={<EditCategoryPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="users/add" element={<AddUserPage />} />
           <Route path="users/:id/edit" element={<EditUserPage />} />

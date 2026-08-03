@@ -163,12 +163,7 @@ const EditUserPage = () => {
             >
               Save Changes
             </button>
-            {submitStatus === 'loading' && <span className="text-sm text-[#5d4e3f]">Saving...</span>}
-            {submitStatus === 'success' && <span className="text-sm text-green-600">User updated successfully.</span>}
-            {submitStatus && submitStatus !== 'loading' && submitStatus !== 'success' && submitStatus !== 'error' && (
-              <span className="text-sm text-red-600">{submitStatus}</span>
-            )}
-            {submitStatus === 'error' && <span className="text-sm text-red-600">Failed to update user.</span>}
+           
           </div>
         </form>
       </div>

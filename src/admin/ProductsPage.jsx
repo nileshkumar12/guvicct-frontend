@@ -139,7 +139,9 @@ const ProductsPage = () => {
               <thead>
                 <tr className="border-b bg-[#fffdfa]">
                   <th className="px-4 py-3">S.No</th>
+                  <th className="px-4 py-3">Image</th>
                   <th className="px-4 py-3">Product</th>
+                  
                   <th className="px-4 py-3">Brand</th>
                   <th className="px-4 py-3">Price</th>
                   <th className="px-4 py-3">Stock</th>
@@ -149,10 +151,31 @@ const ProductsPage = () => {
               <tbody>
                 {products.map((product, index) => {
                   const productId = product._id || product.id || ''
+                  const image = product.image || product.imagePreview || ''
+                  const imageSrc = (() => {
+                    if (!image) return ''
+                    if (/^(https?:|data:|blob:)/i.test(image)) return image
+                    if (!API_URL) return image
+                    const base = API_URL.replace(/\/$/, '')
+                    return `${base}/${image.replace(/^\/+/, '')}`
+                  })()
+
                   return (
                     <tr key={productId || index} className="border-b">
                       <td className="px-4 py-4">{index + 1}</td>
+                       <td className="px-4 py-4">
+                        {imageSrc ? (
+                          <img
+                            src={imageSrc}
+                            alt={product.name || 'Product'}
+                            className="h-12 w-20 rounded-lg object-cover border border-[#d5bea8]"
+                          />
+                        ) : (
+                          <div className="h-12 w-20 rounded-lg bg-[#fffdfa] border border-[#f0ece6]" />
+                        )}
+                      </td>
                       <td className="px-4 py-4">{product.name || product.title || '—'}</td>
+                     
                       <td className="px-4 py-4">{product.brand || '—'}</td>
                       <td className="px-4 py-4">{product.price != null ? `₹${product.price}` : '—'}</td>
                       <td className="px-4 py-4">{product.stock != null ? product.stock : '—'}</td>
