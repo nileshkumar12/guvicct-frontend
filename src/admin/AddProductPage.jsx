@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { API_URL } from "../utils/config"
+import { API_URL, uploadImageToCloudinary } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
 import { fetchProductOptions, getOptionValue } from "./productOptions.js"
 
@@ -118,7 +118,11 @@ const AddProductPage = () => {
       formPayload.append("rating", Number(formData.rating))
       formPayload.append("stock", Number(formData.stock))
       formPayload.append("seller", sellerId || formData.seller)
-      formPayload.append("image", formData.imageFile)
+
+      if (formData.imageFile) {
+        const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
+        formPayload.append("image", uploadedImageUrl)
+      }
 
       const response = await fetch(`${API_URL}/api/products`, {
         method: "POST",

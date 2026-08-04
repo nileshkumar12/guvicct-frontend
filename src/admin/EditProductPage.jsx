@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { API_URL } from "../utils/config"
+import { API_URL, getImageUrl, uploadImageToCloudinary } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
 import { fetchProductOptions, getOptionValue, getProductEntityValue } from "./productOptions.js"
 
@@ -145,7 +145,8 @@ const EditProductPage = () => {
       formPayload.append("seller", formData.seller)
 
       if (formData.imageFile) {
-        formPayload.append("image", formData.imageFile)
+        const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
+        formPayload.append("image", uploadedImageUrl)
       } else {
         formPayload.append("image", formData.image)
       }
@@ -179,15 +180,7 @@ const EditProductPage = () => {
     return <div className="text-red-600">{error}</div>
   }
  
-  const imageSrc = (() => {
-    const preview = formData.imagePreview || formData.image
-    if (!preview) return ''
-    if (/^(https?:|data:|blob:)/i.test(preview)) return preview
-
-    if (!API_URL) return preview
-    const base = API_URL.replace(/\/$/, '')
-    return `${base}/${preview.replace(/^\/+/, '')}`
-  })()
+  const imageSrc = getImageUrl(formData.imagePreview || formData.image)
 
   return (
     <div>

@@ -5,6 +5,7 @@ import Header from './Header/Header'
 import Home from './pages/homepage/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import CategoryProducts from './pages/homepage/CategoryProducts'
 import Footer from "./Footer/Footer";
 import ProtectedRoute from './utils/ProtectedRoute'
 import AdminLayout from './admin/AdminLayout'
@@ -21,6 +22,7 @@ import EditCategoryPage from './admin/EditCategoryPage'
 import UsersPage from './admin/UsersPage'
 import AddUserPage from './admin/AddUserPage'
 import EditUserPage from './admin/EditUserPage'
+import ProductDetails from './pages/homepage/ProductDetails'
 const App = () => {
   const location = useLocation();
 
@@ -34,6 +36,8 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/category/:id" element={<CategoryProducts />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/admin" element={<ProtectedRoute role="seller"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { API_URL } from "../utils/config"
+import { API_URL, getImageUrl, uploadImageToCloudinary } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
 
 const getEntityList = (data, config) => {
@@ -56,14 +56,7 @@ const multipartHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-const getImageSrc = (image) => {
-  if (!image) return ""
-  if (/^(https?:|data:|blob:)/i.test(image)) return image
-  if (!API_URL) return image
-
-  const base = API_URL.replace(/\/$/, "")
-  return `${base}/${image.replace(/^\/+/, "")}`
-}
+const getImageSrc = getImageUrl
 
 export const SimpleEntityListPage = ({ config }) => {
   const [items, setItems] = useState([])
@@ -345,7 +338,8 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
         body.append("name", formData.name)
         body.append("description", formData.description)
         if (formData.imageFile) {
-          body.append("image", formData.imageFile)
+          const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
+          body.append("image", uploadedImageUrl)
         } else if (mode === "edit") {
           body.append("image", formData.image)
         }

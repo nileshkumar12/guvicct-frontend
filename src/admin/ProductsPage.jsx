@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { API_URL } from "../utils/config"
+import { API_URL, getImageUrl } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
 
 const ProductsPage = () => {
@@ -152,13 +152,7 @@ const ProductsPage = () => {
                 {products.map((product, index) => {
                   const productId = product._id || product.id || ''
                   const image = product.image || product.imagePreview || ''
-                  const imageSrc = (() => {
-                    if (!image) return ''
-                    if (/^(https?:|data:|blob:)/i.test(image)) return image
-                    if (!API_URL) return image
-                    const base = API_URL.replace(/\/$/, '')
-                    return `${base}/${image.replace(/^\/+/, '')}`
-                  })()
+                  const imageSrc = getImageUrl(image)
 
                   return (
                     <tr key={productId || index} className="border-b">

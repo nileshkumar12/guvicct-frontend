@@ -1,6 +1,43 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { API_URL, getImageUrl } from '../../utils/config'
 
 const SpecialCategory = () => {
+  const [brands, setBrands] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      if (!API_URL) {
+        setError('API_URL is not configured')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/brands`)
+        if (!response.ok) {
+          throw new Error(`Failed to load brands (${response.status})`)
+        }
+
+        const data = await response.json()
+        const list = Array.isArray(data)
+          ? data
+          : data.brands || data.data || data.items || data.result || []
+
+        setBrands(list)
+      } catch (fetchError) {
+        setError(fetchError.message || 'Failed to load brands.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBrands()
+  }, [])
+
+  const getImageSrc = getImageUrl
+
   return (
     <>
     <section className="py-16 bg-[#fffdfa]">
@@ -20,96 +57,38 @@ const SpecialCategory = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-
-      
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/wedding.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
+          {loading ? (
+            <div className="col-span-2 text-center text-[#5d4e3f]">Loading brands...</div>
+          ) : error ? (
+            <div className="col-span-2 text-center text-red-600">{error}</div>
+          ) : brands.length === 0 ? (
+            <div className="col-span-2 text-center text-[#5d4e3f]">No brands available.</div>
+          ) : (
+            brands.map((brand, index) => {
+              const brandName = brand.name || brand.title || brand.brand || `Brand ${index + 1}`
+              const imageSrc = getImageSrc(brand.image || brand.imageUrl || brand.image_url || '')
+              return (
+                <a key={brand._id || brand.id || index} href="#" className="group relative overflow-hidden shadow-md">
+                  {imageSrc ? (
+                    <img
+                      src={imageSrc}
+                      alt={brandName}
+                      className="w-full h-56 object-cover group-hover:scale-110 duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-56 flex items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
+                      No image
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
                     <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Wedding/Anniversary
+                      {brandName}
                     </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/housewarming.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Housewarming Products
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/sympathy.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        In Sympathy
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/corporate.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Corporate
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/getwell.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Get Well
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/family.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Products For The Family
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/pets.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        Products For Pets
-                    </h3>
-                </div>
-            </a>
-
-            <a href="#" className="group relative overflow-hidden shadow-md">
-                <img src="images/all.jpg"
-                    className="w-full h-56 object-cover group-hover:scale-110 duration-500"/>
-
-                <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
-                        All
-                    </h3>
-                </div>
-            </a>
-
+                  </div>
+                </a>
+              )
+            })
+          )}
         </div>
 
     </div>
