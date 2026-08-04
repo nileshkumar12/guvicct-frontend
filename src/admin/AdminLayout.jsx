@@ -10,8 +10,8 @@ const AdminLayout = () => {
     <div className="min-h-screen bg-[#f7f1e3]">
       <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-[#f4e5d4] rounded flex items-center justify-center">
-            <span className="text-4xl font-bold text-[#b68a3b]">NK</span>
+          <div>
+            <Link to="/"> <img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{maxWidth:"45px"}}/></Link>
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-slate-800">Admin Panel</h1>

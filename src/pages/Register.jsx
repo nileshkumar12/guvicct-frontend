@@ -53,7 +53,7 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4 py-5">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#111111]">Create Account</h1>

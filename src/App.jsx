@@ -5,7 +5,7 @@ import Header from './Header/Header'
 import Home from './pages/homepage/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import CategoryProducts from './pages/homepage/CategoryProducts'
+import CategoryProducts from './pages/category/CategoryProducts'
 import Footer from "./Footer/Footer";
 import ProtectedRoute from './utils/ProtectedRoute'
 import AdminLayout from './admin/AdminLayout'
@@ -22,7 +22,9 @@ import EditCategoryPage from './admin/EditCategoryPage'
 import UsersPage from './admin/UsersPage'
 import AddUserPage from './admin/AddUserPage'
 import EditUserPage from './admin/EditUserPage'
-import ProductDetails from './pages/homepage/ProductDetails'
+import ProductDetails from './pages/productdetails/ProductDetails'
+import Cart from './pages/cart/Cart'
+
 const App = () => {
   const location = useLocation();
 
@@ -38,6 +40,7 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/admin" element={<ProtectedRoute role="seller"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
@@ -55,7 +58,7 @@ const App = () => {
           <Route path="users/:id/edit" element={<EditUserPage />} />
         </Route>
       </Routes>
-      {!hideFooter && <Footer />}
+      {!hideHeader && <Footer />}
     </>
   )
 }

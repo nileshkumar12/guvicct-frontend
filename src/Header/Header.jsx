@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import {
     Menu,
@@ -9,6 +10,7 @@ import {
     User,
     ChevronDown,
 } from 'lucide-react'
+import { selectCartTotalQuantity } from '../store/cartSlice'
 
 const Header = () => {
     const [mobileMenu, setMobileMenu] = useState(false);
@@ -23,6 +25,7 @@ const Header = () => {
         }
     });
     const navigate = useNavigate();
+    const cartQuantity = useSelector(selectCartTotalQuantity)
 
     useEffect(() => {
         const onStorage = (e) => {
@@ -73,7 +76,7 @@ const Header = () => {
 
                     {/* Logo */}
                     <div className="text-3xl font-bold text-[#1c1c1c]">
-                        ShopKart
+                        <Link to="/"> <img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{ maxWidth: "45px" }} /></Link>
                     </div>
 
                     {/* Search */}
@@ -108,12 +111,12 @@ const Header = () => {
                             </span>
                         </button>
 
-                        <button className="relative">
+                        <Link to="/cart" className="relative">
                             <ShoppingCart />
                             <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
-                                4
+                                {cartQuantity}
                             </span>
-                        </button>
+                        </Link>
 
                         {isLogged ? (
                             <div className="relative">

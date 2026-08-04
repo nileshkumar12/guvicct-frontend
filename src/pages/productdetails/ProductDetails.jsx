@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { API_URL } from '../../utils/config'
+import { useDispatch } from 'react-redux'
+import { API_URL, getImageUrl } from '../../utils/config'
+import { addItem } from '../../store/cartSlice'
+import { useToast } from '../../components/ToastProvider.jsx'
 
 const ProductDetails = () => {
   const { id } = useParams()
@@ -10,7 +13,12 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState('')
   const [selectedSize, setSelectedSize] = useState('M')
+  const [selectedFinish, setSelectedFinish] = useState('Shiny')
   const [relatedProducts, setRelatedProducts] = useState([])
+  const [openAccordion, setOpenAccordion] = useState('info')
+
+  const dispatch = useDispatch()
+  const { addToast } = useToast()
 
   const changeQuantity = (delta) => {
     setQuantity((q) => {
@@ -25,19 +33,31 @@ const ProductDetails = () => {
 
   const addToCart = () => {
     if (!product) return
-    const idVal = product._id || product.id || product.sku || Date.now()
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-    const existing = cart.find((c) => String(c.id) === String(idVal))
-    if (existing) {
-      existing.quantity = Math.min((existing.quantity || 0) + quantity, product.stock ?? Infinity)
-    } else {
-      cart.push({ id: idVal, name: product.name || product.title || '', price: product.price ?? 0, quantity })
+    if (!isInStock) {
+      addToast('Sorry, this product is out of stock.', 'error')
+      return
     }
-    localStorage.setItem('cart', JSON.stringify(cart))
-    try {
-      // optional small UI feedback
-      alert('Added to cart')
-    } catch (e) {}
+
+    const idVal = product._id || product.id || product.sku || Date.now()
+    const cartItem = {
+      id: idVal,
+      key: `${idVal}::${selectedSize}::${selectedFinish}`,
+      title: product.name || product.title || '',
+      image: productImage,
+      price: Number(product.price ?? 0),
+      quantity,
+      stock: product.stock != null ? Number(product.stock) : Infinity,
+      selectedSize,
+      selectedFinish,
+      brand: product.brand || '',
+    }
+
+    dispatch(addItem(cartItem))
+    addToast('Added to cart')
+  }
+
+  const toggleAccordion = (section) => {
+    setOpenAccordion((current) => (current === section ? '' : section))
   }
 
   useEffect(() => {
@@ -138,7 +158,7 @@ const ProductDetails = () => {
   ]
 
   return (
-    <section className="py-16 bg-[#f6f2eb]">
+    <section className="py-8 bg-[#f6f2eb]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">
@@ -157,62 +177,53 @@ const ProductDetails = () => {
           <div className="mt-8 text-[#5d4e3f]">Product not found.</div>
         ) : (
           <>
-            <div className="mt-8 rounded-[40px] bg-white p-8 shadow-2xl">
-              <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
-                <div className="space-y-6">
-                  <div className="relative overflow-hidden rounded-[34px] bg-[#f4ede3] shadow-inner">
-                    {productImage ? (
-                      <img
-                        src={productImage}
-                        alt={productTitle}
-                        className="h-[560px] w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-[560px] items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
-                        No image available
-                      </div>
-                    )}
-                    <div className="absolute left-4 top-4 rounded-full bg-[#ffffffcc] px-4 py-2 text-sm font-semibold text-[#5d4e3f] shadow-sm">
-                      Fast shipping
-                    </div>
-                    <button className="absolute right-4 top-4 rounded-full bg-white/90 p-3 text-[#5d4e3f] shadow-sm transition hover:bg-[#fffdfa]">
-                      ❤ Save
-                    </button>
-                  </div>
-                  {images.length > 1 && (
-                    <div className="grid grid-cols-5 gap-3">
-                      {images.map((img, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() => setSelectedImage(img)}
-                          className={`h-20 overflow-hidden rounded-3xl border ${img === productImage ? 'border-[#1aa184]' : 'border-[#e9e2d9]'} bg-white shadow-sm transition`}
-                        >
-                          <img src={img} alt={`Thumbnail ${index + 1}`} className="h-full w-full object-cover" />
-                        </button>
-                      ))}
+            <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+              <div className="rounded-[10px] bg-white p-6">
+                <div className="grid gap-0">
+                  {productImage ? (
+                    <img
+                      src={productImage}
+                      alt={productTitle}
+                      className="w-full rounded-[32px] object-cover"
+                      style={{ maxHeight: '460px' }}
+                    />
+                  ) : (
+                    <div className="flex h-[460px] items-center justify-center rounded-[32px] bg-[#f9f5f0] text-[#5d4e3f]">
+                      No image available
                     </div>
                   )}
                 </div>
-
+                <div className="grid gap-6">
+                  <div className="grid  grid-cols-6">
+                    {images.slice(0, 4).map((img, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setSelectedImage(img)}
+                        className={`h-32 overflow-hidden rounded-[28px] border ${img === productImage ? 'border-[#1aa184]' : 'border-[#e9e2d9]'} bg-white shadow-sm`}
+                      >
+                        <img src={img} alt={`${productTitle} thumbnail ${index + 1}`} className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-6">
                 <div className="space-y-6">
                   <div className="space-y-5">
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm uppercase tracking-[0.3em] text-[#7a674c]">Minimal women collection</span>
-                      <h1 className="text-5xl font-semibold tracking-tight text-[#1c1c1c]">{productTitle}</h1>
-                      <p className="text-sm text-[#5d4e3f]">{categoryName || brandName || 'Women’s clothing'}</p>
+                      <h1 className="text-4xl font-semibold tracking-tight text-[#1c1c1c]">{productTitle}</h1>
                     </div>
-
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                       <div className="space-y-3">
-                        <div className="flex items-center gap-4 text-4xl font-bold text-[#1c1c1c]">
-                          <span>{product.price != null ? `₹${product.price}` : '₹0'}</span>
+                        <div className="flex items-center gap-4 text-5xl font-bold text-[#1c1c1c]">
+                          <span className='text-4xl font-semibold'>{product.price != null ? `₹${product.price}` : '₹0'}</span>
                           {product.discount && (
-                            <span className="rounded-full bg-[#f4e5d4] px-3 py-1 text-sm font-semibold text-[#1a775f]">{product.discount} OFF</span>
+                            <div className="rounded-full bg-[#f4e5d4] px-3 py-1 text-sm font-semibold text-[#1a775f]">{product.discount} OFF</div>
                           )}
                         </div>
                         {product.oldPrice && (
-                          <p className="text-sm text-[#9a9a9a] line-through">₹{product.oldPrice}</p>
+                          <p className="text-sm text-5xl text-[#9a9a9a] line-through">₹{product.oldPrice}</p>
                         )}
                       </div>
                       <div className="flex flex-wrap items-center gap-3 text-sm text-[#5d4e3f]">
@@ -229,70 +240,113 @@ const ProductDetails = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
+                  {/* <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-sm uppercase tracking-[0.2em] text-[#7a674c]">Select size</p>
-                        <p className="mt-1 text-xs text-[#5d4e3f]">Size chart</p>
+                        <p className="text-sm uppercase tracking-[0.2em] text-[#7a674c]">Ring size</p>
+                        <p className="mt-1 text-xs text-[#5d4e3f]">Pick your size</p>
                       </div>
-                      <div className="flex flex-wrap gap-3">
+                      <select
+                        value={selectedSize}
+                        onChange={(e) => setSelectedSize(e.target.value)}
+                        className="w-36 rounded-3xl border border-[#d1c8b5] bg-white px-4 py-3 text-sm text-[#1c1c1c] outline-none transition focus:border-[#1aa184]"
+                      >
                         {sizeOptions.map((size) => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm uppercase tracking-[0.2em] text-[#7a674c]">Finishing</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {['Shiny', 'Matte', 'Glossy'].map((option) => (
                           <button
-                            key={size}
+                            key={option}
                             type="button"
-                            onClick={() => setSelectedSize(size)}
-                            className={`rounded-3xl border px-4 py-2 text-sm font-semibold transition ${selectedSize === size ? 'border-[#1aa184] bg-[#eaf7f0] text-[#1a775f]' : 'border-[#e9e2d9] bg-white text-[#5d4e3f]'}`}
+                            onClick={() => setSelectedFinish(option)}
+                            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedFinish === option ? 'bg-[#1aa184] text-white' : 'bg-white text-[#5d4e3f] border border-[#e9e2d9]'}`}
                           >
-                            {size}
+                            {option}
                           </button>
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <button className="flex-1 rounded-full border border-[#e9e2d9] bg-white px-6 py-4 text-sm font-semibold text-[#5d4e3f] transition hover:bg-[#f4f4f1]">Wishlist</button>
-                    <button
-                      type="button"
-                      onClick={addToCart}
-                      className="flex-1 rounded-full bg-[#1aa184] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#168864]"
-                    >
-                      Add to Cart
-                    </button>
-                  </div>
+                  <div className="grid gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-sm  text-[#222222]">Quantity</span>
+                      <div className="inline-flex overflow-hidden rounded-full border border-[#e9e2d9] bg-white shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => changeQuantity(-1)}
+                          className="px-4 py-3 text-sm font-semibold text-[#5d4e3f] transition hover:bg-[#f4f4f1]"
+                        >
+                          −
+                        </button>
+                        <span className="w-14 border-x border-[#e9e2d9] bg-[#f9f5f0] py-3 text-center text-sm font-semibold text-[#1c1c1c]">
+                          {quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => changeQuantity(1)}
+                          className="px-4 py-3 text-sm font-semibold text-[#5d4e3f] transition hover:bg-[#f4f4f1]"
+                        >
+                          +
+                        </button>
+                      </div>
+                      {product?.stock != null && (
+                        <span className="text-sm text-[#5d4e3f]">Max {product.stock}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={addToCart}
+                        className="flex-1 rounded-full bg-[#b68a3b] border border-[#b68a3b]  px-6 py-4 text-sm font-semibold text-[#ffffff] transition hover:bg-[#906e30]"
+                      >
+                        Add to Cart
+                      </button>
+                      <Link to="/cart"  onClick={addToCart}  className="flex-1 block text-center rounded-full bg-[#1aa184] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#168864]">Buy Now</Link>
 
-                  <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-                    <p className="text-base font-semibold text-[#1c1c1c]">Product details</p>
+                    </div>
+                  </div>
+                  <div className="rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
+                    <p className="text-base font-semibold text-[#1c1c1c]">Product Description:</p>
                     <p className="mt-3 text-[#5d4e3f] leading-relaxed whitespace-pre-line">{product.description || product.summary || 'No product description available.'}</p>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-                      <p className="text-sm font-semibold text-[#1c1c1c]">Material & care</p>
-                      <ul className="mt-3 space-y-2 text-[#5d4e3f] text-sm">
-                        <li>• {product.material || 'Cotton'}</li>
-                        <li>• {product.care || 'Machine wash'}</li>
-                      </ul>
-                    </div>
-                    <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-                      <p className="text-sm font-semibold text-[#1c1c1c]">Sold by</p>
-                      <p className="mt-3 text-[#5d4e3f]">{brandName || 'Wind It Store, Stillwater'}</p>
-                      <p className="mt-4 text-sm text-[#5d4e3f]">{product.soldBy || 'All products come with 3-month warranty'}</p>
+                  <div className="grid grid-cols-1 gap-4">
+
+                    <div className="rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
+                      <p className="text-sm font-semibold text-[#1c1c1c]">
+                        Sold By
+                      </p>
+                      <p className="mt-3 text-[#5d4e3f]">
+                        {brandName || "Wind It Store, Stillwater"}
+                      </p>
+                      <p className="mt-4 text-sm text-[#5d4e3f]">
+                        {product.soldBy || "All products come with 3-month warranty"}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
             {relatedProducts && relatedProducts.length > 0 && (
-              <div className="mt-16 rounded-[36px] bg-white p-8 shadow-2xl">
+              <div className="rounded-[10px] mt-8 border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4 border-b border-[#e9e2d9] pb-4">
                   <div>
                     <h3 className="text-3xl font-semibold text-[#1c1c1c]">Related products</h3>
                     <p className="text-sm text-[#5d4e3f]">Hand-picked selections that match your interests.</p>
                   </div>
                 </div>
-                <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-1 xl:grid-cols-4">
                   {relatedProducts.slice(0, 3).map((rp) => {
                     const rid = rp._id || rp.id || rp.sku
                     const rImage = getImageSrc(rp.image || rp.imageUrl || rp.image_url || '')
@@ -301,7 +355,7 @@ const ProductDetails = () => {
                       <Link
                         key={rid || rName}
                         to={`/product/${rid}`}
-                        className="group overflow-hidden rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                        className="group overflow-hidden rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                       >
                         {rImage ? (
                           <img src={rImage} alt={rName} className="h-56 w-full object-cover transition duration-500 group-hover:scale-105" />

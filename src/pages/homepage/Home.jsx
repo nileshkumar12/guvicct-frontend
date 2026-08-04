@@ -1,4 +1,4 @@
-import Categories from "./Categories";
+import Categories from "../category/Categories";
 import MainSlider from "./MainSlider"
 import SpecialCategory from "./SpecialCategory"
 import Testimonials from "./Testimonials"
