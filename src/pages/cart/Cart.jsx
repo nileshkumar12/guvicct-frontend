@@ -103,17 +103,21 @@ const Cart = () => {
 
           {/* Right Side */}
           <div className="lg:col-span-5 space-y-6">
-            <CouponForm />
-
-            <OrderSummary
-              subtotal={subtotal}
-              discount={discount}
-              shipping={shipping}
-              total={total}
-              coupon={coupon}
-              onClearCart={handleClearCart}
-              hasItems={checkedItems.length > 0}
-            />
+           
+            {checkedItems.length > 0 && (
+              <>
+                <CouponForm />
+                <OrderSummary
+                  subtotal={subtotal}
+                  discount={discount}
+                  shipping={shipping}
+                  total={total}
+                  coupon={coupon}
+                  onClearCart={handleClearCart}
+                  hasItems={checkedItems.length > 0}
+                />
+              </>
+            )}
           </div>
         </div>
       </div>

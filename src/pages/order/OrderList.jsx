@@ -515,12 +515,12 @@ const OrderList = () => {
       addToast('Unable to delete order right now.', 'error')
     }
 
-    setDeletingOrderId('')
+    setDeletingOrderId('')      
   }
 
   return (
-    <section className="min-h-[70vh] bg-gradient-to-b from-slate-50 via-white to-amber-50 py-12">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <section className="min-h-[70vh]  from-slate-50 via-white to-amber-50 py-6">
+      <div className="container mx-auto px-4">
         <div className="mb-8 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Order history</p>
           <h1 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Your orders</h1>

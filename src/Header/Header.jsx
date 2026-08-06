@@ -284,12 +284,10 @@ const Header = () => {
                                                 {userEmail}
                                             </div>
                                         )}
-                                        <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
-                                            Profile
+                                        <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
+                                            Dashboard
                                         </Link>
-                                        <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">
-                                            Order List
-                                        </Link>
+                                       
 
                                         <button onClick={handleSignOut} className="w-full text-left px-4 py-2 hover:bg-gray-100">
                                             Sign Out

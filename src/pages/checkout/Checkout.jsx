@@ -272,7 +272,7 @@ const onSubmit = async (data) => {
         }
 
                 addToast('Order placed successfully!', 'success')
-        navigate('/order')
+        navigate('dashboard/order')
     } catch (error) {
                 const message = `${error.message || ''}`.includes('No token provided')
                     ? 'Login required to place your order.'

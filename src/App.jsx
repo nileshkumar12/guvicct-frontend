@@ -29,6 +29,11 @@ import Checkout from './pages/checkout/Checkout'
 import Order from './pages/order/Order'
 import OrderList from './pages/order/OrderList'
 import WishLists from './pages/wishlist/WishLists'
+import Dashboard from './pages/dashboard/Dashboard'
+import DashboardHome from './pages/dashboard/DashboardHome'
+import ChangePassword from './pages/dashboard/ChangePassword'
+import SavedAdresses from './pages/dashboard/SavedAdresses'
+
 
 const App = () => {
   const location = useLocation();
@@ -45,15 +50,14 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-        <Route path="/order" element={<Order />} />
-        <Route path="/orders" element={<ProtectedRoute><OrderList /></ProtectedRoute>} />
+
+        {/* <Route path="/orders" element={<ProtectedRoute><OrderList /></ProtectedRoute>} /> */}
         <Route path="/wishlist" element={<ProtectedRoute><WishLists /></ProtectedRoute>} />
-        
+
         <Route path="/admin" element={<ProtectedRoute role="seller"><AdminLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/add" element={<AddProductPage />} />
@@ -67,6 +71,23 @@ const App = () => {
           <Route path="users" element={<UsersPage />} />
           <Route path="users/add" element={<AddUserPage />} />
           <Route path="users/:id/edit" element={<EditUserPage />} />
+        </Route>
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute role="buyer">
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="profile" element={<Profile />} />
+       
+          <Route index element={<DashboardHome />} />
+          <Route path="orders" element={<OrderList />} />
+          <Route path="order" element={<Order />} />
+          <Route path="changepassword" element={<ChangePassword />} />
+          <Route path="savedaddresses" element={<SavedAdresses />} />
         </Route>
       </Routes>
       {!hideHeader && <Footer />}
