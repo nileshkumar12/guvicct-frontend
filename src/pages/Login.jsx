@@ -1,7 +1,139 @@
 import { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/config';
+import { getCartStorageKey, hydrateCartForUser } from '../store/cartSlice'
+import { getWishlistStorageKey, hydrateWishlistForUser } from '../store/wishlistSlice'
 
+const normalizeAuthToken = (value) => {
+  if (!value) return ''
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return ''
+    return trimmed.replace(/^Bearer\s+/i, '')
+  }
+  if (typeof value === 'object') {
+    return normalizeAuthToken(value.token || value.accessToken || value.authToken || value.jwt || '')
+  }
+  return `${value}`.trim()
+}
+
+const normalizeLoggedInUser = (payload) => {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return null
+  }
+
+  const candidates = [
+    payload.user,
+    payload.userData,
+    payload.data?.user,
+    payload.data?.userData,
+    payload.data?.data,
+    payload.data,
+    payload,
+  ]
+
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) continue
+    if (candidate.id || candidate._id || candidate.email || candidate.name || candidate.role) {
+      return candidate
+    }
+  }
+
+  return null
+}
+
+const loadStoredItems = (storageKey) => {
+  try {
+    const raw = localStorage.getItem(storageKey)
+    return raw ? JSON.parse(raw) : []
+  } catch (error) {
+    return []
+  }
+}
+
+const mergeCartItems = (baseItems = [], guestItems = []) => {
+  const mergedByKey = new Map()
+
+  ;[...baseItems, ...guestItems].forEach((item) => {
+    const key = `${item?.key || item?.id || item?._id || item?.productId || item?.product || ''}`
+    if (!key) return
+
+    const existing = mergedByKey.get(key)
+    const normalized = {
+      ...item,
+      key,
+      id: item?.id || item?._id || item?.productId || item?.product || key,
+      _id: item?._id || item?.id || item?.productId || item?.product || key,
+      quantity: Number(item?.quantity || 1),
+      isSelected: item?.isSelected !== false,
+    }
+
+    if (existing) {
+      mergedByKey.set(key, {
+        ...existing,
+        ...normalized,
+        quantity: Math.max(Number(existing.quantity || 0), Number(normalized.quantity || 0)),
+        isSelected: existing.isSelected !== false || normalized.isSelected !== false,
+      })
+      return
+    }
+
+    mergedByKey.set(key, normalized)
+  })
+
+  return Array.from(mergedByKey.values())
+}
+
+const mergeWishlistItems = (baseItems = [], guestItems = []) => {
+  const mergedByKey = new Map()
+
+  ;[...baseItems, ...guestItems].forEach((item) => {
+    const key = `${item?.key || item?.id || item?._id || item?.productId || item?.product || ''}`
+    if (!key) return
+
+    mergedByKey.set(key, {
+      ...item,
+      key,
+      id: item?.id || item?._id || item?.productId || item?.product || key,
+      _id: item?._id || item?.id || item?.productId || item?.product || key,
+    })
+  })
+
+  return Array.from(mergedByKey.values())
+}
+
+const migrateGuestStateToUser = (user) => {
+  const userKey = user?.id || user?._id || user?.email || user?.name || 'guest'
+  if (!userKey || userKey === 'guest') return
+
+  const guestCartKey = getCartStorageKey('guest')
+  const userCartKey = getCartStorageKey(userKey)
+  const guestWishlistKey = getWishlistStorageKey('guest')
+  const userWishlistKey = getWishlistStorageKey(userKey)
+
+  const guestCartItems = loadStoredItems(guestCartKey)
+  const userCartItems = loadStoredItems(userCartKey)
+  const mergedCartItems = mergeCartItems(userCartItems, guestCartItems)
+
+  const guestWishlistItems = loadStoredItems(guestWishlistKey)
+  const userWishlistItems = loadStoredItems(userWishlistKey)
+  const mergedWishlistItems = mergeWishlistItems(userWishlistItems, guestWishlistItems)
+
+  localStorage.setItem(userCartKey, JSON.stringify(mergedCartItems))
+  localStorage.setItem(userWishlistKey, JSON.stringify(mergedWishlistItems))
+}
+
+const persistLoggedInUser = (user, dispatch) => {
+  if (!user) return null
+
+  localStorage.setItem('user', JSON.stringify(user))
+  migrateGuestStateToUser(user)
+  const userKey = user.id || user._id || user.email || user.name || 'guest'
+  dispatch(hydrateCartForUser(userKey))
+  dispatch(hydrateWishlistForUser(userKey))
+  return user
+}
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +145,8 @@ const Login = () => {
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
+  const location = useLocation()
+  const dispatch = useDispatch()
 
   
 
@@ -34,7 +168,7 @@ const Login = () => {
         throw new Error('API_URL is not set. Add VITE_API_URL to config file')
       }
 
-      let token = localStorage.getItem('token')
+      let token = normalizeAuthToken(localStorage.getItem('token'))
       if (!token) {
         const loginResponse = await fetch(`${API_URL}/api/auth/login`, {
           method: "POST",
@@ -50,8 +184,26 @@ const Login = () => {
         }
 
         const loginData = await loginResponse.json()
-        token = loginData.token || loginData.accessToken
-        let loggedInUser = loginData.user || loginData.userData || loginData.data
+        token = normalizeAuthToken(
+          loginData.token ||
+          loginData.accessToken ||
+          loginData.jwt ||
+          loginData.authToken ||
+          loginData?.data?.token ||
+          loginData?.data?.accessToken ||
+          loginData?.data?.jwt ||
+          loginData?.data?.authToken ||
+          ''
+        )
+
+        if (token) {
+          localStorage.setItem('token', token)
+          localStorage.setItem('accessToken', token)
+          localStorage.setItem('authToken', token)
+          localStorage.setItem('jwt', token)
+        }
+
+        let loggedInUser = normalizeLoggedInUser(loginData)
 
         if (!token) {
           throw new Error('Token not returned from login API.')
@@ -67,7 +219,7 @@ const Login = () => {
             })
             if (profileRes.ok) {
               const profileData = await profileRes.json()
-              loggedInUser = profileData.data || profileData.user || profileData
+              loggedInUser = normalizeLoggedInUser(profileData)
             }
           } catch (e) {
             // ignore - we'll try other ways to discover role
@@ -75,7 +227,7 @@ const Login = () => {
         }
 
         if (loggedInUser) {
-          localStorage.setItem('user', JSON.stringify(loggedInUser))
+          persistLoggedInUser(loggedInUser, dispatch)
         }
 
         if (loggedInUser?.role) {
@@ -90,6 +242,23 @@ const Login = () => {
       const storedUser = localStorage.getItem('user')
       if (storedUser) finalUser = JSON.parse(storedUser)
 
+      if (!finalUser && token) {
+        try {
+          const profileRes = await fetch(`${API_URL}/api/auth/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          if (profileRes.ok) {
+            const profileData = await profileRes.json()
+            finalUser = normalizeLoggedInUser(profileData)
+            if (finalUser) {
+              persistLoggedInUser(finalUser, dispatch)
+            }
+          }
+        } catch (e) {
+          // ignore - continue to users fallback
+        }
+      }
+
       if (!finalUser) {
         const usersResponse = await fetch(`${API_URL}/users`, {
           method: 'GET',
@@ -101,7 +270,9 @@ const Login = () => {
           const users = Array.isArray(usersData) ? usersData : usersData.users || usersData.data || []
           const normalizedEmail = formData.email.trim().toLowerCase()
           finalUser = users.find((u) => u.email?.toLowerCase() === normalizedEmail) || null
-          if (finalUser) localStorage.setItem('user', JSON.stringify(finalUser))
+          if (finalUser) {
+            persistLoggedInUser(finalUser, dispatch)
+          }
         }
       }
 
@@ -109,8 +280,16 @@ const Login = () => {
       setRole(userRole)
       setStatus('success')
 
-      // navigate depending on role
-      if (userRole === 'seller') {
+      const requestedPath = location.state?.from?.pathname
+      const requestedSearch = location.state?.from?.search || ''
+      const requestedHash = location.state?.from?.hash || ''
+      const redirectTarget = requestedPath
+        ? `${requestedPath}${requestedSearch}${requestedHash}`
+        : ''
+
+      if (redirectTarget && redirectTarget !== '/login' && redirectTarget !== '/register') {
+        navigate(redirectTarget, { replace: true })
+      } else if (userRole === 'seller') {
         navigate('/admin/dashboard')
       } else {
         navigate('/')

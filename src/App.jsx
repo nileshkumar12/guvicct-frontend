@@ -23,7 +23,12 @@ import UsersPage from './admin/UsersPage'
 import AddUserPage from './admin/AddUserPage'
 import EditUserPage from './admin/EditUserPage'
 import ProductDetails from './pages/productdetails/ProductDetails'
+import Profile from './pages/Profile'
 import Cart from './pages/cart/Cart'
+import Checkout from './pages/checkout/Checkout'
+import Order from './pages/order/Order'
+import OrderList from './pages/order/OrderList'
+import WishLists from './pages/wishlist/WishLists'
 
 const App = () => {
   const location = useLocation();
@@ -40,7 +45,13 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/order" element={<Order />} />
+        <Route path="/orders" element={<ProtectedRoute><OrderList /></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute><WishLists /></ProtectedRoute>} />
+        
         <Route path="/admin" element={<ProtectedRoute role="seller"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />

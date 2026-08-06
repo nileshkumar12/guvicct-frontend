@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
     Menu,
     X,
@@ -10,12 +10,29 @@ import {
     User,
     ChevronDown,
 } from 'lucide-react'
-import { selectCartTotalQuantity } from '../store/cartSlice'
+import { hydrateCartForUser, selectCartTotalQuantity } from '../store/cartSlice'
+import { hydrateWishlistForUser } from '../store/wishlistSlice'
+import { API_URL } from '../utils/config'
+
+const getAuthToken = () => {
+    const candidates = [
+        localStorage.getItem('token'),
+        localStorage.getItem('accessToken'),
+        localStorage.getItem('authToken'),
+        localStorage.getItem('jwt'),
+    ]
+
+    return candidates.find((value) => `${value || ''}`.trim()) || ''
+}
 
 const Header = () => {
     const [mobileMenu, setMobileMenu] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
-    const [isLogged, setIsLogged] = useState(!!localStorage.getItem('token'));
+    const [isLogged, setIsLogged] = useState(!!getAuthToken());
+    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const [userRole, setUserRole] = useState(() => {
         try {
             const u = localStorage.getItem('user')
@@ -24,20 +41,95 @@ const Header = () => {
             return null
         }
     });
+    const [userEmail, setUserEmail] = useState(() => {
+        try {
+            const u = localStorage.getItem('user')
+            return u ? JSON.parse(u).email : ''
+        } catch (e) {
+            return ''
+        }
+    });
     const navigate = useNavigate();
+    const location = useLocation();
+    const dispatch = useDispatch();
     const cartQuantity = useSelector(selectCartTotalQuantity)
+    const wishlistCount = useSelector((state) => state.wishlist.items.length)
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            if (!API_URL) return
+
+            try {
+                const response = await fetch(`${API_URL}/api/categories`)
+                if (response.ok) {
+                    const data = await response.json()
+                    const categoryList = Array.isArray(data) ? data : data.categories || data.data || []
+                    setCategories(categoryList)
+                }
+            } catch (error) {
+                console.error('Failed to load categories', error)
+            }
+        }
+
+        const loadProducts = async () => {
+            if (!API_URL) return
+
+            try {
+                const response = await fetch(`${API_URL}/api/products`)
+                if (response.ok) {
+                    const data = await response.json()
+                    const productList = Array.isArray(data) ? data : data.products || data.data || []
+                    setProducts(productList)
+                }
+            } catch (error) {
+                console.error('Failed to load products', error)
+            }
+        }
+
+        loadCategories()
+        loadProducts()
+    }, [])
+
+    useEffect(() => {
+        const normalizedQuery = searchQuery.trim().toLowerCase()
+
+        if (!normalizedQuery) {
+            setSearchResults([])
+            return
+        }
+
+        const filtered = products.filter((product) => {
+            const productText = [
+                product.name,
+                product.title,
+                product.description,
+                product.brand,
+                product.category?.name || product.category?.title || product.category,
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase()
+
+            return productText.includes(normalizedQuery)
+        })
+
+        setSearchResults(filtered.slice(0, 6))
+    }, [products, searchQuery])
 
     useEffect(() => {
         const onStorage = (e) => {
-            if (e.key === 'token') {
-                setIsLogged(!!e.newValue)
+            if (['token', 'accessToken', 'authToken', 'jwt'].includes(e.key)) {
+                setIsLogged(!!getAuthToken())
             }
 
             if (e.key === 'user') {
                 try {
-                    setUserRole(e.newValue ? JSON.parse(e.newValue).role : null)
+                    const parsedUser = e.newValue ? JSON.parse(e.newValue) : null
+                    setUserRole(parsedUser?.role ?? null)
+                    setUserEmail(parsedUser?.email || '')
                 } catch (err) {
                     setUserRole(null)
+                    setUserEmail('')
                 }
             }
         }
@@ -47,12 +139,35 @@ const Header = () => {
     }, [])
 
     const handleSignOut = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        ;['token', 'accessToken', 'authToken', 'jwt', 'user'].forEach((key) => {
+            localStorage.removeItem(key)
+        })
+        dispatch(hydrateCartForUser('guest'))
+        dispatch(hydrateWishlistForUser('guest'))
         setAccountOpen(false)
         setIsLogged(false)
         setUserRole(null)
+        setUserEmail('')
         navigate('/')
+    }
+
+    const buildSearchPath = (query) => {
+        const trimmedQuery = query.trim()
+        if (!trimmedQuery) return location.pathname
+
+        const currentPath = location.pathname
+        return currentPath.startsWith('/category/')
+            ? `${currentPath}?search=${encodeURIComponent(trimmedQuery)}`
+            : `/category/all?search=${encodeURIComponent(trimmedQuery)}`
+    }
+
+    const handleSearchSubmit = (event) => {
+        event.preventDefault()
+        const trimmedQuery = searchQuery.trim()
+        if (!trimmedQuery) return
+
+        navigate(buildSearchPath(trimmedQuery))
+        setSearchQuery('')
     }
     return (
         <>
@@ -80,36 +195,60 @@ const Header = () => {
                     </div>
 
                     {/* Search */}
-                    <div className="hidden lg:flex flex-1 mx-10">
+                    <form onSubmit={handleSearchSubmit} className="hidden lg:flex flex-1 mx-10 relative">
+                        <div className="flex-1 relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                                placeholder="Search products..."
+                                className="w-full border px-4 py-2 rounded-l-lg outline-none"
+                            />
 
-                        <select className="border border-r-0 rounded-l-lg px-3 bg-gray-100 outline-none">
-                            <option>All Categories</option>
-                            <option>Electronics</option>
-                            <option>Fashion</option>
-                            <option>Mobiles</option>
-                            <option>Home</option>
-                        </select>
+                            {searchQuery.trim() && (
+                                <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                                    {searchResults.length > 0 ? (
+                                        searchResults.map((product) => {
+                                            const productId = product._id || product.id || product.slug
+                                            const productName = product.name || product.title || 'Product'
+                                            const categoryName = product.category?.name || product.category?.title || product.category || ''
 
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            className="w-full border px-4 outline-none"
-                        />
+                                            return (
+                                                <Link
+                                                    key={productId}
+                                                    to={buildSearchPath(productName)}
+                                                    className="block border-b border-gray-100 px-4 py-3 text-sm hover:bg-gray-50"
+                                                    onClick={() => setSearchQuery('')}
+                                                >
+                                                    <div className="font-semibold text-gray-900">{productName}</div>
+                                                    {categoryName && <div className="text-xs text-gray-500">{categoryName}</div>}
+                                                </Link>
+                                            )
+                                        })
+                                    ) : (
+                                        <div className="px-4 py-3 text-sm text-gray-500">No products found</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
-                        <button className="bg-[#b68a3b] text-white px-6 rounded-r-lg hover:bg-[#906e30]">
+                        <button
+                            type="submit"
+                            className="bg-[#b68a3b] text-white px-6 rounded-r-lg hover:bg-[#906e30]"
+                        >
                             <Search size={20} />
                         </button>
-                    </div>
+                    </form>
 
                     {/* Right Icons */}
                     <div className="hidden md:flex items-center gap-6">
 
-                        <button className="relative">
+                        <Link to="/wishlist" className="relative">
                             <Heart />
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
-                                2
+                                {wishlistCount}
                             </span>
-                        </button>
+                        </Link>
 
                         <Link to="/cart" className="relative">
                             <ShoppingCart />
@@ -139,9 +278,17 @@ const Header = () => {
                                 </button>
 
                                 {accountOpen && (
-                                    <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded">
+                                    <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded border border-gray-200">
+                                        {userEmail && (
+                                            <div className="px-4 py-3 border-b border-gray-100 text-sm text-gray-700 break-all">
+                                                {userEmail}
+                                            </div>
+                                        )}
                                         <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
                                             Profile
+                                        </Link>
+                                        <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">
+                                            Order List
                                         </Link>
 
                                         <button onClick={handleSignOut} className="w-full text-left px-4 py-2 hover:bg-gray-100">
@@ -197,27 +344,23 @@ const Header = () => {
                                 </button>
 
                                 <div className="absolute hidden group-hover:block bg-white shadow-lg w-56 rounded mt-2">
-
-                                    <a href="#" className="block px-4 py-3 hover:bg-gray-100">
-                                        Electronics
-                                    </a>
-
-                                    <a href="#" className="block px-4 py-3 hover:bg-gray-100">
-                                        Fashion
-                                    </a>
-
-                                    <a href="#" className="block px-4 py-3 hover:bg-gray-100">
-                                        Grocery
-                                    </a>
-
-                                    <a href="#" className="block px-4 py-3 hover:bg-gray-100">
-                                        Home & Kitchen
-                                    </a>
-
-                                    <a href="#" className="block px-4 py-3 hover:bg-gray-100">
-                                        Beauty
-                                    </a>
-
+                                    {categories.length > 0 ? (
+                                        categories.slice(0, 6).map((category) => {
+                                            const categoryId = category._id || category.id || category.slug || category.name
+                                            const categoryName = category.name || category.title || category.category || 'Category'
+                                            return (
+                                                <Link
+                                                    key={categoryId}
+                                                    to={`/category/${categoryId}`}
+                                                    className="block px-4 py-3 hover:bg-gray-100"
+                                                >
+                                                    {categoryName}
+                                                </Link>
+                                            )
+                                        })
+                                    ) : (
+                                        <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
+                                    )}
                                 </div>
 
                             </li>
@@ -284,8 +427,9 @@ const Header = () => {
                                 <li><a href="#">Deals</a></li>
                                 <li><a href="#">New Arrivals</a></li>
                                 <li><a href="#">Best Sellers</a></li>
-                                <li><a href="#">Wishlist</a></li>
-                                <li><a href="#">Cart</a></li>
+                                <li><Link to="/wishlist">Wishlist</Link></li>
+                                <li><Link to="/cart">Cart</Link></li>
+                                <li><Link to="/orders">Order List</Link></li>
                                 <li><a href="#">Account</a></li>
                                 <li><a href="#">Contact</a></li>
 

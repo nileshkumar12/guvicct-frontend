@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
 
 const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart, hasItems }) => {
+    
+    
     return (
         <div className="rounded-[10px] border border-[#e9e2d9] bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-semibold text-[#1c1c1c]">Order summary</h2>
@@ -23,13 +25,13 @@ const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart
                 </div>
             </div>
 
-            <button
-                type="button"
+            <Link
+                to="/checkout"
                 className="mt-3 block text-center  w-full rounded-full bg-[#1aa184] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#168864] disabled:cursor-not-allowed disabled:bg-[#cbd5d1] disabled:bg-[#cbd5d1]"
                 disabled={!hasItems}
             >
                 Proceed to Checkout
-            </button>
+            </Link>
  <Link
                 to="/"
                 className="mt-3 block w-full text-sm text-center rounded-full border  rounded-full bg-[#b68a3b] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#b68a3b]"

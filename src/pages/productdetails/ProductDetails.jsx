@@ -12,8 +12,8 @@ const ProductDetails = () => {
   const [error, setError] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState('')
-  const [selectedSize, setSelectedSize] = useState('M')
-  const [selectedFinish, setSelectedFinish] = useState('Shiny')
+  const [selectedSize, setSelectedSize] = useState('')
+  const [selectedFinish, setSelectedFinish] = useState('')
   const [relatedProducts, setRelatedProducts] = useState([])
   const [openAccordion, setOpenAccordion] = useState('info')
 
@@ -41,7 +41,8 @@ const ProductDetails = () => {
     const idVal = product._id || product.id || product.sku || Date.now()
     const cartItem = {
       id: idVal,
-      key: `${idVal}::${selectedSize}::${selectedFinish}`,
+      key: `${idVal}`,
+      name: product.name || product.title || '',
       title: product.name || product.title || '',
       image: productImage,
       price: Number(product.price ?? 0),

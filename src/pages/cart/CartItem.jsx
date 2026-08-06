@@ -1,8 +1,7 @@
 import { Minus, Plus, Trash2 } from 'lucide-react'
-import { useSelector } from "react-redux";
 
 
-const CartItem = ({ item, onQuantityChange, onRemove }) => {
+const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
    
  const itemTotal = item.price * item.quantity
 
@@ -10,12 +9,20 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
     <>
     <div className="rounded-[10px] border border-[#e9e2d9] bg-white p-5 shadow-sm mb-3">
       <div className="grid gap-4 md:grid-cols-[120px_1fr_auto]">
-        <div className="overflow-hidden rounded-[10px] ">
-          <img
-            src={item.image || 'https://via.placeholder.com/300x300?text=No+Image'}
-            alt={item.title}
-            className="h-32 w-full object-cover"
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={item.isSelected !== false}
+            onChange={(event) => onSelectionChange(item.key, event.target.checked)}
+            className="mt-2 h-4 w-4 accent-[#1aa184]"
           />
+          <div className="overflow-hidden rounded-[10px] ">
+            <img
+              src={item.image || 'https://via.placeholder.com/300x300?text=No+Image'}
+              alt={item.title}
+              className="h-32 w-full object-cover"
+            />
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -24,7 +31,7 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
             <p className="text-sm text-[#5d4e3f]">{item.brand || 'ShopKart'}</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 text-sm text-[#5d4e3f]">
+          {/* <div className="flex flex-wrap gap-2 text-sm text-[#5d4e3f]">
             {item.selectedSize && (
               <span className="rounded-full border border-[#e9e2d9] bg-[#f8f5ef] px-3 py-1">
                 {item.selectedSize}
@@ -35,7 +42,7 @@ const CartItem = ({ item, onQuantityChange, onRemove }) => {
                 {item.selectedFinish}
               </span>
             )}
-          </div>
+          </div> */}
 
           <p className="text-sm text-[#5d4e3f]">{item.stock && item.stock !== Infinity ? `${item.stock} available` : 'In stock'}</p>
         </div>

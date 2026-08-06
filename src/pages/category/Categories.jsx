@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { API_URL, getImageUrl } from '../../utils/config'
+import { API_URL, API_URLS, getImageUrl } from '../../utils/config'
 
 const Categories = () => {
   const [categories, setCategories] = useState([])
@@ -9,14 +9,15 @@ const Categories = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      if (!API_URL) {
+      const baseUrl = API_URLS || API_URL
+      if (!baseUrl) {
         setError('API_URL is not configured')
         setLoading(false)
         return
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/categories`)
+        const response = await fetch(`${baseUrl}/api/categories`)
         if (!response.ok) {
           throw new Error(`Failed to load categories (${response.status})`)
         }
@@ -24,7 +25,7 @@ const Categories = () => {
         const data = await response.json()
         const list = Array.isArray(data)
           ? data
-          : data.categories || data.data || data.items || data.result || []
+          : data.categories || data.data?.categories || data.data || data.items || data.result || []
 
         setCategories(list)
       } catch (fetchError) {

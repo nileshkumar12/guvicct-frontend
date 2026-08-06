@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { API_URL, getImageUrl } from '../../utils/config'
+import { API_URL, API_URLS, getImageUrl } from '../../utils/config'
 
 const SpecialCategory = () => {
   const [brands, setBrands] = useState([])
@@ -8,14 +8,15 @@ const SpecialCategory = () => {
 
   useEffect(() => {
     const fetchBrands = async () => {
-      if (!API_URL) {
+      const baseUrl = API_URLS || API_URL
+      if (!baseUrl) {
         setError('API_URL is not configured')
         setLoading(false)
         return
       }
 
       try {
-        const response = await fetch(`${API_URL}/api/brands`)
+        const response = await fetch(`${baseUrl}/api/brands`)
         if (!response.ok) {
           throw new Error(`Failed to load brands (${response.status})`)
         }
@@ -23,7 +24,7 @@ const SpecialCategory = () => {
         const data = await response.json()
         const list = Array.isArray(data)
           ? data
-          : data.brands || data.data || data.items || data.result || []
+          : data.brands || data.data?.brands || data.data || data.items || data.result || []
 
         setBrands(list)
       } catch (fetchError) {

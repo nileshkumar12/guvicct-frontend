@@ -16,6 +16,11 @@ npm install dotenv
 
 npm i axios
 
+npm install @reduxjs/toolkit react-redux
+
+npm install cloudinary
+
+npm install react-hook-form
 
 
 

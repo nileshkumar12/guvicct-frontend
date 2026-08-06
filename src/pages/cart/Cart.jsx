@@ -7,11 +7,14 @@ import OrderSummary from "./OrderSummary";
 
 import {
   selectCartItems,
+  selectCheckedCartItems,
   selectCartSubtotal,
   selectCartDiscount,
   selectShipping,
   selectCartTotal,
   selectCartCoupon,
+  toggleItemSelection,
+  toggleAllSelections,
   updateQuantity,
   removeItem,
   clearCart,
@@ -21,18 +24,33 @@ const Cart = () => {
   const dispatch = useDispatch();
 
   const items = useSelector(selectCartItems);
+  const checkedItems = useSelector(selectCheckedCartItems);
   const subtotal = useSelector(selectCartSubtotal);
   const discount = useSelector(selectCartDiscount);
   const shipping = useSelector(selectShipping);
   const total = useSelector(selectCartTotal);
   const coupon = useSelector(selectCartCoupon);
+  const allSelected = items.length > 0 && checkedItems.length === items.length;
 
   const handleQuantityChange = (key, quantity) => {
+    if (Number(quantity) <= 0) {
+      dispatch(removeItem(key));
+      return;
+    }
+
     dispatch(updateQuantity({ key, quantity }));
   };
 
   const handleRemove = (key) => {
     dispatch(removeItem(key));
+  };
+
+  const handleSelectionChange = (key, isSelected) => {
+    dispatch(toggleItemSelection({ key, isSelected }));
+  };
+
+  const handleToggleAll = (event) => {
+    dispatch(toggleAllSelections(event.target.checked));
   };
 
   const handleClearCart = () => {
@@ -50,14 +68,27 @@ const Cart = () => {
           {/* Left Side */}
           <div className="lg:col-span-7 space-y-6">
             {items.length > 0 ? (
-              items.map((item) => (
-                <CartItem
-                  key={item.key}
-                  item={item}
-                  onQuantityChange={handleQuantityChange}
-                  onRemove={handleRemove}
-                />
-              ))
+              <>
+                <label className="flex items-center gap-3 rounded-xl border border-[#e9e2d9] bg-white px-4 py-3 text-sm font-medium text-[#1c1c1c] shadow-sm">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={handleToggleAll}
+                    className="h-4 w-4 accent-[#1aa184]"
+                  />
+                  Select all products for checkout
+                </label>
+
+                {items.map((item) => (
+                  <CartItem
+                    key={item.key}
+                    item={item}
+                    onQuantityChange={handleQuantityChange}
+                    onRemove={handleRemove}
+                    onSelectionChange={handleSelectionChange}
+                  />
+                ))}
+              </>
             ) : (
               <div className="rounded-xl border p-10 text-center">
                 <h3 className="text-2xl font-semibold">
@@ -81,7 +112,7 @@ const Cart = () => {
               total={total}
               coupon={coupon}
               onClearCart={handleClearCart}
-              hasItems={items.length > 0}
+              hasItems={checkedItems.length > 0}
             />
           </div>
         </div>
