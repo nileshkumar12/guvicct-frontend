@@ -12,7 +12,7 @@ const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CLOUD_NAME
 
 const normalizeUrl = (value) => value.trim().replace(/\/+$/, '');
 const normalizePath = (value) => value.trim().replace(/^\/+/, '');
-
+      
 export const getImageUrl = (image) => {
   if (!image) return ''
   const trimmed = image.trim()

@@ -73,7 +73,6 @@ const SavedAdresses = () => {
             });
     }
 
-
     const onSubmit = (data) => {
 
         if(editingAddress?.id) {

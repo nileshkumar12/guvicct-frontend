@@ -33,6 +33,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import DashboardHome from './pages/dashboard/DashboardHome'
 import ChangePassword from './pages/dashboard/ChangePassword'
 import SavedAdresses from './pages/dashboard/SavedAdresses'
+import PaymentMethods from './pages/dashboard/PaymentMethods'
 
 
 const App = () => {
@@ -88,6 +89,7 @@ const App = () => {
           <Route path="order" element={<Order />} />
           <Route path="changepassword" element={<ChangePassword />} />
           <Route path="savedaddresses" element={<SavedAdresses />} />
+          <Route path="paymentmethods" element={<PaymentMethods />} />
         </Route>
       </Routes>
       {!hideHeader && <Footer />}
