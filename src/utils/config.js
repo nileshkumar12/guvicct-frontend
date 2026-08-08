@@ -12,10 +12,37 @@ const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CLOUD_NAME
 
 const normalizeUrl = (value) => value.trim().replace(/\/+$/, '');
 const normalizePath = (value) => value.trim().replace(/^\/+/, '');
+
+const toImageString = (image) => {
+  if (!image) return ''
+  if (typeof image === 'string') return image
+  if (typeof image === 'object') {
+    const candidates = [
+      image.url,
+      image.secure_url,
+      image.image,
+      image.profileImage,
+      image.profileimg,
+      image.path,
+      image.src,
+      image.location,
+    ]
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate
+      }
+    }
+  }
+  return ''
+}
       
 export const getImageUrl = (image) => {
-  if (!image) return ''
-  const trimmed = image.trim()
+  const raw = toImageString(image)
+  if (!raw) return ''
+
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
   if (/^(https?:|data:|blob:)/i.test(trimmed)) return trimmed
 
   const path = normalizePath(trimmed)

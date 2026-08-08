@@ -48,6 +48,8 @@ const Order = () => {
   const coupon = useSelector(selectCartCoupon)
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  
+  
   const orderNumber = useMemo(() => {
     if (typeof window === 'undefined' || !items.length) {
       return buildPublicOrderNumber(items)

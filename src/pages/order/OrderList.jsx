@@ -80,8 +80,21 @@ const normalizeOrderItems = (value) => {
 
 const isMongoLikeId = (value) => /^[a-f0-9]{24}$/i.test(`${value || ''}`)
 
+const sanitizeLabel = (value, fallback = '') => {
+  const text = `${value || ''}`.trim().replace(/[\/_\s]+$/g, '')
+  return text || fallback
+}
+
 const buildPublicOrderNumber = (order, index) => {
-  const preferred = order?.orderNo || order?.orderNumber || order?.publicOrderId || order?.displayOrderId || ''
+  const preferredRaw =
+    order?.orderNo ||
+    order?.orderNumber ||
+    order?.order_number ||
+    order?.publicOrderId ||
+    order?.displayOrderId ||
+    order?.displayOrderNumber ||
+    ''
+  const preferred = sanitizeLabel(preferredRaw)
   if (preferred && !isMongoLikeId(preferred)) {
     return `${preferred}`
   }
@@ -100,18 +113,34 @@ const buildPublicOrderNumber = (order, index) => {
 const normalizeOrder = (order, index) => {
   const orderId = order?._id || order?.id || order?.orderId || `ORD-${index + 1}`
   const items = normalizeOrderItems(order?.items || order?.orderItems || order?.products || order?.cartItems || [])
+  const subtotal = Number(order?.subtotal ?? order?.subTotal ?? 0)
+  const discount = Number(order?.discount ?? order?.couponDiscount ?? 0)
+  const shippingCost = Number(order?.shippingCost ?? order?.shipping ?? order?.shippingCharge ?? 0)
+  const tax = Number(order?.tax ?? order?.taxAmount ?? 0)
+  const calculatedTotal = subtotal + shippingCost + tax - discount
+  const total = Number(order?.total ?? order?.grandTotal ?? order?.payableAmount ?? calculatedTotal)
 
   return {
     id: `${orderId}`,
     orderNo: buildPublicOrderNumber(order, index),
     createdAt: order?.createdAt || order?.date || order?.orderedAt || null,
-    status: order?.status || 'Processing',
-    paymentMethod: order?.paymentMethod || order?.paymentType || 'N/A',
-    deliveryMethod: order?.deliveryMethod || order?.shippingMethod || 'N/A',
-    subtotal: Number(order?.subtotal || 0),
-    discount: Number(order?.discount || 0),
-    shipping: Number(order?.shipping || order?.shippingCharge || 0),
-    total: Number(order?.total || order?.grandTotal || 0),
+    status: sanitizeLabel(order?.status || order?.orderStatus || order?.order_state || 'Processing', 'Processing'),
+    paymentMethod: sanitizeLabel(order?.paymentMethod || order?.paymentType || order?.payment_mode || 'N/A', 'N/A'),
+    deliveryMethod: sanitizeLabel(
+      order?.deliveryMethod ||
+      order?.shippingMethod ||
+      order?.shippingAddress?.deliveryMethod ||
+      order?.shippingAddress?.shippingMethod ||
+      order?.shippingAddress?.type ||
+      'N/A',
+      'N/A',
+    ),
+    subtotal,
+    discount,
+    shipping: shippingCost,
+    shippingCost,
+    tax,
+    total,
     shippingAddress: order?.shippingAddress || order?.shipping_address || order?.address || {},
     items,
   }
@@ -159,6 +188,7 @@ const OrderList = () => {
   )
 
   const fetchOrders = useCallback(async () => {
+     console.log('Fetching orders..nilesh.', orders)
     if (!API_URLS) {
       setRequiresLogin(false)
       setError('Order API is not configured.')
@@ -240,18 +270,22 @@ const OrderList = () => {
     setError('')
     setRequiresLogin(false)
     setOrders(bestOrders)
+console.log('Fetched Best orders:', bestOrders);
+console.log('Fetched orders:', orders);
     setOpenOrderId((current) => current || bestOrders[0]?.id || '')
     setLoading(false)
   }, [])
 
   useEffect(() => {
     setLoading(true)
+  
     void fetchOrders()
   }, [fetchOrders])
 
   useEffect(() => {
     const onFocus = () => {
-      void fetchOrders()
+      //void fetchOrders()
+       
     }
 
     window.addEventListener('focus', onFocus)
@@ -576,7 +610,7 @@ const OrderList = () => {
               type="button"
               onClick={() => {
                 setLoading(true)
-                void fetchOrders()
+                //void fetchOrders()
               }}
               className="mt-3 rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold transition hover:bg-rose-100"
             >
@@ -627,10 +661,11 @@ const OrderList = () => {
 
                   {isOpen && (
                     <div className="border-t border-slate-100 bg-slate-50/70 p-5">
-                      <div className="grid gap-4 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-4">
+                      <div className="grid gap-4 text-sm text-slate-700 sm:grid-cols-2 lg:grid-cols-5">
                         <p><span className="font-semibold text-slate-900">Payment:</span> {order.paymentMethod}</p>
                         <p><span className="font-semibold text-slate-900">Delivery:</span> {order.deliveryMethod}</p>
                         <p><span className="font-semibold text-slate-900">Items:</span> {order.items.length}</p>
+                        <p><span className="font-semibold text-slate-900">Shipping Cost:</span> {formatCurrency(order.shippingCost)}</p>
                         <p><span className="font-semibold text-slate-900">Subtotal:</span> {formatCurrency(order.subtotal)}</p>
                       </div>
 
@@ -655,12 +690,12 @@ const OrderList = () => {
                         <p className="font-semibold text-slate-900">Shipping Address</p>
                         <p className="mt-1 text-slate-600">
                           {order.shippingAddress?.fullName || order.shippingAddress?.name || ''}
-                          {order.shippingAddress?.address1 ? `, ${order.shippingAddress.address1}` : ''}
-                          {order.shippingAddress?.address2 ? `, ${order.shippingAddress.address2}` : ''}
+                          {order.shippingAddress?.address1 || order.shippingAddress?.line1 ? `, ${order.shippingAddress.address1 || order.shippingAddress.line1}` : ''}
+                          {order.shippingAddress?.address2 || order.shippingAddress?.line2 ? `, ${order.shippingAddress.address2 || order.shippingAddress.line2}` : ''}
                           {order.shippingAddress?.city ? `, ${order.shippingAddress.city}` : ''}
                           {order.shippingAddress?.state ? `, ${order.shippingAddress.state}` : ''}
                           {order.shippingAddress?.country ? `, ${order.shippingAddress.country}` : ''}
-                          {order.shippingAddress?.pincode ? ` - ${order.shippingAddress.pincode}` : ''}
+                          {order.shippingAddress?.pincode || order.shippingAddress?.postalCode ? ` - ${order.shippingAddress.pincode || order.shippingAddress.postalCode}` : ''}
                         </p>
                       </div>
 

@@ -212,7 +212,7 @@ const onSubmit = async (data) => {
         coupon: coupon || null,
         subtotal: Number(subtotal || 0),
         discount: Number(discount || 0),
-        shipping: Number(shipping || 0),
+        shippingCost: Number(shipping || 0),
         total: Number(total || 0),
         items: selectedItems.map((item) => ({
             product: item.id || item._id || item.productId || item.key,
@@ -272,7 +272,7 @@ const onSubmit = async (data) => {
         }
 
                 addToast('Order placed successfully!', 'success')
-        navigate('dashboard/order')
+        navigate('/dashboard/order')
     } catch (error) {
                 const message = `${error.message || ''}`.includes('No token provided')
                     ? 'Login required to place your order.'
