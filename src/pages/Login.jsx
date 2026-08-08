@@ -275,7 +275,7 @@ const Login = () => {
           }
         }
       }
-
+debugger;
       const userRole = finalUser?.role || 'buyer'
       setRole(userRole)
       setStatus('success')
@@ -289,7 +289,7 @@ const Login = () => {
 
       if (redirectTarget && redirectTarget !== '/login' && redirectTarget !== '/register') {
         navigate(redirectTarget, { replace: true })
-      } else if (userRole === 'seller') {
+      } else if (userRole === 'seller' || userRole === 'admin') {
         navigate('/admin/dashboard')
       } else {
         navigate('/')

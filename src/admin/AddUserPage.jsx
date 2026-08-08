@@ -8,6 +8,7 @@ const AddUserPage = () => {
   const [submitStatus, setSubmitStatus] = useState('')
   const navigate = useNavigate()
   const { addToast } = useToast()
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -113,7 +114,9 @@ const AddUserPage = () => {
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
-              <option value="admin">Admin</option>
+              {user.role === "admin" && (
+                <option value="admin">Admin</option>
+              )}
             </select>
           </div>
           <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">

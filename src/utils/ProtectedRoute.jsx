@@ -14,6 +14,7 @@ const getAuthToken = () => {
 
 // role prop optional: if provided, user must have matching role
 export default function ProtectedRoute({ children, role }) {
+
   const location = useLocation()
   const token = getAuthToken()
   const userJson = localStorage.getItem('user')
@@ -24,7 +25,7 @@ export default function ProtectedRoute({ children, role }) {
   if (role && userJson) {
     try {
       const user = JSON.parse(userJson)
-      if (user.role !== role) return <Navigate to="/" replace />
+      if (user.role !== role && user.role !== "admin") return <Navigate to="/" replace />
     } catch (e) {
       return <Navigate to="/login" replace state={{ from: location }} />
     }

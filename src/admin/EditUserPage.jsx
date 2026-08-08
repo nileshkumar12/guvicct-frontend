@@ -50,6 +50,7 @@ const EditUserPage = () => {
     }
 
     fetchUser()
+   
   }, [id])
 
   const handleChange = (e) => {
@@ -84,6 +85,8 @@ const EditUserPage = () => {
       addToast(message, 'error')
     }
   }
+
+  const userRole = JSON.parse(localStorage.getItem("user"));
 
   if (loading) {
     return <div className="text-[#5d4e3f]">Loading user...</div>
@@ -153,7 +156,9 @@ const EditUserPage = () => {
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
-              <option value="admin">Admin</option>
+              {userRole.role === "admin" && (
+                <option value="admin">Admin</option>
+              )}
             </select>
           </div>
           <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">

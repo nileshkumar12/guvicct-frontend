@@ -1,11 +1,11 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Globe, Monitor } from 'lucide-react'
+import { LayoutDashboard, Globe, Monitor, User  } from 'lucide-react'
 import AdminLogout from './AdminLogout'
 
 const AdminLayout = () => {
   const location = useLocation()
   const isAdminPath = (path) => location.pathname === `/admin/${path}` || location.pathname.startsWith(`/admin/${path}/`)
-
+const userRole = JSON.parse(localStorage.getItem('user'));
   return (
     <div className="min-h-screen bg-[#f7f1e3]">
       <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
@@ -30,7 +30,18 @@ const AdminLayout = () => {
             >
               <div className="flex items-center gap-3">
                 <Globe size={18} />
+               
                 <span>Dashboard</span>
+              </div>
+            </Link>
+
+            <Link
+              to="adminprofile"
+              className={`block rounded-xl px-4 py-3 transition ${location.pathname.endsWith('/dashboard') || location.pathname === '/admin' ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+            >
+              <div className="flex items-center gap-3">
+                <User size={18} />
+                <span>Profile</span>
               </div>
             </Link>
 
@@ -39,7 +50,7 @@ const AdminLayout = () => {
               className={`block rounded-xl px-4 py-3 transition ${isAdminPath('products') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
             >
               <div className="flex items-center gap-3">
-                <Monitor size={18} />
+                <User size={18} />
                 <span>Products</span>
               </div>
             </Link>
@@ -63,16 +74,36 @@ const AdminLayout = () => {
                 <span>Categories</span>
               </div>
             </Link>
-
+           
             <Link
-              to="users"
-              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('users') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+              to="notifications"
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('notifications') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
             >
               <div className="flex items-center gap-3">
                 <LayoutDashboard size={18} />
-                <span>Registered Users</span>
+                <span>Notifications</span>
               </div>
             </Link>
+            <Link
+              to="shipment"
+              className={`block rounded-xl px-4 py-3 transition ${isAdminPath('shipment') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard size={18} />
+                <span>Shipment</span>
+              </div>
+            </Link>
+            {userRole.role === 'admin' && (
+              <Link
+                to="users"
+                className={`block rounded-xl px-4 py-3 transition ${isAdminPath('users') ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <LayoutDashboard size={18} />
+                  <span>Registered Users</span>
+                </div>
+              </Link>
+            )}
           </div>
         </aside>
 

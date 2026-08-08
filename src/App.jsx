@@ -9,6 +9,7 @@ import CategoryProducts from './pages/category/CategoryProducts'
 import Footer from "./Footer/Footer";
 import ProtectedRoute from './utils/ProtectedRoute'
 import AdminLayout from './admin/AdminLayout'
+import AdminProfile from './admin/profile/AdminProfile'
 import DashboardPage from './admin/DashboardPage'
 import ProductsPage from './admin/ProductsPage'
 import AddProductPage from './admin/AddProductPage'
@@ -22,6 +23,7 @@ import EditCategoryPage from './admin/EditCategoryPage'
 import UsersPage from './admin/UsersPage'
 import AddUserPage from './admin/AddUserPage'
 import EditUserPage from './admin/EditUserPage'
+
 import ProductDetails from './pages/productdetails/ProductDetails'
 import Profile from './pages/Profile'
 import Cart from './pages/cart/Cart'
@@ -34,7 +36,9 @@ import DashboardHome from './pages/dashboard/DashboardHome'
 import ChangePassword from './pages/dashboard/ChangePassword'
 import SavedAdresses from './pages/dashboard/SavedAdresses'
 import PaymentMethods from './pages/dashboard/PaymentMethods'
-
+import SellerNotifications from './admin/SellerNotifications'
+import Shipment from './admin/Shipment'
+import AddShipment from './admin/AddShipment'
 
 const App = () => {
   const location = useLocation();
@@ -46,7 +50,7 @@ const App = () => {
     <>
       {!hideHeader && <Header />}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home />}  />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
@@ -69,9 +73,13 @@ const App = () => {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="categories/add" element={<AddCategoryPage />} />
           <Route path="categories/:id/edit" element={<EditCategoryPage />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="users/add" element={<AddUserPage />} />
-          <Route path="users/:id/edit" element={<EditUserPage />} />
+          <Route path="users" element={<ProtectedRoute role="admin"><UsersPage /></ProtectedRoute>} />
+          <Route path="users/add" element={<ProtectedRoute role="admin"><AddUserPage /></ProtectedRoute>} />
+          <Route path="users/:id/edit" element={<ProtectedRoute role="admin"><EditUserPage /></ProtectedRoute>} />
+          <Route path="notifications" element={<SellerNotifications />} /> 
+          <Route path="shipment" element={<Shipment/>} />
+          <Route path="addshipment" element={<AddShipment/>} />
+          <Route path="adminprofile" element={<AdminProfile />} />
         </Route>
 
         <Route

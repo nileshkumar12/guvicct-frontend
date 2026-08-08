@@ -1,4 +1,5 @@
 import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 
 const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
@@ -17,17 +18,20 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
             className="mt-2 h-4 w-4 accent-[#1aa184]"
           />
           <div className="overflow-hidden rounded-[10px] ">
+           <Link to={`/product/${item.id}`}>
             <img
+          
               src={item.image || 'https://via.placeholder.com/300x300?text=No+Image'}
               alt={item.title}
               className="h-32 w-full object-cover"
             />
+             </Link>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex flex-col gap-2">
-            <h3 className="text-xl font-semibold text-[#1c1c1c]">{item.title}</h3>
+            <h3 className="text-xl font-semibold text-[#1c1c1c]"><Link to={`/product/${item.id}`}>{item.title}</Link></h3>
             <p className="text-sm text-[#5d4e3f]">{item.brand || 'ShopKart'}</p>
           </div>
 
