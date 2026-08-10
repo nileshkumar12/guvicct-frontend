@@ -1,33 +1,45 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { API_URL } from "../../utils/config";
 const ViewSellerStore = () => {
-    // Replace this with your API data
-    const store = {
-        storeName: "Nilesh Fashion Store",
-        storeDescription:
-            "We provide premium quality fashion products for men and women.",
-        sellerName: "Nilesh Kumar",
-        email: "nilesh@example.com",
-        phone: "9876543210",
-        category: "Fashion",
-        gstin: "22ABCDE1234F1Z5",
-        pan: "ABCDE1234F",
-        address: "123 Main Market, Sector 15",
-        city: "Gurugram",
-        state: "Haryana",
-        pincode: "122001",
-        openingTime: "10:00 AM",
-        closingTime: "08:00 PM",
-        storeLogo:
-            "https://via.placeholder.com/150",
-    };
+    const [store, setStore] = useState(null);
+    useEffect(() => {
+
+        const fetchStoreData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/api/stores/me`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                });
+                const storeData = await response.json();
+
+
+
+                setStore(storeData.store);
+                console.log(storeData.store)
+
+            } catch (error) {
+                console.error("Error fetching store data:", error);
+            }
+        };
+
+        fetchStoreData();
+        console.log(store);
+
+    }, []);
+
+
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+        <>
+{store ? (
+        
+        <div className="min-h-screen  ">
 
-            <div className="max-w-6xl mx-auto">
-
-                {/* ================= HEADER ================= */}
+            <div className="container mx-auto">
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
@@ -41,7 +53,8 @@ const ViewSellerStore = () => {
                         </p>
                     </div>
 
-                    <button
+                    <Link
+                        to="/admin/editsellerstore"
                         type="button"
                         className="
               w-full sm:w-auto
@@ -55,13 +68,10 @@ const ViewSellerStore = () => {
               transition
             "
                     >
-                        Edit Store Information
-                    </button>
+                     Edit Store Information
+                    </Link>
 
                 </div>
-
-
-                {/* ================= STORE PROFILE ================= */}
 
                 <div className="bg-white border rounded-xl overflow-hidden mb-6">
 
@@ -82,7 +92,7 @@ const ViewSellerStore = () => {
 
                         <div className="flex flex-col md:flex-row gap-6">
 
-                            {/* STORE LOGO */}
+
 
                             <div className="flex-shrink-0">
 
@@ -98,10 +108,10 @@ const ViewSellerStore = () => {
                   justify-center
                 ">
 
-                                    {store.storeLogo ? (
+                                    {store?.logo ? (
                                         <img
-                                            src={store.storeLogo}
-                                            alt={store.storeName}
+                                            src={store?.logo}
+                                            alt={store?.storeName}
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
@@ -114,17 +124,14 @@ const ViewSellerStore = () => {
 
                             </div>
 
-
-                            {/* STORE DETAILS */}
-
                             <div className="flex-1">
 
                                 <h3 className="text-2xl font-bold text-gray-900">
-                                    {store.storeName}
+                                    {store?.storeName}
                                 </h3>
 
                                 <p className="text-gray-500 mt-3 leading-6">
-                                    {store.storeDescription || "No store description added."}
+                                    {store?.description || "No store description added."}
                                 </p>
 
 
@@ -140,7 +147,7 @@ const ViewSellerStore = () => {
                     text-sm
                     font-semibold
                   ">
-                                        {store.category}
+                                        {store?.category}
                                     </span>
 
                                 </div>
@@ -152,9 +159,6 @@ const ViewSellerStore = () => {
                     </div>
 
                 </div>
-
-
-                {/* ================= SELLER INFORMATION ================= */}
 
                 <div className="bg-white border rounded-xl mb-6">
 
@@ -169,38 +173,29 @@ const ViewSellerStore = () => {
                         </p>
 
                     </div>
-
-
                     <div className="p-5">
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                            {/* SELLER NAME */}
-
                             <InfoItem
                                 label="Seller Name"
-                                value={store.sellerName}
+                                value={store?.owner?.name}
                             />
 
-                            {/* EMAIL */}
+
 
                             <InfoItem
                                 label="Email Address"
-                                value={store.email}
+                                value={store?.email}
                             />
-
-                            {/* PHONE */}
 
                             <InfoItem
                                 label="Phone Number"
-                                value={store.phone}
+                                value={store?.phone}
                             />
-
-                            {/* CATEGORY */}
 
                             <InfoItem
                                 label="Store Category"
-                                value={store.category}
+                                value={store?.category}
                             />
 
                         </div>
@@ -210,7 +205,7 @@ const ViewSellerStore = () => {
                 </div>
 
 
-                {/* ================= BUSINESS DETAILS ================= */}
+
 
                 <div className="bg-white border rounded-xl mb-6">
 
@@ -233,12 +228,12 @@ const ViewSellerStore = () => {
 
                             <InfoItem
                                 label="GSTIN"
-                                value={store.gstin}
+                                value={store?.gstNumber}
                             />
 
                             <InfoItem
                                 label="PAN Number"
-                                value={store.pan}
+                                value={store?.panNumber}
                             />
 
                         </div>
@@ -248,7 +243,7 @@ const ViewSellerStore = () => {
                 </div>
 
 
-                {/* ================= STORE ADDRESS ================= */}
+
 
                 <div className="bg-white border rounded-xl mb-6">
 
@@ -265,13 +260,13 @@ const ViewSellerStore = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                            {/* ADDRESS */}
+
 
                             <div className="md:col-span-2">
 
                                 <InfoItem
                                     label="Address"
-                                    value={store.address}
+                                    value={store?.address?.street + ", " + store?.address?.city + ", " + store?.address?.state + " - " + store?.address?.country + ", " + store?.address?.pincode}
                                 />
 
                             </div>
@@ -279,17 +274,17 @@ const ViewSellerStore = () => {
 
                             <InfoItem
                                 label="City"
-                                value={store.city}
+                                value={store?.address.city}
                             />
 
                             <InfoItem
                                 label="State"
-                                value={store.state}
+                                value={store?.address.state}
                             />
 
                             <InfoItem
                                 label="Pincode"
-                                value={store.pincode}
+                                value={store?.address.pincode}
                             />
 
                         </div>
@@ -299,7 +294,6 @@ const ViewSellerStore = () => {
                 </div>
 
 
-                {/* ================= BUSINESS HOURS ================= */}
 
                 <div className="bg-white border rounded-xl mb-6">
 
@@ -318,12 +312,12 @@ const ViewSellerStore = () => {
 
                             <InfoItem
                                 label="Opening Time"
-                                value={store.openingTime}
+                                value={store?.openingTime}
                             />
 
                             <InfoItem
                                 label="Closing Time"
-                                value={store.closingTime}
+                                value={store?.closingTime}
                             />
 
                         </div>
@@ -333,7 +327,7 @@ const ViewSellerStore = () => {
                 </div>
 
 
-                {/* ================= STATUS ================= */}
+
 
                 <div className="bg-white border rounded-xl p-5">
 
@@ -363,7 +357,7 @@ const ViewSellerStore = () => {
               text-sm
               font-semibold
             ">
-                            ● Active
+                            ● {store?.status}
                         </span>
 
                     </div>
@@ -373,11 +367,22 @@ const ViewSellerStore = () => {
             </div>
 
         </div>
+) : (
+  <Link
+   to="/admin/addsellerstore"
+    
+    className="px-5 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700"
+  >
+    Add Store Information
+  </Link>
+)}
+</>
+
     );
 };
 
 
-/* ================= REUSABLE INFO ITEM ================= */
+
 
 const InfoItem = ({ label, value }) => {
 

@@ -28,6 +28,31 @@ const normalizeAuthToken = (value) => {
     return ''
 }
 
+const getStoredAuthToken = () => {
+    if (typeof window === 'undefined') return ''
+
+    const candidates = [
+        window.localStorage.getItem('token'),
+        window.localStorage.getItem('accessToken'),
+        window.localStorage.getItem('authToken'),
+        window.localStorage.getItem('jwt'),
+    ]
+
+    for (const candidate of candidates) {
+        const normalized = normalizeAuthToken(candidate)
+        if (normalized) return normalized
+    }
+
+    try {
+        const rawUser = window.localStorage.getItem('user')
+        if (!rawUser) return ''
+        const parsedUser = JSON.parse(rawUser)
+        return normalizeAuthToken(parsedUser?.token || parsedUser?.accessToken || parsedUser?.authToken || parsedUser?.jwt || parsedUser?.data?.token || parsedUser?.data?.accessToken || parsedUser?.data?.authToken || parsedUser?.data?.jwt || '')
+    } catch (error) {
+        return ''
+    }
+}
+
 const getStoredUser = () => {
     try {
         const raw = window.localStorage.getItem('user')
@@ -54,7 +79,7 @@ const getJwtPayload = (token) => {
 }
 
 const getAuthenticatedUserContext = () => {
-    const token = getAuthToken()
+    const token = getStoredAuthToken()
     const storedUser = getStoredUser()
     const tokenPayload = getJwtPayload(token)
 
@@ -75,21 +100,18 @@ const getAuthenticatedUserContext = () => {
     }
 }
 
-const getAuthToken = () => {
-    const candidates = [
-        window.localStorage.getItem('token'),
-        window.localStorage.getItem('accessToken'),
-        window.localStorage.getItem('authToken'),
-        window.localStorage.getItem('jwt'),
-    ]
-
-    for (const candidate of candidates) {
-        const normalized = normalizeAuthToken(candidate)
-        if (normalized) return normalized
+const parseOrderErrorText = async (response) => {
+    try {
+        const text = await response.text()
+        return text || ''
+    } catch (error) {
+        return ''
     }
+}
 
-    const user = getStoredUser()
-    return normalizeAuthToken(user?.token || user?.accessToken || user?.authToken || user?.jwt)
+const isOrderFallbackError = (text = '') => {
+    if (!text) return false
+    return /next is not a function|Cannot read properties of undefined|middleware|Unexpected token|invalid|Internal Server Error|ECONNRESET/i.test(text)
 }
 
 const Checkout = () => {
@@ -250,34 +272,39 @@ const onSubmit = async (data) => {
         headers['x-auth-token'] = token
         headers['x-access-token'] = token
 
-        let response = await fetch(`${API_URLS}/api/orders`, {
+        const endpoint = `${API_URLS}/api/orders`
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             credentials: 'include',
             headers,
             body: JSON.stringify(payload),
         })
 
-        if (!response.ok && response.status === 404) {
-            response = await fetch(`${API_URLS}/api/order`, {
-                method: 'POST',
-                credentials: 'include',
-                headers,
-                body: JSON.stringify(payload),
-            })
+        if (response.ok) {
+            addToast('Order placed successfully!', 'success')
+            navigate('/dashboard/order')
+            return
         }
 
-        if (!response.ok) {
-            const errorText = await response.text()
-            throw new Error(errorText || `Order creation failed (${response.status})`)
+        const errorText = await parseOrderErrorText(response)
+        const normalizedErrorText = `${errorText || ''}`.trim()
+
+        if (response.status === 401 || /No token provided|Invalid token/i.test(normalizedErrorText)) {
+            throw new Error('Your session is expired or the login token is invalid. Please login again and try placing the order.')
         }
 
-                addToast('Order placed successfully!', 'success')
-        navigate('/dashboard/order')
+        if (response.status >= 500 || isOrderFallbackError(normalizedErrorText)) {
+            addToast('The order could not be created in the database. Please try again after signing in with a valid account or contact support.', 'error')
+            return
+        }
+
+        throw new Error(normalizedErrorText || `Order creation failed (${response.status})`)
     } catch (error) {
-                const message = `${error.message || ''}`.includes('No token provided')
-                    ? 'Login required to place your order.'
-                    : (error.message || 'Unable to place order. Please try again.')
-                addToast(message, 'error')
+        const message = `${error.message || ''}`.includes('No token provided')
+            ? 'Login required to place your order.'
+            : (error.message || 'Unable to place order. Please try again.')
+        addToast(message, 'error')
     }
 
 };

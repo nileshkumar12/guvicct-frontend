@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { API_URL, getImageUrl, uploadImageToCloudinary } from "../utils/config"
-import { useToast } from "../components/ToastProvider.jsx"
-import { fetchProductOptions, getOptionValue, getProductEntityValue } from "./productOptions.js"
+import { useNavigate } from "react-router-dom"
+import { API_URL, uploadImageToCloudinary } from "../../utils/config.js"
+import { useToast } from "../../components/ToastProvider.jsx"
+import { fetchProductOptions, getOptionValue } from "./productOptions.js"
 
-const EditProductPage = () => {
-  const { id } = useParams()
-  const [product, setProduct] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+const AddProductPage = () => {
+  const [sellerId, setSellerId] = useState("")
   const [submitStatus, setSubmitStatus] = useState("")
   const [imageError, setImageError] = useState("")
   const [brands, setBrands] = useState([])
   const [categories, setCategories] = useState([])
   const [optionsLoading, setOptionsLoading] = useState(true)
   const [optionsError, setOptionsError] = useState("")
+  const { addToast } = useToast()
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -23,62 +21,25 @@ const EditProductPage = () => {
     price: "",
     rating: "",
     stock: "",
-    image: "",
     imageFile: null,
     imagePreview: "",
     seller: "",
   })
   const navigate = useNavigate()
-  const { addToast } = useToast()
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      setLoading(true)
-      setError(null)
+    const rawUser = localStorage.getItem("user")
+    if (rawUser) {
       try {
-        if (!API_URL) throw new Error("API_URL is not configured")
-        const token = localStorage.getItem("token")
-        const response = await fetch(`${API_URL}/api/products/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        })
-        if (!response.ok) throw new Error(`Failed to fetch product (${response.status})`)
-        const data = await response.json()
-        const item =
-          data.product ||
-          data.data?.product ||
-          data.data ||
-          data.result ||
-          data ||
-          {}
-        setProduct(item)
-        setFormData({
-          name: item.name || "",
-          description: item.description || "",
-          category: getProductEntityValue(item.category),
-          brand: getProductEntityValue(item.brand),
-          price: item.price ?? "",
-          rating: item.rating ?? "",
-          stock: item.stock ?? "",
-          image: item.image || "",
-          imageFile: null,
-          imagePreview: item.image || "",
-          seller:
-            typeof item.seller === "string"
-              ? item.seller
-              : item.seller?._id || item.seller?.id || item.seller?.sellerId || "",
-        })
-      } catch (fetchError) {
-        setError(fetchError.message)
-      } finally {
-        setLoading(false)
+        const user = JSON.parse(rawUser)
+        const id = user._id || user.id || ""
+        setSellerId(id)
+        setFormData((prev) => ({ ...prev, seller: id }))
+      } catch {
+        setSellerId("")
       }
     }
-
-    fetchProduct()
-  }, [id])
+  }, [])
 
   useEffect(() => {
     const loadOptions = async () => {
@@ -109,14 +70,14 @@ const EditProductPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0] ?? null
     if (!file) {
-      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: prev.image || "" }))
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: "" }))
       setImageError("")
       return
     }
 
     if (file.size > 3 * 1024 * 1024) {
       setImageError("Image file is too large. Please choose a file under 3MB.")
-      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: prev.image || "" }))
+      setFormData((prev) => ({ ...prev, imageFile: null, imagePreview: "" }))
       return
     }
 
@@ -131,9 +92,23 @@ const EditProductPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitStatus("loading")
+
+    if (!formData.imageFile) {
+      setImageError("Product image is required.")
+      setSubmitStatus("error")
+      return
+    }
+
     try {
-      if (!API_URL) throw new Error("API_URL is not configured")
+      if (!API_URL) {
+        throw new Error("API_URL is not configured")
+      }
+
       const token = localStorage.getItem("token")
+      if (!token) {
+        throw new Error("Authentication token is missing")
+      }
+
       const formPayload = new FormData()
       formPayload.append("name", formData.name)
       formPayload.append("description", formData.description)
@@ -142,56 +117,48 @@ const EditProductPage = () => {
       formPayload.append("price", Number(formData.price))
       formPayload.append("rating", Number(formData.rating))
       formPayload.append("stock", Number(formData.stock))
-      formPayload.append("seller", formData.seller)
+      formPayload.append("seller", sellerId || formData.seller)
 
       if (formData.imageFile) {
         const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
         formPayload.append("image", uploadedImageUrl)
-      } else {
-        formPayload.append("image", formData.image)
       }
 
-      const response = await fetch(`${API_URL}/api/products/${id}`, {
-        method: "PUT",
+      const response = await fetch(`${API_URL}/api/products`, {
+        method: "POST",
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Authorization: `Bearer ${token}`,
         },
         body: formPayload,
       })
+
       if (!response.ok) {
         const text = await response.text()
-        throw new Error(`Failed to update product (${response.status}): ${text}`)
+        throw new Error(`Failed to add product (${response.status}): ${text}`)
       }
+
+      await response.json()
       setSubmitStatus("success")
-      addToast("Product updated successfully.", "success")
+      addToast("Product added successfully.", "success")
       setTimeout(() => navigate("/admin/products"), 700)
     } catch (submitError) {
-      const message = submitError.message || "Failed to update product."
+      const message = submitError.message || "Failed to add product."
       setSubmitStatus(message)
       addToast(message, "error")
     }
   }
 
-  if (loading) {
-    return <div className="text-[#5d4e3f]">Loading product...</div>
-  }
-
-  if (error) {
-    return <div className="text-red-600">{error}</div>
-  }
- 
-  const imageSrc = getImageUrl(formData.imagePreview || formData.image)
-
   return (
     <div>
       <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
-        Edit Product
+        Add Product
       </div>
+
       <div className="bg-white rounded-3xl shadow-sm border overflow-hidden mb-8">
         <div className="p-6 border-b flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-[#1c1c1c]">Edit product details</h2>
-            <p className="text-sm text-[#5d4e3f]">Update product information and save changes.</p>
+            <h2 className="text-xl font-semibold text-[#1c1c1c]">New product</h2>
+            <p className="text-sm text-[#5d4e3f]">Add a new product to your seller catalog.</p>
           </div>
           <button
             type="button"
@@ -201,6 +168,7 @@ const EditProductPage = () => {
             Back to Products
           </button>
         </div>
+
         <form onSubmit={handleSubmit} className="grid gap-4 p-6 md:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Name</label>
@@ -275,14 +243,15 @@ const EditProductPage = () => {
             <input
               type="file"
               accept="image/*"
+              required
               onChange={handleImageChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
             />
             {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
-            {imageSrc && (
+            {formData.imagePreview && (
               <img
-                src={imageSrc}
-                alt="Product"
+                src={formData.imagePreview}
+                alt="Preview"
                 className="mt-3 h-28 w-full max-w-xs rounded-lg object-cover border border-[#d5bea8]"
               />
             )}
@@ -342,7 +311,7 @@ const EditProductPage = () => {
               type="submit"
               className="rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
             >
-              Save Changes
+              Add Product
             </button>
            
           </div>
@@ -352,4 +321,4 @@ const EditProductPage = () => {
   )
 }
 
-export default EditProductPage
+export default AddProductPage

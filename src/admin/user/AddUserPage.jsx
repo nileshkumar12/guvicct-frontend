@@ -1,57 +1,14 @@
-import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { API_URL } from "../utils/config"
-import { useToast } from "../components/ToastProvider.jsx"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { API_URL } from "../../utils/config.js"
+import { useToast } from "../../components/ToastProvider.jsx"
 
-const EditUserPage = () => {
-  const { id } = useParams()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+const AddUserPage = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', role: 'buyer' })
   const [submitStatus, setSubmitStatus] = useState('')
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', role: 'buyer' })
   const navigate = useNavigate()
   const { addToast } = useToast()
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        if (!API_URL) throw new Error('API_URL is not configured')
-        const token = localStorage.getItem('token')
-        const response = await fetch(`${API_URL}/users/${id}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        })
-        if (!response.ok) throw new Error(`Failed to fetch user (${response.status})`)
-        const data = await response.json()
-        const item =
-          data.user ||
-          data.data?.user ||
-          data.data ||
-          data.result ||
-          data ||
-          {}
-        setUser(item)
-        setFormData({
-          name: item.name || '',
-          email: item.email || '',
-          phone: item.phone || '',
-          role: item.role || 'buyer',
-        })
-      } catch (fetchError) {
-        setError(fetchError.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUser()
-   
-  }, [id])
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -63,49 +20,38 @@ const EditUserPage = () => {
     setSubmitStatus('loading')
     try {
       if (!API_URL) throw new Error('API_URL is not configured')
-      const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/users/${id}`, {
-        method: 'PUT',
+      const response = await fetch(`${API_URL}/users`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(formData),
       })
       if (!response.ok) {
         const text = await response.text()
-        throw new Error(`Failed to update user (${response.status}): ${text}`)
+        throw new Error(`Failed to create user (${response.status}): ${text}`)
       }
       setSubmitStatus('success')
-      addToast('User updated successfully.', 'success')
+      addToast('User created successfully.', 'success')
       setTimeout(() => navigate('/admin/users'), 700)
     } catch (submitError) {
-      const message = submitError.message || 'Failed to update user.'
+      const message = submitError.message || 'Failed to create user.'
       setSubmitStatus(message)
       addToast(message, 'error')
     }
   }
 
-  const userRole = JSON.parse(localStorage.getItem("user"));
-
-  if (loading) {
-    return <div className="text-[#5d4e3f]">Loading user...</div>
-  }
-
-  if (error) {
-    return <div className="text-red-600">{error}</div>
-  }
-
   return (
     <div>
       <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
-        Edit User
+        Add User
       </div>
+
       <div className="bg-white rounded-3xl shadow-sm border overflow-hidden mb-8">
         <div className="p-6 border-b flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-[#1c1c1c]">Edit user account</h2>
-            <p className="text-sm text-[#5d4e3f]">Update user details and role.</p>
+            <h2 className="text-xl font-semibold text-[#1c1c1c]">New user</h2>
+            <p className="text-sm text-[#5d4e3f]">Create a new buyer or seller account.</p>
           </div>
           <button
             type="button"
@@ -115,6 +61,7 @@ const EditUserPage = () => {
             Back to Users
           </button>
         </div>
+
         <form onSubmit={handleSubmit} className="grid gap-4 p-6 md:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Name</label>
@@ -146,6 +93,17 @@ const EditUserPage = () => {
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              required
+            />
+          </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-[#5d4e3f]">Role</label>
             <select
@@ -156,7 +114,7 @@ const EditUserPage = () => {
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
-              {userRole.role === "admin" && (
+              {user.role === "admin" && (
                 <option value="admin">Admin</option>
               )}
             </select>
@@ -166,7 +124,7 @@ const EditUserPage = () => {
               type="submit"
               className="rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
             >
-              Save Changes
+              Create User
             </button>
            
           </div>
@@ -176,4 +134,4 @@ const EditUserPage = () => {
   )
 }
 
-export default EditUserPage
+export default AddUserPage

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { API_URL, getImageUrl } from "../utils/config"
-import { useToast } from "../components/ToastProvider.jsx"
+import { API_URL, getImageUrl } from "../../utils/config.js"
+import { useToast } from "../../components/ToastProvider.jsx"
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([])

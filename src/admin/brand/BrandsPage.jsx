@@ -1,4 +1,4 @@
-import { SimpleEntityListPage } from "./SimpleEntityCrud.jsx"
+import { SimpleEntityListPage } from "../SimpleEntityCrud.jsx"
 
 const brandConfig = {
   label: "Brand",

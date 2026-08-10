@@ -1,4 +1,4 @@
-import { API_URL } from "../utils/config"
+import { API_URL } from "../../utils/config"
 
 const getEntityList = (data, keys) => {
   if (Array.isArray(data)) return data

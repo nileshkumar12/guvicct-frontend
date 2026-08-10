@@ -1,97 +1,322 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL, API_URLS } from "../../utils/config";
+
+const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
+
+const decodeJwtPayload = (token) => {
+    if (!token) return null;
+
+    try {
+        const payloadPart = `${token}`.split(".")[1];
+        if (!payloadPart) return null;
+        const normalizedPayload = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(atob(normalizedPayload));
+    } catch (error) {
+        return null;
+    }
+};
+
+const getStoredSellerId = () => {
+    try {
+        const rawUser = localStorage.getItem("user");
+        const token = localStorage.getItem("token");
+        const tokenPayload = decodeJwtPayload(token);
+
+        const parsedUser = rawUser ? JSON.parse(rawUser) : null;
+        const userCandidates = [parsedUser, parsedUser?.user, parsedUser?.userData, parsedUser?.data, parsedUser?.data?.user, parsedUser?.seller, parsedUser?.sellerData].filter(Boolean);
+
+        const collectCandidateIds = (value) => {
+            if (!value || typeof value !== "object") return [];
+
+            return [
+                value?._id,
+                value?.id,
+                value?.sellerId,
+                value?.seller_id,
+                value?.userId,
+                value?.userID,
+                value?.ownerId,
+                value?.owner_id,
+                value?.user?._id,
+                value?.user?.id,
+                value?.user?.sellerId,
+                value?.user?.seller_id,
+                value?.seller?._id,
+                value?.seller?.id,
+                value?.seller?.sellerId,
+                value?.seller?.seller_id,
+            ].filter(Boolean).map((candidate) => `${candidate}`.trim());
+        };
+
+        const ids = userCandidates.flatMap(collectCandidateIds);
+        const tokenIds = [tokenPayload?._id, tokenPayload?.id, tokenPayload?.sellerId, tokenPayload?.seller_id, tokenPayload?.userId, tokenPayload?.userID, tokenPayload?.sub].filter(Boolean).map((candidate) => `${candidate}`.trim());
+
+        return [...new Set([...ids, ...tokenIds])][0] || "";
+    } catch (error) {
+        return "";
+    }
+};
+
+const getNestedId = (value) => {
+    if (!value) return "";
+    if (typeof value === "string" || typeof value === "number") return `${value}`;
+    if (typeof value === "object") return `${value._id || value.id || value.sellerId || value.seller_id || ""}`;
+    return "";
+};
+
+const isSellerMatch = (value, sellerId) => {
+    if (!sellerId) return true;
+    const normalizedSellerId = `${sellerId}`.trim();
+    if (!normalizedSellerId) return true;
+
+    const candidate = getNestedId(value);
+    if (!candidate) return false;
+    return candidate === normalizedSellerId;
+};
+
+const getSellerMatchValue = (item, sellerId) => {
+    const candidates = [
+        item?.seller,
+        item?.sellerId,
+        item?.seller_id,
+        item?.owner,
+        item?.ownerId,
+        item?.owner_id,
+        item?.user,
+        item?.userId,
+        item?.user_id,
+        item?.product?.seller,
+        item?.product?.sellerId,
+        item?.product?.seller_id,
+        item?.product?.owner,
+        item?.product?.ownerId,
+        item?.productId?.seller,
+        item?.productId?.sellerId,
+        item?.productId?.seller_id,
+        item?.productId?.owner,
+        item?.productId?.ownerId,
+    ];
+
+    return candidates.find((value) => isSellerMatch(value, sellerId));
+};
+
+const getOrderStatusLabel = (status) => {
+    if (!status) return "Processing";
+    const normalized = `${status}`.trim().toLowerCase();
+
+    if (normalized.includes("delivered")) return "Delivered";
+    if (normalized.includes("shipped")) return "Shipped";
+    if (normalized.includes("pending")) return "Pending";
+    if (normalized.includes("processing")) return "Processing";
+    if (normalized.includes("cancel")) return "Cancelled";
+    return status;
+};
 
 const SellerDashboard = () => {
-    const stats = [
-        {
-            title: "Total Sales",
-            value: "₹1,24,500",
-            change: "+12.5%",
-            icon: "💰",
-            bg: "bg-green-100",
-            color: "text-green-600",
-        },
-        {
-            title: "Total Orders",
-            value: "248",
-            change: "+8.2%",
-            icon: "📦",
-            bg: "bg-blue-100",
-            color: "text-blue-600",
-        },
-        {
-            title: "Products",
-            value: "86",
-            change: "+4",
-            icon: "🛍️",
-            bg: "bg-purple-100",
-            color: "text-purple-600",
-        },
-        {
-            title: "Pending Orders",
-            value: "18",
-            change: "Need action",
-            icon: "⏳",
-            bg: "bg-yellow-100",
-            color: "text-yellow-600",
-        },
-    ];
+    const [orders, setOrders] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const sellerId = useMemo(() => getStoredSellerId(), []);
 
-    const recentOrders = [
-        {
-            id: "ORD-1001",
-            customer: "Nilesh Kumar",
-            amount: "₹2,499",
-            status: "Delivered",
-        },
-        {
-            id: "ORD-1002",
-            customer: "Rahul Sharma",
-            amount: "₹1,799",
-            status: "Shipped",
-        },
-        {
-            id: "ORD-1003",
-            customer: "Amit Kumar",
-            amount: "₹3,299",
-            status: "Pending",
-        },
-        {
-            id: "ORD-1004",
-            customer: "Rohit Singh",
-            amount: "₹999",
-            status: "Processing",
-        },
-        {
-            id: "ORD-1005",
-            customer: "Priya Sharma",
-            amount: "₹4,499",
-            status: "Delivered",
-        },
-    ];
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-    const products = [
-        {
-            name: "Premium T-Shirt",
-            stock: 5,
-            sold: 42,
-        },
-        {
-            name: "Running Shoes",
-            stock: 3,
-            sold: 31,
-        },
-        {
-            name: "Leather Wallet",
-            stock: 8,
-            sold: 27,
-        },
-        {
-            name: "Smart Watch",
-            stock: 2,
-            sold: 19,
-        },
-    ];
+                const baseUrl = API_URLS || API_URL || "";
+                const token = localStorage.getItem("token");
+                const headers = {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                };
+
+                const buildSellerEndpoints = (path) => {
+                    const baseEndpoint = `${baseUrl}${path}`;
+                    if (!sellerId) return [baseEndpoint];
+
+                    const queryVariants = [
+                        `seller=${encodeURIComponent(sellerId)}`,
+                        `sellerId=${encodeURIComponent(sellerId)}`,
+                        `user=${encodeURIComponent(sellerId)}`,
+                        `userId=${encodeURIComponent(sellerId)}`,
+                        `owner=${encodeURIComponent(sellerId)}`,
+                        `ownerId=${encodeURIComponent(sellerId)}`,
+                    ];
+
+                    return [...new Set([baseEndpoint, ...queryVariants.map((query) => `${baseEndpoint}?${query}`)])];
+                };
+
+                const fetchJsonWithFallback = async (endpoints) => {
+                    let lastError = null;
+
+                    for (const endpoint of endpoints) {
+                        try {
+                            const response = await fetch(endpoint, { headers, credentials: "include" });
+                            if (!response.ok) {
+                                throw new Error(`Request failed with ${response.status}`);
+                            }
+
+                            return await response.json();
+                        } catch (error) {
+                            lastError = error;
+                        }
+                    }
+
+                    throw lastError || new Error("Request failed");
+                };
+
+                const productEndpoints = buildSellerEndpoints("/api/products");
+                const orderEndpoints = buildSellerEndpoints("/api/orders");
+
+                const productsData = await fetchJsonWithFallback(productEndpoints);
+                const ordersData = await fetchJsonWithFallback(orderEndpoints);
+
+                const allProducts = Array.isArray(productsData)
+                    ? productsData
+                    : productsData.products || productsData.data || productsData.result || [];
+                const allOrders = Array.isArray(ordersData)
+                    ? ordersData
+                    : ordersData.orders || ordersData.data || ordersData.result || [];
+
+                const filteredProducts = sellerId
+                    ? allProducts.filter((product) => {
+                        const sellerValue = getNestedId(product?.seller);
+                        if (sellerValue && sellerValue === sellerId) return true;
+
+                        const fallbackSeller = getSellerMatchValue(product, sellerId);
+                        return Boolean(fallbackSeller);
+                    })
+                    : allProducts;
+
+                const filteredOrders = sellerId
+                    ? allOrders.filter((order) => {
+                        const orderSellerValue = getNestedId(order?.seller) || getNestedId(order?.sellerId) || getNestedId(order?.seller_id);
+                        if (orderSellerValue && orderSellerValue === sellerId) {
+                            return true;
+                        }
+
+                        const orderUserValue = getNestedId(order?.user) || getNestedId(order?.userId) || getNestedId(order?.user_id);
+                        if (orderUserValue && orderUserValue === sellerId) {
+                            return true;
+                        }
+
+                        const items = order?.items || order?.products || order?.cartItems || [];
+                        return Array.isArray(items)
+                            ? items.some((item) => getSellerMatchValue(item, sellerId))
+                            : false;
+                    })
+                    : allOrders;
+
+                setProducts(sellerId && filteredProducts.length === 0 && allProducts.length > 0 ? allProducts : filteredProducts);
+                setOrders(sellerId && filteredOrders.length === 0 && allOrders.length > 0 ? allOrders : filteredOrders);
+            } catch (fetchError) {
+                setError(fetchError.message || "Unable to load dashboard data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+
+
+
+    }, [sellerId]);
+
+    const stats = useMemo(() => {
+        const totalSales = orders.reduce((sum, order) => {
+            const orderTotal = Number(
+                order?.total ||
+                order?.grandTotal ||
+                order?.payableAmount ||
+                order?.amount ||
+                order?.totalAmount ||
+                order?.orderAmount ||
+                order?.price ||
+                0
+            );
+
+            if (orderTotal) {
+                return sum + orderTotal;
+            }
+
+            const items = order?.items || order?.products || order?.cartItems || [];
+            const itemsTotal = Array.isArray(items)
+                ? items.reduce((itemSum, item) => {
+                    const price = Number(item?.price || item?.productPrice || item?.unitPrice || item?.amount || item?.total || 0);
+                    const quantity = Number(item?.quantity || item?.qty || item?.count || 1);
+                    return itemSum + price * quantity;
+                }, 0)
+                : 0;
+
+            return sum + itemsTotal;
+        }, 0);
+  
+        const totalOrders = orders.length;
+
+        const pendingOrders = orders.filter((order) => {
+            const status = `${order?.status || order?.orderStatus || ""}`.trim().toLowerCase();
+            return status.includes("pending") || status.includes("processing") || status.includes("confirmed");
+        }).length;
+        const productCount = products.length;
+
+        return [
+            {
+                title: "Total Sales",
+                value: formatCurrency(totalSales),
+                change: `${totalOrders} orders tracked`,
+                icon: "💰",
+                bg: "bg-green-100",
+                color: "text-green-600",
+            },
+            {
+                title: "Total Orders",
+                value: `${totalOrders}`,
+                change: `${pendingOrders} pending`,
+                icon: "📦",
+                bg: "bg-blue-100",
+                color: "text-blue-600",
+            },
+            {
+                title: "Products",
+                value: `${productCount}`,
+                change: `${products.filter((product) => Number(product?.stock || 0) <= 3).length} low stock`,
+                icon: "🛍️",
+                bg: "bg-purple-100",
+                color: "text-purple-600",
+            },
+            {
+                title: "Pending Orders",
+                value: `${pendingOrders}`,
+                change: "Needs attention",
+                icon: "⏳",
+                bg: "bg-yellow-100",
+                color: "text-yellow-600",
+            },
+        ];
+    }, [orders, products]);
+
+    const recentOrders = useMemo(() => {
+        return orders
+            .slice(0, 5)
+            .map((order, index) => ({
+                id: order?.orderNo || order?.orderNumber || `ORD-${index + 1}`,
+                customer: order?.shippingAddress?.fullName || order?.customer?.name || order?.user?.name || "Customer",
+                amount: formatCurrency(order?.total || order?.grandTotal || 0),
+                status: getOrderStatusLabel(order?.status || order?.orderStatus || "Processing"),
+            }));
+    }, [orders]);
+
+    const lowStockProducts = useMemo(() => {
+        const sortedProducts = [...products].sort((a, b) => Number(a?.stock || 0) - Number(b?.stock || 0));
+        return sortedProducts.slice(0, 4).map((product) => ({
+            name: product?.name || product?.title || "Unnamed Product",
+            stock: Number(product?.stock || 0),
+            sold: Number(product?.sold || product?.soldCount || product?.sales || 0),
+        }));
+    }, [products]);
 
     const getStatusClass = (status) => {
         switch (status) {
@@ -149,6 +374,18 @@ const SellerDashboard = () => {
 
 
                 {/* ================= STAT CARDS ================= */}
+
+                {error ? (
+                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        {error}
+                    </div>
+                ) : null}
+
+                {loading ? (
+                    <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-500">
+                        Loading dashboard data...
+                    </div>
+                ) : null}
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
@@ -380,17 +617,13 @@ const SellerDashboard = () => {
                                         Check notifications
                                     </p>
                                 </div>
-
                             </Link>
-
                         </div>
-
                     </div>
-
                 </div>
 
 
-                {/* ================= BOTTOM GRID ================= */}
+
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
@@ -512,7 +745,7 @@ const SellerDashboard = () => {
                             </h2>
 
                             <span className="text-red-500 text-sm">
-                                {products.length} items
+                                {lowStockProducts.length} items
                             </span>
 
                         </div>
@@ -520,33 +753,29 @@ const SellerDashboard = () => {
 
                         <div className="p-5 space-y-4">
 
-                            {products.map((product, index) => (
+                            {lowStockProducts.length > 0 ? (
+                                lowStockProducts.map((product, index) => (
+                                    <div
+                                        key={`${product.name}-${index}`}
+                                        className="flex items-center justify-between"
+                                    >
+                                        <div>
+                                            <p className="font-semibold text-gray-900">
+                                                {product.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {product.sold} sold
+                                            </p>
+                                        </div>
 
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between"
-                                >
-
-                                    <div>
-
-                                        <p className="font-semibold text-gray-900">
-                                            {product.name}
-                                        </p>
-
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {product.sold} sold
-                                        </p>
-
+                                        <span className="text-sm font-semibold text-red-500">
+                                            {product.stock} left
+                                        </span>
                                     </div>
-
-
-                                    <span className="text-sm font-semibold text-red-500">
-                                        {product.stock} left
-                                    </span>
-
-                                </div>
-
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500">No low stock products found.</p>
+                            )}
 
                         </div>
 

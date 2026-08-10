@@ -37,7 +37,7 @@ const userRole = JSON.parse(localStorage.getItem('user'));
 
             <Link
               to="adminprofile"
-              className={`block rounded-xl px-4 py-3 transition ${location.pathname.endsWith('/dashboard') || location.pathname === '/admin' ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
+              className={`block rounded-xl px-4 py-3 transition ${location.pathname.endsWith('/adminprofile') || location.pathname === '/admin' ? 'bg-[#f4e5d4] text-[#1c1c1c]' : 'bg-white/10 hover:bg-white/20'}`}
             >
               <div className="flex items-center gap-3">
                 <User size={18} />

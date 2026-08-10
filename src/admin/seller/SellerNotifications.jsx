@@ -9,7 +9,7 @@ import {
     CreditCard,
     Clock,
 } from "lucide-react";
-import { API_URL } from "../utils/config";
+import { API_URL } from "../../utils/config";
 
 const SellerNotifications = () => {
     const [notifications, setNotifications] = useState([]);

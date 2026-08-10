@@ -4,8 +4,9 @@ import LoginRequiredCard from '../../components/LoginRequiredCard'
 import { useToast } from '../../components/ToastProvider'
 import { Pencil } from 'lucide-react'
 import { API_URL, getImageUrl, uploadImageToCloudinary } from "../../utils/config"
-import SellerStoreInfo from './SellerStoreInfo'
+import SellerStoreInfo from '../profile/SellerStoreInfo'
 import ViewSellerStore from './ViewSellerStore'
+import AdminChangePassword from './AdminChangePassword'
 
 const getStoredUser = () => {
   try {
@@ -72,7 +73,7 @@ const AdminProfile = () => {
     )
   }
 
- 
+
 
   const updateProfileOnServer = async (payload) => {
     if (!API_URL) return { user: payload, mode: 'local' }
@@ -160,176 +161,205 @@ const AdminProfile = () => {
   }
 
   const profileImageSrc = getImageUrl(user?.profileimg) || 'https://via.placeholder.com/150'
+  const [sellerstoreview, setSellerStoreView] = useState(true)
+  const [sellerstoreedit, setSellerStoreEdit] = useState(false)
+  const [changepasswordview, setChangePasswordView] = useState(false)
+
+  const showProfileView = () => {
+    setChangePasswordView(false)
+    setProfileView(true)
+  }
 
   return (
     <>
-    <section className="py-6">
-      <div className="container mx-auto px-4">
+      {changepasswordview && (
+        <AdminChangePassword onButtonClick={showProfileView} />
+      )}
 
-        {profileview && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="py-6">
+        <div className="container mx-auto px-4">
 
-            <div className=" grid gap-4 sm:grid-cols-2">
+          {profileview && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
 
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Profile</p>
-                <h1 className="mt-2 text-3xl font-bold text-slate-900">My account <Link to="#" onClick={() => { setEditProfile(true); setProfileView(false); }}><Pencil className="inline-block w-4 h-4 ml-2" /></Link></h1>
+              <div className=" grid gap-4 sm:grid-cols-2">
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Profile </p>
+                  <h1 className="mt-2 text-3xl font-bold text-slate-900">My account </h1>
+                  <p className="mt-2 text-sm text-slate-500"><Link to="#" onClick={() => { setEditProfile(true); setProfileView(false); }} className='link text-blue-500'>Edit Profile</Link> or  <Link className='link text-blue-500' to="#" onClick={() => { setChangePasswordView(true); setProfileView(false); }}>Change Password</Link></p>
+                </div>
+                <div className=' w-full relative'>
+                  <img
+                    src={profileImageSrc}
+                    alt="Profile"
+                    className="w-25 h-25 rounded-full object-cover border-4 border-gray-200 shadow pull-right" />
+                </div>
 
               </div>
-              <div className=' w-full relative'>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
 
-                <img
-                  src={profileImageSrc}
-                  alt="Profile"
-                  className="w-25 h-25 rounded-full object-cover border-4 border-gray-200 shadow pull-right" />
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Name</p>
+                  <p className="mt-1 font-semibold text-slate-900">{user?.name || 'Not available'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Email</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.email || 'Not available'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Mobile</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.phone || 'Not available'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Gender</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.gender || 'Not available'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Date of Birth</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.dob || 'Not available'}</p>
+                </div>
 
-
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Role</p>
+                  <p className="mt-1 font-semibold text-slate-900">{user?.role || 'buyer'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">User ID</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.id || user?._id || user?.userId || 'Not available'}</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm text-slate-500">Last Updated</p>
+                  <p className="mt-1 font-semibold text-slate-900 break-all">{user?.updatedAt || 'Not available'}</p>
+                </div>
               </div>
-
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Name</p>
-                <p className="mt-1 font-semibold text-slate-900">{user?.name || 'Not available'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Email</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.email || 'Not available'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Mobile</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.phone || 'Not available'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Gender</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.gender || 'Not available'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Date of Birth</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.dob || 'Not available'}</p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Role</p>
-                <p className="mt-1 font-semibold text-slate-900">{user?.role || 'buyer'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">User ID</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.id || user?._id || user?.userId || 'Not available'}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Last Updated</p>
-                <p className="mt-1 font-semibold text-slate-900 break-all">{user?.updatedAt || 'Not available'}</p>
-              </div>
-            </div>
-          </div>
-        )}
-        {editprofile && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className=" ">
-              <div className="grid gap-4 sm:grid-cols-2 mb-6">
+          )}
+          {editprofile && (
+            <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+              <div className=" ">
+                <div className="grid gap-4 sm:grid-cols-2 mb-6">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Profile</p>
                     <h1 className="mt-2 text-3xl font-bold text-slate-900">Edit Profile</h1>
                   </div>
-                 <div className="flex justify-center sm:justify-start">
+                  <div className="flex justify-center sm:justify-start">
                     <img
                       src={profileImageSrc}
                       alt="Profile preview"
                       className="h-24 w-24 rounded-full border-4 border-gray-200 object-cover shadow"
                     />
-              </div>
-              </div>
-              <form onSubmit={onSubmit}>
-                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Name</span>
-                      <input
-                        type="text"
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                        value={user?.name || ''}
-                        onChange={(e) => setUser({ ...user, name: e.target.value })}
-                      />
-                    </label>
-                  </div>
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Email</span>
-                      <input
-                        type="email" readOnly
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                        value={user?.email || ''}
-                        onChange={(e) => setUser({ ...user, email: e.target.value })}
-                      />
-                    </label>
-                  </div>
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Mobile Number</span>
-                      <input
-                        type="text"
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                        value={user?.phone || ''}
-                        onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                      />
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Date of Birth</span>
-                      <input
-                        type="date"
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                        value={user?.dob || ''}
-                        onChange={(e) => setUser({ ...user, dob: e.target.value })}
-                      />
-                    </label>
-                  </div>
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Gender</span>
-                      <select
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                        value={user?.gender || ''}
-                        onChange={(e) => setUser({ ...user, gender: e.target.value })}
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </label>
-                  </div>
-                  <div>
-                    <label className="block">
-                      <span className="text-gray-700">Profile Picture</span>
-                      
-                      <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" onChange={uploadProfileImage}
-                        className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
-                      />
-                    </label>
-                  </div>
-                  <div>
-                    <button type='submit' disabled={isSaving} className=' bg-green-600 w-full font-bold text-white px-6 py-3 rounded-lg disabled:cursor-not-allowed disabled:bg-green-400'>{isSaving ? 'Saving...' : 'Update Profile'}</button>
-                  </div>
-                  <div>
-                    <button type='button' onClick={() => { setEditProfile(false); setProfileView(true) }} className=' w-full bg-gray-600 font-bold text-white px-6 py-3 rounded-lg'>Cancel</button>
                   </div>
                 </div>
-              </form>
+                <form onSubmit={onSubmit}>
+                  <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Name</span>
+                        <input
+                          type="text"
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                          value={user?.name || ''}
+                          onChange={(e) => setUser({ ...user, name: e.target.value })}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Email</span>
+                        <input
+                          type="email" readOnly
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                          value={user?.email || ''}
+                          onChange={(e) => setUser({ ...user, email: e.target.value })}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Mobile Number</span>
+                        <input
+                          type="text"
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                          value={user?.phone || ''}
+                          onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                        />
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Date of Birth</span>
+                        <input
+                          type="date"
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                          value={user?.dob || ''}
+                          onChange={(e) => setUser({ ...user, dob: e.target.value })}
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Gender</span>
+                        <select
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                          value={user?.gender || ''}
+                          onChange={(e) => setUser({ ...user, gender: e.target.value })}
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block">
+                        <span className="text-gray-700">Profile Picture</span>
+
+                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" onChange={uploadProfileImage}
+                          className="w-full border rounded-lg px-4 py-3 outline-none focus:ring-1 focus:ring-red-500"
+                        />
+                      </label>
+                    </div>
+                    <div>
+                      <button type='submit' disabled={isSaving} className=' bg-green-600 w-full font-bold text-white px-6 py-3 rounded-lg disabled:cursor-not-allowed disabled:bg-green-400'>{isSaving ? 'Saving...' : 'Update Profile'}</button>
+                    </div>
+                    <div>
+                      <button type='button' onClick={() => { setEditProfile(false); setProfileView(true) }} className=' w-full bg-gray-600 font-bold text-white px-6 py-3 rounded-lg'>Cancel</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
+          )}
+        </div>
+      </section>
+
+      {sellerstoreview && user?.role === "seller" && (
+        <div className="container mx-auto px-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+            <ViewSellerStore
+              onEdit={() => {
+                setSellerStoreView(false);
+                setSellerStoreEdit(true);
+              }}
+            />
           </div>
-        )}
-      </div>
-    </section>
-      {/* <SellerStoreInfo /> */}
-      <ViewSellerStore />
+        </div>
+      )}
+
+      {sellerstoreedit && user?.role === "seller" && (
+        <SellerStoreInfo
+          onEdit={() => {
+            setSellerStoreView(false);
+            setSellerStoreEdit(true);
+          }}
+        />
+      )}
+
     </>
   )
 }
-
 export default AdminProfile

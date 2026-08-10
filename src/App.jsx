@@ -10,20 +10,19 @@ import Footer from "./Footer/Footer";
 import ProtectedRoute from './utils/ProtectedRoute'
 import AdminLayout from './admin/AdminLayout'
 import AdminProfile from './admin/profile/AdminProfile'
-import DashboardPage from './admin/DashboardPage'
-import ProductsPage from './admin/ProductsPage'
-import AddProductPage from './admin/AddProductPage'
-import EditProductPage from './admin/EditProductPage'
-import BrandsPage from './admin/BrandsPage'
-import AddBrandPage from './admin/AddBrandPage'
-import EditBrandPage from './admin/EditBrandPage'
-import CategoriesPage from './admin/CategoriesPage'
-import AddCategoryPage from './admin/AddCategoryPage'
-import EditCategoryPage from './admin/EditCategoryPage'
-import UsersPage from './admin/UsersPage'
-import AddUserPage from './admin/AddUserPage'
-import EditUserPage from './admin/EditUserPage'
-
+import DashboardPage from './admin/seller/DashboardPage'
+import ProductsPage from './admin/product/ProductsPage'
+import AddProductPage from './admin/product/AddProductPage'
+import EditProductPage from './admin/product/EditProductPage'
+import BrandsPage from './admin/brand/BrandsPage'
+import AddBrandPage from './admin/brand/AddBrandPage'
+import EditBrandPage from './admin/brand/EditBrandPage'
+import CategoriesPage from './admin/category/CategoriesPage'
+import AddCategoryPage from './admin/category/AddCategoryPage'
+import EditCategoryPage from './admin/category/EditCategoryPage'
+import UsersPage from './admin/user/UsersPage'
+import AddUserPage from './admin/user/AddUserPage'
+import EditUserPage from './admin/user/EditUserPage'
 import ProductDetails from './pages/productdetails/ProductDetails'
 import Profile from './pages/Profile'
 import Cart from './pages/cart/Cart'
@@ -36,10 +35,10 @@ import DashboardHome from './pages/dashboard/DashboardHome'
 import ChangePassword from './pages/dashboard/ChangePassword'
 import SavedAdresses from './pages/dashboard/SavedAdresses'
 import PaymentMethods from './pages/dashboard/PaymentMethods'
-import SellerNotifications from './admin/SellerNotifications'
-import Shipment from './admin/Shipment'
-import AddShipment from './admin/AddShipment'
-
+import SellerNotifications from './admin/seller/SellerNotifications'
+import Shipment from './admin/shipment/Shipment'
+import AddShipment from './admin/shipment/AddShipment'
+import SellerStoreInfo from './admin/profile/SellerStoreInfo'
 const App = () => {
   const location = useLocation();
 
@@ -80,6 +79,8 @@ const App = () => {
           <Route path="shipment" element={<Shipment/>} />
           <Route path="addshipment" element={<AddShipment/>} />
           <Route path="adminprofile" element={<AdminProfile />} />
+          <Route path="addsellerstore" element={<SellerStoreInfo mode="add" />} />
+          <Route path="editsellerstore" element={<SellerStoreInfo mode="edit" />} />
         </Route>
 
         <Route

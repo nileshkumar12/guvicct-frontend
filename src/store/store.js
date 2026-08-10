@@ -298,7 +298,7 @@ const loadWishlistFromApi = async (apiUserIdentifier) => {
   const token = getAuthToken()
   if (!token) return null
 
-  const endpoints = ['/api/wishlist']
+  const endpoints = []
   const userQueries = [
     apiUserIdentifier ? `?user=${encodeURIComponent(apiUserIdentifier)}` : '',
     '',
@@ -478,6 +478,10 @@ const requestWishlistMutation = async ({ endpoint, method, token, payload, produ
 
   const body = JSON.stringify(payload)
 
+  if (!endpoint) {
+    return false
+  }
+
   if (method === 'DELETE' && productId) {
     const deletePathResponse = await fetch(`${API_URLS}${endpoint}/${encodeURIComponent(productId)}`, {
       method,
@@ -506,28 +510,6 @@ const requestWishlistMutation = async ({ endpoint, method, token, payload, produ
     }
 
     if (deleteQueryResponse.ok) return true
-
-    // Some backends support remove semantics via POST/PUT payload action.
-    for (const fallbackMethod of ['POST', 'PUT']) {
-      const fallbackResponse = await fetch(`${API_URLS}${endpoint}`, {
-        method: fallbackMethod,
-        credentials: 'include',
-        headers,
-        body: JSON.stringify({
-          ...payload,
-          action: 'remove',
-          remove: true,
-          delete: true,
-        }),
-      })
-
-      if (fallbackResponse.status === 401) {
-        markTokenUnauthorized()
-        return false
-      }
-
-      if (fallbackResponse.ok) return true
-    }
   }
 
   const baseResponse = await fetch(`${API_URLS}${endpoint}`, {
@@ -715,11 +697,7 @@ store.subscribe(() => {
       }
     }
 
-    if (authToken) {
-      if (isWishlistHydratingFromApi) {
-        return
-      }
-
+    if (authToken && typeof window !== 'undefined' && !isWishlistHydratingFromApi) {
       const wishlistSignature = buildWishlistSyncSignature(state.wishlist.items, apiUserIdentifier)
       if (wishlistSignature !== lastSyncedWishlistSignature && wishlistSignature !== pendingWishlistSyncSignature) {
         pendingWishlistSyncSignature = wishlistSignature
@@ -878,7 +856,7 @@ const bootstrapCartForCurrentUser = () => {
   if (authToken) {
     const shouldForceWishlistHydrate = lastWishlistHydratedUser !== apiUserIdentifier
     if (shouldForceWishlistHydrate || !isWishlistHydratingFromApi) {
-      void hydrateWishlistFromApi(apiUserIdentifier)
+      void hydrateWishlistFromApi(apiUserIdentifier).catch(() => {})
     }
   }
 }
@@ -887,7 +865,7 @@ const refreshWishlistFromApi = () => {
   const authToken = getAuthToken()
   const apiUserIdentifier = getApiUserIdentifier()
   if (!authToken) return
-  void hydrateWishlistFromApi(apiUserIdentifier)
+  void hydrateWishlistFromApi(apiUserIdentifier).catch(() => {})
 }
 
 const startWishlistAutoRefresh = () => {
