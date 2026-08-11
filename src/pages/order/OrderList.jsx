@@ -37,7 +37,21 @@ const getAuthToken = () => {
   }
 
   const user = getStoredUser()
-  return normalizeAuthToken(user?.token || user?.accessToken || user?.authToken || user?.jwt)
+  const fallbackToken = normalizeAuthToken(user?.token || user?.accessToken || user?.authToken || user?.jwt)
+  if (fallbackToken) return fallbackToken
+
+  const sessionUser = window.sessionStorage?.getItem?.('user')
+  if (sessionUser) {
+    try {
+      const parsed = JSON.parse(sessionUser)
+      const sessionToken = normalizeAuthToken(parsed?.token || parsed?.accessToken || parsed?.authToken || parsed?.jwt)
+      if (sessionToken) return sessionToken
+    } catch (error) {
+      // Ignore malformed session data.
+    }
+  }
+
+  return ''
 }
 
 const getApiUserIdentifier = () => {
@@ -188,7 +202,6 @@ const OrderList = () => {
   )
 
   const fetchOrders = useCallback(async () => {
-     console.log('Fetching orders..nilesh.', orders)
     if (!API_URLS) {
       setRequiresLogin(false)
       setError('Order API is not configured.')
@@ -215,7 +228,7 @@ const OrderList = () => {
       'x-access-token': token,
     }
 
-    const endpoints = ['/api/orders', '/api/order']
+    const endpoints = ['/api/orders']
     const queries = [
       userId ? `?user=${encodeURIComponent(userId)}` : '',
       '',
@@ -270,8 +283,7 @@ const OrderList = () => {
     setError('')
     setRequiresLogin(false)
     setOrders(bestOrders)
-console.log('Fetched Best orders:', bestOrders);
-console.log('Fetched orders:', orders);
+
     setOpenOrderId((current) => current || bestOrders[0]?.id || '')
     setLoading(false)
   }, [])
@@ -334,7 +346,7 @@ console.log('Fetched orders:', orders);
       'x-access-token': token,
     }
 
-    const endpoints = ['/api/orders', '/api/order']
+    const endpoints = ['/api/orders']
 
     for (const endpoint of endpoints) {
       try {
@@ -378,113 +390,71 @@ console.log('Fetched orders:', orders);
     return false
   }
 
+  
+
   const cancelOrderInApi = async (orderId, order) => {
-    const token = getAuthToken()
-    if (!token || !API_URLS) return { ok: false, message: 'Missing authentication token.' }
+  const token = getAuthToken();
 
-    const user = getStoredUser() || {}
-    const apiUserIdentifier = user?.id || user?._id || user?.userId || user?.sub || getApiUserIdentifier() || ''
-    const userEmail = user?.email || ''
+  if (!token || !API_URLS) {
+    return {
+      ok: false,
+      message: "Authentication required.",
+    };
+  }
 
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      'x-auth-token': token,
-      'x-access-token': token,
-    }
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
 
-    const endpoints = ['/api/orders', '/api/order']
-    const payload = {
-      status: 'Cancelled',
-      orderStatus: 'Cancelled',
-      cancellationStatus: 'Cancelled',
-      action: 'cancel',
-      orderId,
-      id: orderId,
-      user: apiUserIdentifier,
-      userId: apiUserIdentifier,
-      email: userEmail,
-      reason: 'Cancelled by customer',
-    }
-
-    let lastErrorMessage = ''
-
-    for (const endpoint of endpoints) {
-      try {
-        const requestCandidates = [
-          {
-            url: `${API_URLS}${endpoint}/${encodeURIComponent(orderId)}`,
-            method: 'PATCH',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}/${encodeURIComponent(orderId)}`,
-            method: 'PUT',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}/${encodeURIComponent(orderId)}/cancel`,
-            method: 'POST',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}/cancel`,
-            method: 'POST',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}?orderId=${encodeURIComponent(orderId)}`,
-            method: 'PATCH',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}?orderId=${encodeURIComponent(orderId)}`,
-            method: 'PUT',
-            body: payload,
-          },
-          {
-            url: `${API_URLS}${endpoint}`,
-            method: 'POST',
-            body: payload,
-          },
-        ]
-
-        for (const requestConfig of requestCandidates) {
-          const response = await fetch(requestConfig.url, {
-            method: requestConfig.method,
-            credentials: 'include',
-            headers,
-            body: JSON.stringify(requestConfig.body),
-          })
-
-          if (response.status === 401) {
-            setError('Your session expired. Please login again.')
-            return { ok: false, message: 'Session expired. Please login again.' }
-          }
-
-          if (response.ok) {
-            return { ok: true, message: '' }
-          }
-
-          if (response.status === 404 || response.status === 405) {
-            continue
-          }
-
-          const errorText = await response.text()
-          if (errorText) {
-            lastErrorMessage = errorText
-          }
-        }
-      } catch (requestError) {
-        continue
+  try {
+    const response = await fetch(
+      `${API_URLS}/api/orders/${encodeURIComponent(orderId)}/cancel`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers,
+        body: JSON.stringify({
+          reason: "Cancelled by customer",
+        }),
       }
+    );
+
+    const data = await response.json().catch(() => null);
+
+    if (response.status === 401) {
+      setError("Your session expired. Please login again.");
+
+      return {
+        ok: false,
+        message: "Session expired. Please login again.",
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message:
+          data?.message ||
+          "Unable to cancel order.",
+      };
     }
 
     return {
+      ok: true,
+      message:
+        data?.message ||
+        "Order cancelled successfully.",
+    };
+  } catch (error) {
+    console.error("Cancel order error:", error);
+
+    return {
       ok: false,
-      message: lastErrorMessage || `Unable to cancel order #${order?.orderNo || orderId} right now.`,
-    }
+      message: "Unable to cancel order right now.",
+    };
   }
+};
 
   const handleCancelOrder = async (order) => {
     const orderId = `${order?.id || ''}`
@@ -506,11 +476,7 @@ console.log('Fetched orders:', orders);
     const result = await cancelOrderInApi(orderId, order)
 
     if (result.ok) {
-      setOrders((previous) => previous.map((item) => (
-        item.id === orderId
-          ? { ...item, status: 'Cancelled' }
-          : item
-      )))
+      await fetchOrders()
       addToast(`Order #${order.orderNo} cancelled successfully.`, 'success')
     } else {
       const fallbackMessage = `Unable to cancel order #${order.orderNo} right now.`
@@ -551,6 +517,17 @@ console.log('Fetched orders:', orders);
 
     setDeletingOrderId('')      
   }
+
+
+  const statusClasses = {
+  Pending: "bg-yellow-100 text-yellow-700",
+  Confirmed: "bg-blue-100 text-blue-700",
+  Processing: "bg-purple-100 text-purple-700",
+  Shipped: "bg-indigo-100 text-indigo-700",
+  Delivered: "bg-green-100 text-green-700",
+  Cancelled: "bg-red-100 text-red-700",
+};
+
 
   return (
     <section className="min-h-[70vh]  from-slate-50 via-white to-amber-50 py-6">
@@ -651,7 +628,9 @@ console.log('Fetched orders:', orders);
                       <p className="mt-1 text-sm text-slate-500">Placed on {formatDateTime(order.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-800">
+                      <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
+                        statusClasses[order.status]
+                      }`}>
                         {order.status}
                       </span>
                       <p className="text-base font-bold text-slate-900">{formatCurrency(order.total)}</p>

@@ -356,7 +356,7 @@ const SellerDashboard = () => {
                         </p>
                     </div>
 
-                    <Link to="/admin/addproduct"
+                    <Link to="/admin/products/add"
                         className="
               bg-red-500
               hover:bg-red-600
@@ -545,7 +545,7 @@ const SellerDashboard = () => {
 
                         <div className="p-5 space-y-3">
 
-                            <Link to="/admin/addproduct" className="w-full flex items-center gap-3 border rounded-lg p-4 hover:bg-gray-50 text-left">
+                            <Link to="/admin/products/add" className="w-full flex items-center gap-3 border rounded-lg p-4 hover:bg-gray-50 text-left">
 
                                 <span className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                                     ➕
@@ -583,7 +583,7 @@ const SellerDashboard = () => {
                             </button>
 
 
-                            <Link to="/admin/shipments" className="w-full flex items-center gap-3 border rounded-lg p-4 hover:bg-gray-50 text-left">
+                            <Link to="/admin/shipment" className="w-full flex items-center gap-3 border rounded-lg p-4 hover:bg-gray-50 text-left">
 
                                 <span className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
                                     🚚

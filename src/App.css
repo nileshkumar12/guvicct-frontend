@@ -1,3 +1,9 @@
 a, button{cursor: pointer;}
 .CheckoutCoupon input { width:65%;}
 .error{ color:rgb(238, 78, 78)}
+
+.pdtailsPrice {
+  font-size: 45px !important;
+  color: #1aa184;
+  font-weight: bold;
+}
