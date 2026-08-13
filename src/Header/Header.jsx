@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { VITE_IMG_URLS } from '../utils/config'
+
 import {
     Menu,
     X,
@@ -191,7 +193,7 @@ const Header = () => {
 
                     {/* Logo */}
                     <div className="text-3xl font-bold text-[#1c1c1c]">
-                        <Link to="/"> <img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{ maxWidth: "45px" }} /></Link>
+                        <Link to="/"> <img src={`${import.meta.env.VITE_IMG_URLS}/assets/images/logo.png`} style={{ maxWidth: "45px" }} /></Link>
                     </div>
 
                     {/* Search */}
