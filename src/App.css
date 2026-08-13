@@ -7,3 +7,5 @@ a, button{cursor: pointer;}
   color: #1aa184;
   font-weight: bold;
 }
+
+nav li.group .absolute { margin-top: 0;}

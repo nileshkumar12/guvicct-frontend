@@ -329,16 +329,12 @@ const Header = () => {
                                 </Link>
                             </li>
 
-                            <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
-                                    Shop
-                                </a>
-                            </li>
+                          
 
                             <li className="group relative">
 
                                 <button className="flex items-center gap-1 hover:text-[#b68a3b]">
-                                    Categories <ChevronDown size={16} />
+                                    Product by Category <ChevronDown size={16} />
                                 </button>
 
                                 <div className="absolute hidden group-hover:block bg-white shadow-lg w-56 rounded mt-2">
