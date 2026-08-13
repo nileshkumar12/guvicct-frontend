@@ -114,6 +114,30 @@ const isOrderFallbackError = (text = '') => {
     return /next is not a function|Cannot read properties of undefined|middleware|Unexpected token|invalid|Internal Server Error|ECONNRESET/i.test(text)
 }
 
+const normalizeText = (value) => `${value || ''}`.trim()
+
+const normalizeEmail = (value) => normalizeText(value).toLowerCase()
+
+const buildCheckoutItems = (items = []) =>
+    items.map((item) => {
+        const productId = item.id || item._id || item.productId || item.product || item.key
+        const quantity = Number(item.quantity || 1)
+        const price = Number(item.price || 0)
+
+        return {
+            product: productId,
+            productId,
+            key: item.key,
+            name: item.name || item.title || '',
+            title: item.title || item.name || '',
+            price,
+            quantity,
+            qty: quantity,
+            amount: quantity,
+            image: item.image || '',
+        }
+    })
+
 const Checkout = () => {
 const navigate = useNavigate()
 const { addToast } = useToast()
@@ -132,8 +156,8 @@ const isAuthenticated = Boolean(token)
 const methods = useForm({
   mode: "onSubmit",
   defaultValues: {
-    email: "",
-    mobile: "",
+    email: authContext.email || "",
+    mobile: storedUser?.mobile || storedUser?.phone || "",
     firstName: "",
     lastName: "",
     address1: "",
@@ -189,17 +213,49 @@ const onSubmit = async (data) => {
 
     const shippingAddressLine = [shippingAddress.address1, shippingAddress.address2].filter(Boolean).join(', ')
     const shippingAddressComplete = `${shippingAddress.firstName} ${shippingAddress.lastName}, ${shippingAddressLine}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.country} - ${shippingAddress.pincode}`
+    const customerEmail = normalizeEmail(data.email || authContext.email || user?.email || '')
+    const customerMobile = normalizeText(data.mobile || user?.mobile || user?.phone || '')
+    const customerName = normalizeText(`${shippingAddress.firstName} ${shippingAddress.lastName}`)
+    const orderLineItems = buildCheckoutItems(selectedItems)
 
     const payload = {
-        email: data.email || authContext.email || user?.email || '',
+        email: customerEmail,
+        customerEmail,
+        userEmail: customerEmail,
+        billingEmail: customerEmail,
+        sendEmail: true,
+        sendConfirmationEmail: true,
+        notifyCustomer: true,
         contact: {
-            email: data.email || authContext.email || user?.email || '',
-            mobile: data.mobile || '',
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
+        },
+        customer: {
+            id: apiUserIdentifier || user?.id || user?._id || '',
+            _id: apiUserIdentifier || user?._id || user?.id || '',
+            name: customerName || user?.name || '',
+            fullName: customerName || user?.name || '',
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
+        },
+        buyer: {
+            id: apiUserIdentifier || user?.id || user?._id || '',
+            _id: apiUserIdentifier || user?._id || user?.id || '',
+            name: customerName || user?.name || '',
+            fullName: customerName || user?.name || '',
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
         },
         shippingAddress: {
             ...shippingAddress,
             fullName: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
             name: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
             addressLine1: shippingAddress.address1,
             addressLine2: shippingAddress.address2,
             street: shippingAddress.address1,
@@ -213,6 +269,9 @@ const onSubmit = async (data) => {
         shipping_address: {
             ...shippingAddress,
             fullName: `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim(),
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
             addressLine1: shippingAddress.address1,
             addressLine2: shippingAddress.address2,
             zipCode: shippingAddress.pincode,
@@ -222,6 +281,9 @@ const onSubmit = async (data) => {
         },
         address: {
             ...shippingAddress,
+            email: customerEmail,
+            phone: customerMobile,
+            mobile: customerMobile,
             line1: shippingAddress.address1,
             line2: shippingAddress.address2,
             zipCode: shippingAddress.pincode,
@@ -235,27 +297,16 @@ const onSubmit = async (data) => {
         subtotal: Number(subtotal || 0),
         discount: Number(discount || 0),
         shippingCost: Number(shipping || 0),
+        shippingFee: Number(shipping || 0),
         total: Number(total || 0),
-        items: selectedItems.map((item) => ({
-            product: item.id || item._id || item.productId || item.key,
-            productId: item.id || item._id || item.productId || item.key,
-            key: item.key,
-            name: item.name || item.title || '',
-            title: item.title || item.name || '',
-            price: Number(item.price || 0),
-            quantity: Number(item.quantity || 1),
-            image: item.image || '',
-        })),
-        orderItems: selectedItems.map((item) => ({
-            product: item.id || item._id || item.productId || item.key,
-            productId: item.id || item._id || item.productId || item.key,
-            key: item.key,
-            name: item.name || item.title || '',
-            title: item.title || item.name || '',
-            price: Number(item.price || 0),
-            quantity: Number(item.quantity || 1),
-            image: item.image || '',
-        })),
+        totalAmount: Number(total || 0),
+        totalPrice: Number(total || 0),
+        grandTotal: Number(total || 0),
+        amount: Number(total || 0),
+        items: orderLineItems,
+        orderItems: orderLineItems,
+        cartItems: orderLineItems,
+        products: orderLineItems,
     }
 
     if (apiUserIdentifier) {
@@ -271,6 +322,9 @@ const onSubmit = async (data) => {
         headers.Authorization = `Bearer ${token}`
         headers['x-auth-token'] = token
         headers['x-access-token'] = token
+        if (customerEmail) {
+            headers['x-user-email'] = customerEmail
+        }
 
         const endpoint = `${API_URLS}/api/orders`
 

@@ -638,8 +638,6 @@ const ReviewForm = ({ productId,  onReviewCreated,  onCancel,}) => {
                 <div className="flex flex-col sm:flex-row
                         gap-3 pt-2">
 
-                    
-
                     <button
                         type="submit"
                         disabled={submitting || checkingReviewAccess || !canReview}

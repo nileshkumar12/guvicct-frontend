@@ -292,6 +292,7 @@ const OrderList = () => {
     setLoading(true)
   
     void fetchOrders()
+   
   }, [fetchOrders])
 
   useEffect(() => {
