@@ -150,6 +150,7 @@ const SellerNotifications = () => {
             }
        
     };
+    console.log("Notifications:", notifications);
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
 
@@ -309,18 +310,21 @@ const SellerNotifications = () => {
 
                                                 <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
                                                     <Clock size={13} />
-                                                    {notification.createdAt}
-                                                </div>
+                                                    {notification.createdAt} 
+                                               
+                                                
+                                                    </div>
 
                                             </div>
 
                                             {/* Order + Action */}
                                             <div className="flex flex-wrap items-center gap-3 mt-4">
-
+                                                             
                                                 {notification.orderNumber && (
                                                     <span className="text-xs font-medium bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg">
                                                         {notification.orderNumber}
-                                                    </span>
+                                                  
+                                                   </span>
                                                 )}
 
                                                 {!notification.isRead && (

@@ -1,132 +1,160 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { API_URL } from "../../utils/config.js";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const Shipment = () => {
   const [selectedShipment, setSelectedShipment] = useState(null);
+const[shipments, setShipments] = useState([]);
 
-  const [shipments] = useState([
-    {
-      _id: "66c123456789",
-      orderId: {
-        _id: "66a76782176c",
-        orderNumber: "ORD-1001",
+
+  // const [shipments] = useState([
+  //   {
+  //     _id: "66c123456789",
+  //     orderId: {
+  //       _id: "66a76782176c",
+  //       orderNumber: "ORD-1001",
+  //     },
+  //     sellerId: "66seller123",
+  //     trackingNumber: "DL123456789",
+  //     carrier: "delhivery",
+  //     status: "shipped",
+
+  //     shippingAddress: {
+  //       name: "Nilesh Kumar",
+  //       address: "Sector 15, Gurgaon",
+  //       city: "Gurgaon",
+  //       state: "Haryana",
+  //       pincode: "122001",
+  //       phone: "9876543210",
+  //     },
+
+  //     estimatedDelivery: "2026-08-12",
+
+  //     statusHistory: [
+  //       {
+  //         status: "pending",
+  //         note: "Shipment created",
+  //         updatedAt: "2026-08-08T10:20:00",
+  //       },
+  //       {
+  //         status: "packed",
+  //         note: "Product packed successfully",
+  //         updatedAt: "2026-08-08T12:30:00",
+  //       },
+  //       {
+  //         status: "shipped",
+  //         note: "Package handed over to Delhivery",
+  //         updatedAt: "2026-08-08T15:15:00",
+  //       },
+  //     ],
+  //   },
+
+  //   {
+  //     _id: "66c123456790",
+  //     orderId: {
+  //       _id: "66a76782177c",
+  //       orderNumber: "ORD-1002",
+  //     },
+  //     sellerId: "66seller123",
+  //     trackingNumber: "BD987654321",
+  //     carrier: "bluedart",
+  //     status: "packed",
+
+  //     shippingAddress: {
+  //       name: "Rahul Sharma",
+  //       address: "Sector 21",
+  //       city: "Noida",
+  //       state: "Uttar Pradesh",
+  //       pincode: "201301",
+  //       phone: "9876543211",
+  //     },
+
+  //     estimatedDelivery: "2026-08-13",
+
+  //     statusHistory: [
+  //       {
+  //         status: "pending",
+  //         note: "Shipment created",
+  //         updatedAt: "2026-08-08T09:20:00",
+  //       },
+  //       {
+  //         status: "packed",
+  //         note: "Product packed",
+  //         updatedAt: "2026-08-08T11:30:00",
+  //       },
+  //     ],
+  //   },
+
+  //   {
+  //     _id: "66c123456791",
+  //     orderId: {
+  //       _id: "66a76782178d",
+  //       orderNumber: "ORD-1003",
+  //     },
+  //     sellerId: "66seller123",
+  //     trackingNumber: "DT987654321",
+  //     carrier: "dtdc",
+  //     status: "out_for_delivery",
+
+  //     shippingAddress: {
+  //       name: "Amit Kumar",
+  //       address: "MG Road",
+  //       city: "Delhi",
+  //       state: "Delhi",
+  //       pincode: "110001",
+  //       phone: "9876543212",
+  //     },
+
+  //     estimatedDelivery: "2026-08-09",
+
+  //     statusHistory: [
+  //       {
+  //         status: "pending",
+  //         note: "Shipment created",
+  //         updatedAt: "2026-08-07T09:20:00",
+  //       },
+  //       {
+  //         status: "packed",
+  //         note: "Product packed",
+  //         updatedAt: "2026-08-07T12:30:00",
+  //       },
+  //       {
+  //         status: "shipped",
+  //         note: "Package shipped",
+  //         updatedAt: "2026-08-08T08:30:00",
+  //       },
+  //       {
+  //         status: "out_for_delivery",
+  //         note: "Package is out for delivery",
+  //         updatedAt: "2026-08-09T09:00:00",
+  //       },
+  //     ],
+  //   },
+  // ]);
+
+useEffect(() => {
+  fetchShipments();
+}, []);
+
+const fetchShipments = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/api/shipments`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      sellerId: "66seller123",
-      trackingNumber: "DL123456789",
-      carrier: "delhivery",
-      status: "shipped",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch shipments");
+    }
+    const data = await response.json();
+    setShipments(data.shipments);
+    console.log("Fetched Shipments:", data.shipments);
+  } catch (error) {
+    console.error("Error fetching shipments:", error);
+  }
+};
 
-      shippingAddress: {
-        name: "Nilesh Kumar",
-        address: "Sector 15, Gurgaon",
-        city: "Gurgaon",
-        state: "Haryana",
-        pincode: "122001",
-        phone: "9876543210",
-      },
-
-      estimatedDelivery: "2026-08-12",
-
-      statusHistory: [
-        {
-          status: "pending",
-          note: "Shipment created",
-          updatedAt: "2026-08-08T10:20:00",
-        },
-        {
-          status: "packed",
-          note: "Product packed successfully",
-          updatedAt: "2026-08-08T12:30:00",
-        },
-        {
-          status: "shipped",
-          note: "Package handed over to Delhivery",
-          updatedAt: "2026-08-08T15:15:00",
-        },
-      ],
-    },
-
-    {
-      _id: "66c123456790",
-      orderId: {
-        _id: "66a76782177c",
-        orderNumber: "ORD-1002",
-      },
-      sellerId: "66seller123",
-      trackingNumber: "BD987654321",
-      carrier: "bluedart",
-      status: "packed",
-
-      shippingAddress: {
-        name: "Rahul Sharma",
-        address: "Sector 21",
-        city: "Noida",
-        state: "Uttar Pradesh",
-        pincode: "201301",
-        phone: "9876543211",
-      },
-
-      estimatedDelivery: "2026-08-13",
-
-      statusHistory: [
-        {
-          status: "pending",
-          note: "Shipment created",
-          updatedAt: "2026-08-08T09:20:00",
-        },
-        {
-          status: "packed",
-          note: "Product packed",
-          updatedAt: "2026-08-08T11:30:00",
-        },
-      ],
-    },
-
-    {
-      _id: "66c123456791",
-      orderId: {
-        _id: "66a76782178d",
-        orderNumber: "ORD-1003",
-      },
-      sellerId: "66seller123",
-      trackingNumber: "DT987654321",
-      carrier: "dtdc",
-      status: "out_for_delivery",
-
-      shippingAddress: {
-        name: "Amit Kumar",
-        address: "MG Road",
-        city: "Delhi",
-        state: "Delhi",
-        pincode: "110001",
-        phone: "9876543212",
-      },
-
-      estimatedDelivery: "2026-08-09",
-
-      statusHistory: [
-        {
-          status: "pending",
-          note: "Shipment created",
-          updatedAt: "2026-08-07T09:20:00",
-        },
-        {
-          status: "packed",
-          note: "Product packed",
-          updatedAt: "2026-08-07T12:30:00",
-        },
-        {
-          status: "shipped",
-          note: "Package shipped",
-          updatedAt: "2026-08-08T08:30:00",
-        },
-        {
-          status: "out_for_delivery",
-          note: "Package is out for delivery",
-          updatedAt: "2026-08-09T09:00:00",
-        },
-      ],
-    },
-  ]);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -180,7 +208,7 @@ const Shipment = () => {
       minute: "2-digit",
     });
   };
-
+ console.log(selectedShipment);
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
 
@@ -286,7 +314,21 @@ const Shipment = () => {
         <div className="bg-white border rounded-xl p-4 mb-6">
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
+              <input
+              type="text"
+              placeholder="Search order number..."
+              className="
+                w-full
+                border
+                rounded-lg
+                px-4
+                py-3
+                outline-none
+                focus:ring-2
+                focus:ring-red-500
+              "
+            />
+            
             <input
               type="text"
               placeholder="Search tracking number..."
@@ -303,20 +345,7 @@ const Shipment = () => {
             />
 
 
-            <input
-              type="text"
-              placeholder="Search order number..."
-              className="
-                w-full
-                border
-                rounded-lg
-                px-4
-                py-3
-                outline-none
-                focus:ring-2
-                focus:ring-red-500
-              "
-            />
+            
 
 
             <select
@@ -479,12 +508,12 @@ const Shipment = () => {
                     <td className="px-5 py-4">
 
                       <p className="font-semibold text-gray-900">
-                        #{shipment.orderId.orderNumber}
+                        #{shipment.orderNumber}
                       </p>
 
-                      <p className="text-xs text-gray-400 mt-1">
-                        {shipment.orderId._id}
-                      </p>
+                      {/* <p className="text-xs text-gray-400 mt-1">
+                        {shipment._id}
+                      </p> */}
 
                     </td>
 
@@ -635,7 +664,7 @@ const Shipment = () => {
                     </p>
 
                     <p className="font-semibold mt-1">
-                      #{selectedShipment.orderId.orderNumber}
+                      #{selectedShipment.orderNumber}
                     </p>
 
                   </div>

@@ -1,8 +1,13 @@
 import React, { useState } from "react";
-
+import { useToast } from "../../components/ToastProvider.jsx"
+import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../utils/config.js";
 const AddShipment = () => {
+  const { addToast } = useToast();
+  const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
-    orderId: "",
+    orderNumber: "",
     sellerId: "",
     trackingNumber: "",
     carrier: "other",
@@ -34,9 +39,10 @@ const AddShipment = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    console.log("Validating form data:", formData);
 
-    if (!formData.orderId.trim()) {
-      newErrors.orderId = "Order ID is required";
+    if (!formData.orderNumber.trim()) {
+      newErrors.orderNumber = "Order ID is required";
     }
 
     if (!formData.trackingNumber.trim()) {
@@ -81,46 +87,73 @@ const AddShipment = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!validateForm()) {
-      return;
+  if (!validateForm()) {
+    return;
+  }
+
+  const payload = {
+  orderNumber: formData.orderNumber,
+  sellerId: formData.sellerId,
+
+  trackingNumber: formData.trackingNumber,
+
+  carrier: formData.carrier,
+
+  status: formData.status,
+
+  shippingAddress: {
+    name: formData.name,
+    address: formData.address,
+    city: formData.city,
+    state: formData.state,
+    pincode: formData.pincode,
+    phone: formData.phone,
+  },
+
+  estimatedDelivery: formData.estimatedDelivery,
+};
+
+  console.log("Shipment Payload:", payload);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      `${API_URL}/api/shipments`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to create shipment");
     }
 
-    const payload = {
-      orderId: formData.orderId,
-      sellerId: formData.sellerId,
+    console.log("Shipment Created:", data);
+    addToast(data.message || "Shipment created successfully.", "success");
+    navigate("/admin/shipment");
 
-      trackingNumber: formData.trackingNumber,
 
-      carrier: formData.carrier,
-
-      status: formData.status,
-
-      shippingAddress: {
-        name: formData.name,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        pincode: formData.pincode,
-        phone: formData.phone,
-      },
-
-      estimatedDelivery: formData.estimatedDelivery,
-    };
-
-    console.log("Shipment Payload:", payload);
-
-    // API example:
-    // axios.post("/api/seller/shipments", payload)
-
-    alert("Shipment created successfully");
-  };
+  } catch (error) {
+    console.error("Create Shipment Error:", error);
+    addToast(error.message || "Failed to create shipment", "error");
+    // toast.error(error.message || "Failed to create shipment");
+  }
+};
 
   const handleCancel = () => {
     setFormData({
-      orderId: "",
+      orderNumber: "",
       sellerId: "",
       trackingNumber: "",
       carrier: "other",
@@ -196,8 +229,8 @@ const AddShipment = () => {
 
                   <input
                     type="text"
-                    name="orderId"
-                    value={formData.orderId}
+                    name="orderNumber"
+                    value={formData.orderNumber}
                     onChange={handleChange}
                     placeholder="Enter order ID"
                     className={`
@@ -209,16 +242,16 @@ const AddShipment = () => {
                       outline-none
                       focus:ring-2
                       ${
-                        errors.orderId
+                        errors.orderNumber
                           ? "border-red-500 focus:ring-red-200"
                           : "border-gray-300 focus:ring-red-200"
                       }
                     `}
                   />
 
-                  {errors.orderId && (
+                  {errors.orderNumber && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.orderId}
+                      {errors.orderNumber}
                     </p>
                   )}
 

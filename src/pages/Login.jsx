@@ -275,7 +275,7 @@ const Login = () => {
           }
         }
       }
-debugger;
+
       const userRole = finalUser?.role || 'buyer'
       setRole(userRole)
       setStatus('success')
