@@ -146,6 +146,7 @@ const SellerStoreInfo = ({ mode }) => {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -182,6 +183,7 @@ const SellerStoreInfo = ({ mode }) => {
         closingTime: formData.closingTime,
         sellerName: formData.sellerName,
       };
+     
 
       const response = await fetch(`${API_URL}/api/stores${isAddMode ? "" : "/me"}`, {
         method: isAddMode ? "POST" : "PUT",
@@ -235,24 +237,7 @@ const SellerStoreInfo = ({ mode }) => {
           </p>
       </div>
           
-            <div className=" justify-end">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full mr-3 sm:w-auto px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={isSaving || isLoading}
-                className="w-full sm:w-auto px-6 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-red-300"
-              >
-                {isSaving ? "Saving..." : isAddMode ? "Create Store Information" : "Save Store Information"}
-              </button>
            
-          </div>
 </div>
         </div>
 
@@ -543,7 +528,25 @@ const SellerStoreInfo = ({ mode }) => {
             </div>
           </div>
 
-         
+              <div className=" justify-end">
+             
+
+              <button
+                type="submit"
+                disabled={isSaving || isLoading}
+                className="w-full sm:w-auto px-6 mr-3 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 "
+              >
+                {isSaving ? "Saving..." : isAddMode ? "Create Store Information" : "Save Store Information"}
+              </button>
+               <button
+                type="button"
+                onClick={handleCancel}
+                className="w-full mr-3 sm:w-auto px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+           
+          </div>       
         </form>
       </div>
     </div>
