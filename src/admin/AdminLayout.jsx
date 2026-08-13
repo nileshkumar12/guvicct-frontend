@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Globe, Monitor, User  } from 'lucide-react'
 import AdminLogout from './AdminLogout'
-import { VITE_IMG_URLS } from '../../utils/config'
+import { VITE_IMG_URLS } from '../utils/config'
 const AdminLayout = () => {
   const location = useLocation()
   const isAdminPath = (path) => location.pathname === `/admin/${path}` || location.pathname.startsWith(`/admin/${path}/`)

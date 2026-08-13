@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { VITE_IMG_URLS } from '../../utils/config'
+import { VITE_IMG_URLS } from '../utils/config'
 
 import {
     Menu,
