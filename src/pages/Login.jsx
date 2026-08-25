@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/config';
 import { getCartStorageKey, hydrateCartForUser } from '../store/cartSlice'
 import { getWishlistStorageKey, hydrateWishlistForUser } from '../store/wishlistSlice'
+import { useToast } from '../../src/components/ToastProvider';
 
 const normalizeAuthToken = (value) => {
   if (!value) return ''
@@ -147,8 +148,7 @@ const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch()
-
-  
+  const { addToast } = useToast()
 
   const handleChange = (e) => {
     setFormData({
@@ -211,7 +211,6 @@ const Login = () => {
 
         localStorage.setItem('token', token)
 
-        // If the login response included user data, persist it. Otherwise try to fetch profile.
         if (!loggedInUser) {
           try {
             const profileRes = await fetch(`${API_URL}/api/auth/profile`, {
@@ -222,7 +221,7 @@ const Login = () => {
               loggedInUser = normalizeLoggedInUser(profileData)
             }
           } catch (e) {
-            // ignore - we'll try other ways to discover role
+            
           }
         }
 
@@ -233,11 +232,10 @@ const Login = () => {
         if (loggedInUser?.role) {
           setRole(loggedInUser.role)
           setStatus('success')
-          // navigate below based on role
+
         }
       }
 
-      // Decide navigation based on stored user role (fallback to fetching users list)
       let finalUser = null
       const storedUser = localStorage.getItem('user')
       if (storedUser) finalUser = JSON.parse(storedUser)
@@ -255,7 +253,7 @@ const Login = () => {
             }
           }
         } catch (e) {
-          // ignore - continue to users fallback
+
         }
       }
 
@@ -279,7 +277,7 @@ const Login = () => {
       const userRole = finalUser?.role || 'buyer'
       setRole(userRole)
       setStatus('success')
-
+      addToast('Login successful!', 'success')
       const requestedPath = location.state?.from?.pathname
       const requestedSearch = location.state?.from?.search || ''
       const requestedHash = location.state?.from?.hash || ''
@@ -295,7 +293,7 @@ const Login = () => {
         navigate('/')
       }
     } catch (fetchError) {
-      setError(fetchError.message)
+     addToast(fetchError?.response?.data?.message || 'Login failed or invalid credentials', 'error')
       setStatus('error')
     }
   };
@@ -374,9 +372,7 @@ const Login = () => {
               <div className="w-full border-t"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-[#5d4e3f] text-sm">
-                OR
-              </span>
+              <span className="bg-white px-3 text-[#5d4e3f] text-sm">OR</span>
             </div>
           </div>
 

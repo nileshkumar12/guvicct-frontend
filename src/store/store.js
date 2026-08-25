@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import cartReducer, { getCartStorageKey, replaceCartItems } from './cartSlice'
 import wishlistReducer, { getWishlistStorageKey, replaceWishlistItems } from './wishlistSlice'
+import paymentReducer from './paymentSlice'
 import { API_URLS } from '../utils/config'
 
 let isAuthTokenInvalid = false
@@ -161,6 +162,7 @@ const store = configureStore({
   reducer: {
     cart: cartReducer,
     wishlist: wishlistReducer,
+    payment: paymentReducer,
   },
 })
 

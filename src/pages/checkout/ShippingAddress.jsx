@@ -3,15 +3,12 @@ import { useFormContext } from "react-hook-form";
 
 const ShippingAddress = () => {
     const { register, formState: { errors } } = useFormContext();
-
-
     return (
         <>
             <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
                 <h2 className="text-xl font-semibold mb-5">
                     📍 Shipping Address
                 </h2>
-
                 <div className="grid md:grid-cols-2 gap-5">
                     <div className='form-group'>
                         <input type="text" placeholder="First Name"
@@ -27,14 +24,14 @@ const ShippingAddress = () => {
                         <input type="text" placeholder="Last Name"
                             className="border w-full rounded-lg px-4 py-3"
                             {...register("lastName", {
-                                required: "First name is required",
+                                required: "Last name is required",
                             })} />
                         {errors.lastName && (
                             <span className='error'>{errors.lastName.message}</span>
                         )}
                     </div>
 
-                         <div>
+                    <div>
                         <input type="text" placeholder="Address Line 1"
                             className="md:col-span-2 w-full border rounded-lg px-4 py-3"   {...register("address1", {
                                 required: "Address 1 is required",
@@ -43,7 +40,7 @@ const ShippingAddress = () => {
                             <span className='error'>{errors.address1.message}</span>
                         )}
                     </div>
-                        <div>
+                    <div>
                         <input type="text" placeholder="Address Line 2"
                             className="md:col-span-2 w-full border rounded-lg px-4 py-3"   {...register("address2", {
                                 required: "Address 2 is required",
@@ -51,8 +48,7 @@ const ShippingAddress = () => {
                         {errors.address2 && (
                             <span className='error'>{errors.address2.message}</span>
                         )}
-                        </div>
-                    
+                    </div>
 
                     <div>
                         <input type="text" placeholder="City"
@@ -74,7 +70,6 @@ const ShippingAddress = () => {
                             <span className='error'>{errors.state.message}</span>
                         )}
                     </div>
-
                     <div>
                         <input type="text" placeholder="Country"
                             className="border w-full rounded-lg px-4 py-3" {...register("country", {

@@ -103,7 +103,7 @@ const Cart = () => {
 
           {/* Right Side */}
           <div className="lg:col-span-5 space-y-6">
-           
+
             {checkedItems.length > 0 && (
               <>
                 <CouponForm />

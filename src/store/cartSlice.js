@@ -179,6 +179,9 @@ const cartSlice = createSlice({
     removeItem(state, action) {
       state.items = state.items.filter((item) => item.key !== action.payload)
     },
+      removeSelectedItems(state) {
+      state.items = state.items.filter(item => !item.isSelected);
+    },
     clearCart(state) {
        state.items = []
        state.coupon = null
@@ -219,9 +222,10 @@ const selectCartDiscount = createSelector(
 const selectShipping = createSelector(
   [selectCartSubtotal, selectCartCoupon],
   (subtotal, coupon) => {
-    if (subtotal === 0) return 0
-    if (coupon === 'FREESHIP') return 0
-    return 99
+    if (subtotal === 0) return 0;
+    if (subtotal >= 1999) return 0;
+    if (coupon === 'FREESHIP') return 0;
+    return 99;
   },
 )
 
@@ -241,6 +245,7 @@ export const {
   removeItem,
   clearCart,
   applyCoupon,
+  removeSelectedItems
 } = cartSlice.actions
 
 export {
@@ -254,6 +259,8 @@ export {
   selectShipping,
   selectCartTotal,
   getCartStorageKey,
+
+  
 }
 
 export default cartSlice.reducer

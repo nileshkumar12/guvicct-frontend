@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/config'
 
-
 export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
@@ -88,10 +87,31 @@ export default function Register() {
             <label className="block text-[#5d4e3f] mb-2 font-medium">Phone</label>
             <input
               name="phone"
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={10}
+              minLength={10}
               value={formData.phone}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+
+                handleChange({
+                  target: {
+                    name: 'phone',
+                    value,
+                  },
+                })
+              }}
+              required
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
+
+            {formData.phone.length > 0 && formData.phone.length < 10 && (
+              <p className="mt-1 text-sm text-red-500">
+                Phone must be a number and exactly 10 digits.
+              </p>
+            )}
           </div>
 
           <div>
@@ -118,9 +138,6 @@ export default function Register() {
               <option value="seller">Seller</option>
             </select>
           </div>
-
-          
-
           <button
             type="submit"
             className="w-full bg-[#b68a3b] hover:bg-[#906e30] text-white py-3 rounded-lg font-semibold transition duration-300"

@@ -51,11 +51,11 @@ const Categories = () => {
                     <div className="text-center mb-14">
 
                         <h2 className="text-5xl font-light tracking-wide uppercase">
-                            Product Guide
+                            Product Categories
                         </h2>
 
                         <p className="mt-3 text-[#5d4e3f] text-xl">
-                            — Find the perfect product —
+                            — Find the perfect product by category —
                         </p>
 
                     </div>

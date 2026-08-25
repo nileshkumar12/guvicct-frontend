@@ -17,7 +17,11 @@ const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart
                 </div>
                 <div className="flex items-center justify-between">
                     <span>Shipping</span>
-                    <span>₹{shipping.toFixed(2)}</span>
+                    {shipping === 0.00 ? (
+                        <span className="text-green-600">FREE</span>
+                    ) : (
+                        <span>₹{shipping.toFixed(2)}</span>
+                    )}
                 </div>
                 <div className="border-t border-[#e9e2d9] pt-4 flex items-center justify-between text-xl font-semibold text-[#1c1c1c]">
                     <span>Grand Total</span>

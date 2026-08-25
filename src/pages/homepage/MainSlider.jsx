@@ -3,6 +3,7 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+import { Link } from "react-router-dom";
 
 import heroImage1 from "../../assets/slider1.png";
 import heroImage2 from "../../assets/slider2.png";
@@ -61,9 +62,9 @@ const MainSlider = () => {
                     <p className="text-lg md:text-xl text-white/90 mb-8">
                       {slide.subtitle}
                     </p>
-                    <button className="inline-flex items-center justify-center rounded-full bg-[#fffdfa] px-8 py-3 text-sm font-semibold text-[#1c1c1c] shadow-lg shadow-slate-900/10 transition hover:bg-[#f4e9d7]">
+                    <Link to="/products" className="inline-flex items-center justify-center rounded-full bg-[#fffdfa] px-8 py-3 text-sm font-semibold text-[#1c1c1c] shadow-lg shadow-slate-900/10 transition hover:bg-[#f4e9d7]">
                       {slide.button}
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -177,11 +177,11 @@ const Header = () => {
                 {/* Top Bar */}
                 <div className="bg-[#111111] text-white text-sm">
                     <div className="container mx-auto flex justify-between items-center px-4 py-2">
-                        <p>🚚 Free Shipping on Orders Over ₹999</p>
+                        <p>🚚 Free Shipping on Orders Over ₹1999</p>
                         <div className="flex gap-5">
-                            <a href="#">Track Order</a>
-                            <a href="#">Help</a>
-                            <a href="#">Contact</a>
+                            {/* <a href="#">Track Order</a> */}
+                            <Link to="/help">Help</Link>
+                            <Link to="/contact">Contact</Link>
                         </div>
                     </div>
                 </div>
@@ -328,10 +328,15 @@ const Header = () => {
                                     Home
                                 </Link>
                             </li>
+                            <li>
+                                <Link to="/products" className="hover:text-[#b68a3b]">
+                                    Products
+                                </Link>
+                            </li>
 
                           
 
-                            <li className="group relative">
+                            {/* <li className="group relative">
 
                                 <button className="flex items-center gap-1 hover:text-[#b68a3b]">
                                     Product by Category <ChevronDown size={16} />
@@ -357,9 +362,27 @@ const Header = () => {
                                     )}
                                 </div>
 
-                            </li>
-
-                            <li>
+                            </li> */}
+                            {categories.length > 0 ? (
+                                        categories.slice(0, 6).map((category) => {
+                                            const categoryId = category._id || category.id || category.slug || category.name
+                                            const categoryName = category.name || category.title || category.category || 'Category'
+                                            return (
+                                                <li className="hover:text-[#b68a3b]">
+                                                <Link
+                                                    key={categoryId}
+                                                    to={`/category/${categoryId}`}
+                                                    
+                                                >
+                                                    {categoryName}
+                                                </Link>
+                                                </li>
+                                            )
+                                        })
+                                    ) : (
+                                        <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
+                                    )}
+                            {/* <li>
                                 <a href="#" className="hover:text-[#b68a3b]">
                                     New Arrivals
                                 </a>
@@ -381,12 +404,15 @@ const Header = () => {
                                 <a href="#" className="hover:text-[#b68a3b]">
                                     Brands
                                 </a>
+                            </li> */}
+                            <li>
+                               
+                                <Link to="/about" className="hover:text-[#b68a3b]">About Us</Link>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
-                                    Contact
-                                </a>
+                               
+                                <Link to="/contact" className="hover:text-[#b68a3b]">Contact Us</Link>
                             </li>
 
                             {userRole === 'seller' && (

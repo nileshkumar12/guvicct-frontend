@@ -4,6 +4,9 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { API_URL, getImageUrl } from '../../utils/config'
 import { Heart, Search, ShoppingCart } from 'lucide-react'
 import { addToWishlist, removeFromWishlist } from '../../store/wishlistSlice'
+import { addItem } from '../../store/cartSlice'
+import { useToast } from '../../components/ToastProvider.jsx'
+
 
 const CategoryProducts = () => {
   const { id } = useParams()
@@ -16,6 +19,117 @@ const CategoryProducts = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [product, setProduct] = useState([])
+  const { addToast } = useToast()
+
+  const isInStock = product?.stock != null && Number(product.stock) > 0
+
+  const addToCart = (product) => {
+    if (!product) {
+      addToast('Product not found.', 'error')
+      return
+    }
+
+    const productId =
+      product._id ||
+      product.id ||
+      product.sku
+
+    if (!productId) {
+      console.error(
+        'Product ID missing:',
+        product
+      )
+
+      addToast(
+        'Unable to add product. Product ID is missing.',
+        'error'
+      )
+
+      return
+    }
+
+    const stock =
+      product.stock != null
+        ? Number(product.stock)
+        : 0
+
+    if (product.stock == null || stock <= 0) {
+      addToast(
+        'Sorry, this product is out of stock.',
+        'error'
+      )
+
+      return
+    }
+
+
+    const productImage = getImageUrl(
+      product.image ||
+      product.imageUrl ||
+      product.image_url ||
+      ''
+    )
+
+    const cartKey = String(productId)
+
+    const cartItem = {
+      id: String(productId),
+
+      key: cartKey,
+
+      productId: String(productId),
+
+      name:
+        product.name ||
+        product.title ||
+        'Product',
+
+      title:
+        product.name ||
+        product.title ||
+        'Product',
+
+      image: productImage,
+
+      price: Number(product.price || 0),
+
+      quantity: 1,
+
+      stock: stock,
+
+      selectedSize: '',
+
+      selectedFinish: '',
+
+      brand:
+        typeof product.brand === 'string'
+          ? product.brand
+          : product.brand?.name || '',
+
+      category:
+        typeof product.category === 'string'
+          ? product.category
+          : product.category?.name ||
+          product.category?.title ||
+          '',
+
+      sku: product.sku || '',
+    }
+
+    console.log(
+      'Adding product to cart:',
+      cartItem
+    )
+
+    dispatch(addItem(cartItem))
+
+    addToast(
+      `${cartItem.name} added to cart.`,
+      'success'
+    )
+  }
+
 
   useEffect(() => {
     const fetchCategoryProducts = async () => {
@@ -70,33 +184,33 @@ const CategoryProducts = () => {
           productList = isAllCategory
             ? allProducts
             : allProducts.filter((product) => {
-            const productCategory = product.category
-            if (!productCategory) return false
-            if (typeof productCategory === 'string' || typeof productCategory === 'number') {
-              return String(productCategory) === String(id)
-            }
-            return (
-              String(productCategory._id || productCategory.id || productCategory) === String(id) ||
-              String(productCategory.name || productCategory.title) === String(id)
-            )
-          })
+              const productCategory = product.category
+              if (!productCategory) return false
+              if (typeof productCategory === 'string' || typeof productCategory === 'number') {
+                return String(productCategory) === String(id)
+              }
+              return (
+                String(productCategory._id || productCategory.id || productCategory) === String(id) ||
+                String(productCategory.name || productCategory.title) === String(id)
+              )
+            })
         }
 
         const filteredProducts = searchTerm
           ? productList.filter((product) => {
-              const productText = [
-                product.name,
-                product.title,
-                product.description,
-                product.brand,
-                product.category?.name || product.category?.title || product.category,
-              ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase()
+            const productText = [
+              product.name,
+              product.title,
+              product.description,
+              product.brand,
+              product.category?.name || product.category?.title || product.category,
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase()
 
-              return productText.includes(searchTerm)
-            })
+            return productText.includes(searchTerm)
+          })
           : productList
 
         setProducts(filteredProducts)
@@ -130,7 +244,7 @@ const CategoryProducts = () => {
           <h1 className="text-4xl font-semibold text-[#1c1c1c]">{categoryName}</h1>
           {categoryDescription && <p className="mt-3 text-[#5d4e3f] text-lg">{categoryDescription}</p>}
         </div>
-   
+
 
         {loading ? (
           <div className="text-[#5d4e3f]">Loading products...</div>
@@ -172,45 +286,46 @@ const CategoryProducts = () => {
                 >
                   <div className="relative overflow-hidden pt-3">
                     <Link to={`/product/${productId}`}>
-                    {productImage ? (
-                       
-                      <img
-                        src={productImage}
-                        alt={productName}
-                        className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                     
-                    ) : (
-                      <div className="flex h-72 items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
-                        No image
-                      </div>
-                    )}
+                      {productImage ? (
 
-                    <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
-                      {stockLabel}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
- 
+                        <img
+                          src={productImage}
+                          alt={productName}
+                          className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+
+                      ) : (
+                        <div className="flex h-72 items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
+                          No image
+                        </div>
+                      )}
+
+                      <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
+                        {stockLabel}
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
+
                     <div className="absolute right-4 top-4 flex flex-col gap-3 opacity-0 transition duration-300 group-hover:opacity-100">
                       <button
                         type="button"
                         onClick={handleWishlistToggle}
-                        className={`group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg hover:bg-white ${
-                          isWishlisted ? 'text-red-500' : 'text-[#1c1c1c]'
-                        }`}
+                        className={`group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg hover:bg-white ${isWishlisted ? 'text-red-500' : 'text-[#1c1c1c]'
+                          }`}
                       >
                         <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
                         <span className="pointer-events-none absolute left-full top-1/2 hidden -translate-y-1/2 rounded-full bg-black px-3 py-1 text-xs text-white">
                           {isWishlisted ? 'Saved' : 'Wishlist'}
                         </span>
                       </button>
-                      <Link to={`/product/${productId}?action=quickview`} className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-[#1c1c1c] shadow-lg hover:bg-white">
+                      {/* <Link to={`/product/${productId}?action=quickview`} className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-[#1c1c1c] shadow-lg hover:bg-white">
                         <Search size={20} />
                         <span className="pointer-events-none absolute left-full top-1/2 hidden -translate-y-1/2 rounded-full bg-black px-3 py-1 text-xs text-white">
                           Quick View
                         </span>
-                      </Link>
-                      <Link to={`/product/${productId}?action=addcart`} className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-[#1c1c1c] shadow-lg hover:bg-white">
+                      </Link> */}
+                      <Link to="#" onClick={() =>
+                        addToCart(product)
+                      } className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-[#1c1c1c] shadow-lg hover:bg-white">
                         <ShoppingCart size={20} />
                         <span className="pointer-events-none absolute left-full top-1/2 hidden -translate-y-1/2 rounded-full bg-black px-3 py-1 text-xs text-white">
                           Add Cart
@@ -224,8 +339,13 @@ const CategoryProducts = () => {
                       {productName}
                     </Link>
                     <p className="text-sm text-[#5d4e3f]">{product.brand || product.category || 'Gift basket'}</p>
-                    <div className="text-2xl font-bold text-[#1c1c1c]">
-                      {product.price != null ? `₹${product.price}` : '₹0.00'}
+                    <div className="text-2xl font-bold text-[#1aa184]">
+                      <div className='flex justify-between'>
+                        <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${product.price}` : '₹0.00'}</span>
+                        <Link to={`/product/${productId}`} className="inline-block text-right rounded-full bg-[#b68a3b] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#a57c2e]">
+                          Buy Now
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </article>

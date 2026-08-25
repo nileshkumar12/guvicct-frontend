@@ -39,6 +39,11 @@ import SellerNotifications from './admin/seller/SellerNotifications'
 import Shipment from './admin/shipment/Shipment'
 import AddShipment from './admin/shipment/AddShipment'
 import SellerStoreInfo from './admin/profile/SellerStoreInfo'
+import ContactUs from './pages/contact/ContactUs'
+import Products from './pages/products/Products'
+import AboutUs from './pages/about/AboutUs'
+import Help from './pages/help/Help'
+
 const App = () => {
   const location = useLocation();
 
@@ -53,10 +58,15 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
+        <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/about" element={<AboutUs />} />
+         <Route path="/help" element={<Help />} />
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-
         {/* <Route path="/orders" element={<ProtectedRoute><OrderList /></ProtectedRoute>} /> */}
         <Route path="/wishlist" element={<ProtectedRoute><WishLists /></ProtectedRoute>} />
 
@@ -95,7 +105,7 @@ const App = () => {
        
           <Route index element={<DashboardHome />} />
           <Route path="orders" element={<OrderList />} />
-          <Route path="order" element={<Order />} />
+          <Route path="order/:id" element={<Order />} />
           <Route path="changepassword" element={<ChangePassword />} />
           <Route path="savedaddresses" element={<SavedAdresses />} />
           <Route path="paymentmethods" element={<PaymentMethods />} />
