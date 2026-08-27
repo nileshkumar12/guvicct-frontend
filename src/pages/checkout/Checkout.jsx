@@ -512,6 +512,14 @@ const Checkout = () => {
                                 razorpayPaymentId: paymentId,
                                 razorpayOrderId: razorpayOrderId,
                                 razorpaySignature: signature,
+                                paymentProvider: verifyResult.paymentProvider,
+                                paymentType: verifyResult.paymentType,
+                                razorpayMethod: verifyResult.razorpayMethod,
+                                cardNetwork: verifyResult.cardNetwork,
+                                cardType: verifyResult.cardType,
+                                cardLast4: verifyResult.cardLast4,
+                                cardIssuer: verifyResult.cardIssuer,
+                                bankName: verifyResult.bankName,
                                 verification: verifyResult,
                             })
 
@@ -780,21 +788,33 @@ const Checkout = () => {
 
 
                 const finalPayload = {
-                    ...payload,
-                    paymentMethod:'RAZORPAY',
-                    paymentStatus:'PAID',
-                    orderStatus:'CONFIRMED',
-                    razorpayOrderId: paymentResult .razorpayOrderId,
-                    razorpayPaymentId: paymentResult.razorpayPaymentId,
-                    razorpaySignature: paymentResult.razorpaySignature,
-                    razorpay_order_id: paymentResult.razorpayOrderId,
-                    razorpay_payment_id: paymentResult.razorpayPaymentId,
-                    razorpay_signature: paymentResult.razorpaySignature,
-                    sendEmail: true,
-                    sendConfirmationEmail: true,
-                    notifyCustomer: true,
-                }
+                         ...payload,
+                        paymentMethod: "RAZORPAY",
+                        paymentStatus: "PAID",
+                        orderStatus: "CONFIRMED",
+                        paymentProvider: paymentResult.paymentProvider || "Razorpay",
+                        paymentType: paymentResult.paymentType || "Unknown",
+                        razorpayMethod: paymentResult.razorpayMethod || null,
 
+                        cardNetwork: paymentResult.cardNetwork || null,
+                        cardType: paymentResult.cardType || null,
+                        cardLast4: paymentResult.cardLast4 || null,
+                        cardIssuer: paymentResult.cardIssuer || null,
+
+                        bankName: paymentResult.bankName || null,
+
+                        razorpayOrderId: paymentResult.razorpayOrderId,
+                        razorpayPaymentId: paymentResult.razorpayPaymentId,
+                        razorpaySignature: paymentResult.razorpaySignature,
+
+                        razorpay_order_id: paymentResult.razorpayOrderId,
+                        razorpay_payment_id: paymentResult.razorpayPaymentId,
+                        razorpay_signature: paymentResult.razorpaySignature,
+
+                        sendEmail: true,
+                        sendConfirmationEmail: true,
+                        notifyCustomer: true,
+                    }
 
                 if (!finalPayload.razorpayOrderId || !finalPayload.razorpayPaymentId || !finalPayload.razorpaySignature) {
                     throw createPaymentFlowError(

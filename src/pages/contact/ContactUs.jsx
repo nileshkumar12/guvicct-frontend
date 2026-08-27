@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-
+import { API_URL } from '../../utils/config'
 const ContactUs = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -11,6 +11,8 @@ const ContactUs = () => {
   })
 
   const [submitted, setSubmitted] = useState(false)
+  const [successMessage , setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -21,20 +23,46 @@ const ContactUs = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    console.log('Contact form:', formData)
+    try {
 
-    setSubmitted(true)
+      const formData = new FormData(e.target);
 
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-    })
+        const payload = {
+            name: formData.get("name"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            subject: formData.get("subject"),
+            message: formData.get("message"),
+        };
+
+      const response = await fetch(
+        `${API_URL}/api/email/contactemail`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || "Failed to send message"
+        );
+      }
+      setSuccessMessage("Your message has been sent successfully. we will get back to you soon.");
+      console.log("Contact email sent:", result);
+
+    } catch (error) {
+      console.error("Error sending contact email:", error)
+      setErrorMessage("Failed to send message. Please try again later.");
+    }
   }
 
   return (
@@ -86,7 +114,7 @@ const ContactUs = () => {
                     </h3>
 
                     <p className="mt-1 text-sm leading-6 text-blue-100">
-                     Nilesh Kumar, 123 Main Street
+                      Nilesh Kumar, 123 Main Street
                       <br />
                       Gurgaon, Haryana, India
                     </p>
@@ -313,6 +341,17 @@ const ContactUs = () => {
                 </div>
 
               </form>
+                    {successMessage && (
+                      <p className="mt-4 text-sm text-green-600">
+                        {successMessage}
+                      </p>
+                    )}
+                    {errorMessage && (
+                      <p className="mt-4 text-sm text-red-600">
+                        {errorMessage}
+                      </p>
+                    )}
+
             </div>
           </div>
 
