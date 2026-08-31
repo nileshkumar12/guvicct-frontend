@@ -99,7 +99,7 @@ const AdminChangePassword = ({ onButtonClick }) => {
   return (
     <div className="container mx-auto px-4">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-    <div className="max-w-lg bg-white rounded-xl shadow-md ">
+    <div className="max-w-lg bg-white rounded-xl ">
       <h2 className="text-2xl font-bold text-gray-800 mb-2">
         Change Password
       </h2>

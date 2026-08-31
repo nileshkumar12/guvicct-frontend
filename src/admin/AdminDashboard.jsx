@@ -1,118 +1,86 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { API_URL } from "../utils/config";
+
 
 const AdminDashboard = () => {
 
-  const stats = [
-    {
-      title: "Total Revenue",
-      value: "₹18,42,500",
-      change: "+18.5%",
-      icon: "💰",
-      bg: "bg-green-100",
-      color: "text-green-600",
-    },
-    {
-      title: "Total Orders",
-      value: "2,486",
-      change: "+12.4%",
-      icon: "📦",
-      bg: "bg-blue-100",
-      color: "text-blue-600",
-    },
-    {
-      title: "Total Users",
-      value: "12,845",
-      change: "+9.8%",
-      icon: "👥",
-      bg: "bg-purple-100",
-      color: "text-purple-600",
-    },
-    {
-      title: "Total Sellers",
-      value: "348",
-      change: "+6.2%",
-      icon: "🏪",
-      bg: "bg-orange-100",
-      color: "text-orange-600",
-    },
-  ];
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [topSellers, setTopSellers] = useState([]);
+  const [platform, setPlatform] = useState({});
+  const [revenueOverview, setRevenueOverview] = useState({});
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalSellers, setTotalSellers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [growth, setGrowth] = useState(0);
+  const [allSellers, setAllSellers] = useState([]);
+
+  console.log("Recent Orders dfff:", recentOrders);
+
+  const token = localStorage.getItem("token");
 
 
-  const recentOrders = [
-    {
-      id: "ORD-1001",
-      customer: "Nilesh Kumar",
-      seller: "Fashion Store",
-      amount: "₹2,499",
-      status: "Delivered",
-    },
-    {
-      id: "ORD-1002",
-      customer: "Rahul Sharma",
-      seller: "Tech World",
-      amount: "₹5,999",
-      status: "Shipped",
-    },
-    {
-      id: "ORD-1003",
-      customer: "Amit Kumar",
-      seller: "Sports Hub",
-      amount: "₹3,299",
-      status: "Pending",
-    },
-    {
-      id: "ORD-1004",
-      customer: "Rohit Singh",
-      seller: "Fashion Store",
-      amount: "₹1,999",
-      status: "Processing",
-    },
-  ];
+  useEffect(() => {
+    const fetchRecentOrders = async () => {
+      try {
+        console.log("TOKEN:", token);
 
+        const response = await fetch(
+          `${API_URL}/api/admin/dashboard`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("Dashboard Data:", data);
 
-  const sellers = [
-    {
-      name: "Fashion Store",
-      email: "fashion@example.com",
-      sales: "₹4,52,000",
-      status: "Active",
-    },
-    {
-      name: "Tech World",
-      email: "tech@example.com",
-      sales: "₹3,84,500",
-      status: "Active",
-    },
-    {
-      name: "Sports Hub",
-      email: "sports@example.com",
-      sales: "₹2,75,300",
-      status: "Pending",
-    },
-    {
-      name: "Home Store",
-      email: "home@example.com",
-      sales: "₹1,98,400",
-      status: "Active",
-    },
-  ];
+        if (!response.ok) {
+          console.error("Dashboard API Error:", data);
+          return;
+        }
+
+        setRecentOrders(data.recentOrders || []);
+        setAllSellers(data.allSellers || []);
+        setStats(data.stats || []);
+        setTopSellers(data.topSellers || []);
+        setPlatform(data.platform || {});
+        console.log("Stats Data:", data.stats);
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      }
+    };
+
+    fetchRecentOrders();
+
+  }, [token]);
 
 
   const getStatusClass = (status) => {
 
     switch (status) {
 
-      case "Delivered":
-      case "Active":
+      case "Confirmed":
+      case "active":
         return "bg-green-100 text-green-700";
 
-      case "Shipped":
+      case "delivered":
+      case "active":
+        return "bg-green-100 text-green-700";
+
+      case "shipped":
         return "bg-blue-100 text-blue-700";
 
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-700";
 
-      case "Processing":
+      case "processing":
         return "bg-purple-100 text-purple-700";
 
       default:
@@ -143,7 +111,7 @@ const AdminDashboard = () => {
           </div>
 
 
-          <button
+          {/* <button
             className="
               bg-red-500
               hover:bg-red-600
@@ -155,7 +123,7 @@ const AdminDashboard = () => {
             "
           >
             Download Report
-          </button>
+          </button> */}
 
         </div>
 
@@ -163,58 +131,74 @@ const AdminDashboard = () => {
         {/* STAT CARDS */}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-          {stats.map((stat, index) => (
-
-            <div
-              key={index}
-              className="bg-white border rounded-xl p-5"
-            >
-
-              <div className="flex justify-between">
-
-                <div>
-
-                  <p className="text-sm text-gray-500">
-                    {stat.title}
-                  </p>
-
-                  <h2 className="text-2xl font-bold mt-2">
-                    {stat.value}
-                  </h2>
-
-                  <p className={`text-xs mt-2 ${stat.color}`}>
-                    {stat.change} from last month
-                  </p>
-
-                </div>
-
-
-                <div
-                  className={`
-                    w-11
-                    h-11
-                    rounded-lg
-                    flex
-                    items-center
-                    justify-center
-                    text-xl
-                    ${stat.bg}
-                  `}
-                >
-                  {stat.icon}
-                </div>
-
+          <div  className="bg-white border rounded-xl p-5">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-gray-500">
+                  Total Revenue
+                </p>
+                <h2 className="text-2xl font-bold mt-2">
+                  Rs {stats.totalRevenue}
+                </h2>
+             </div>
+             <div
+                className={`w-11 h-11   rounded-lg  flex items-center   justify-center  text-xl `}>
+                {stats.icon}
               </div>
-
             </div>
+          </div>
+                <div  className="bg-white border rounded-xl p-5">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-gray-500">
+                  Total Orders
+                </p>
+                <h2 className="text-2xl font-bold mt-2">
+                  {stats.totalOrders}
+                </h2>
+             </div>
+             <div
+                className={`w-11 h-11   rounded-lg  flex items-center   justify-center  text-xl `}>
+                {stats.icon}
+              </div>
+            </div>
+          </div>
+          <div  className="bg-white border rounded-xl p-5">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-gray-500">
+                  Total Users
+                </p>
+                <h2 className="text-2xl font-bold mt-2">
+                  {stats.totalUsers}
+                </h2>
+             </div>
+             <div
+                className={`w-11 h-11   rounded-lg  flex items-center   justify-center  text-xl `}>
+                {stats.icon}
+              </div>
+            </div>
+          </div>
+           <div  className="bg-white border rounded-xl p-5">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-gray-500">
+                  Total Sellers
+                </p>
+                <h2 className="text-2xl font-bold mt-2">
+                  {stats.totalSellers}
+                </h2>
+             </div>
+             <div
+                className={`w-11 h-11   rounded-lg  flex items-center   justify-center  text-xl `}>
+                {stats.icon}
+              </div>
+            </div>
+          </div>
+       </div>
 
-          ))}
 
-        </div>
-
-
-        {/* ANALYTICS */}
+      {/* ANALYTICS */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -331,7 +315,8 @@ const AdminDashboard = () => {
                   </span>
 
                   <span className="font-semibold">
-                    312 / 348
+                    {/* {platform.totalSellers} / {platform.totalSellersActive} */}
+                    {platform.totalSellers} / {platform.totalSellers}
                   </span>
 
                 </div>
@@ -357,7 +342,7 @@ const AdminDashboard = () => {
                   </span>
 
                   <span className="font-semibold">
-                    8,425
+                    {platform.activeProducts} / {platform.activeProducts}
                   </span>
 
                 </div>
@@ -383,7 +368,7 @@ const AdminDashboard = () => {
                   </span>
 
                   <span className="font-semibold">
-                    92%
+                   {stats.totalOrders} / {stats.totalOrders}
                   </span>
 
                 </div>
@@ -392,7 +377,7 @@ const AdminDashboard = () => {
 
                   <div
                     className="h-2 bg-purple-500 rounded-full"
-                    style={{ width: "92%" }}
+                    style={{ width: `${(stats.totalOrders / stats.totalOrders) * 100}%` }}
                   />
 
                 </div>
@@ -409,8 +394,8 @@ const AdminDashboard = () => {
                   </span>
 
                   <span className="font-semibold">
-                    96%
-                  </span>
+                    {platform.customerSatisfaction} %
+                  </span> 
 
                 </div>
 
@@ -418,7 +403,7 @@ const AdminDashboard = () => {
 
                   <div
                     className="h-2 bg-orange-500 rounded-full"
-                    style={{ width: "96%" }}
+                    style={{ width: `${platform.customerSatisfaction}%` }}
                   />
 
                 </div>
@@ -470,9 +455,7 @@ const AdminDashboard = () => {
                       CUSTOMER
                     </th>
 
-                    <th className="text-left px-5 py-3 text-xs text-gray-500">
-                      SELLER
-                    </th>
+
 
                     <th className="text-left px-5 py-3 text-xs text-gray-500">
                       AMOUNT
@@ -492,24 +475,21 @@ const AdminDashboard = () => {
                   {recentOrders.map((order) => (
 
                     <tr
-                      key={order.id}
+                      key={order._id}
                       className="hover:bg-gray-50"
                     >
 
                       <td className="px-5 py-4 font-semibold">
-                        #{order.id}
+                        #{order.orderNumber}
                       </td>
 
                       <td className="px-5 py-4">
-                        {order.customer}
+                        {order.user.name}
                       </td>
 
-                      <td className="px-5 py-4">
-                        {order.seller}
-                      </td>
 
                       <td className="px-5 py-4 font-semibold">
-                        {order.amount}
+                        {order.total}
                       </td>
 
                       <td className="px-5 py-4">
@@ -522,8 +502,8 @@ const AdminDashboard = () => {
                             text-xs
                             font-semibold
                             ${getStatusClass(
-                              order.status
-                            )}
+                            order.status
+                          )}
                           `}
                         >
                           {order.status}
@@ -563,7 +543,7 @@ const AdminDashboard = () => {
 
             <div className="p-5 space-y-5">
 
-              {sellers.map((seller, index) => (
+              {topSellers.map((seller, index) => (
 
                 <div
                   key={index}
@@ -582,18 +562,18 @@ const AdminDashboard = () => {
                       font-bold
                     "
                   >
-                    {seller.name.charAt(0)}
+                    {seller.sellerName.charAt(0)}
                   </div>
 
 
                   <div className="flex-1 min-w-0">
 
                     <p className="font-semibold truncate">
-                      {seller.name}
+                      {seller.sellerName}
                     </p>
 
                     <p className="text-xs text-gray-500 truncate">
-                      {seller.email}
+                      {seller.sellerEmail}
                     </p>
 
                   </div>
@@ -602,7 +582,7 @@ const AdminDashboard = () => {
                   <div className="text-right">
 
                     <p className="font-semibold text-sm">
-                      {seller.sales}
+                      {seller.revenue}
                     </p>
 
                     <span

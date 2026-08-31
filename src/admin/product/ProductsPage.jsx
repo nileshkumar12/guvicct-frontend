@@ -75,7 +75,11 @@ const ProductsPage = () => {
 
         const data = await response.json()
         const allProducts = Array.isArray(data) ? data : data.products || data.data || []
-        const filtered = sellerId
+        const user= JSON.parse(localStorage.getItem('user') || '{}')
+        const filtered =
+        user?.role === "admin"
+          ? allProducts
+          : sellerId
           ? allProducts.filter((product) => {
               const sellerValue =
                 typeof product.seller === 'string' || typeof product.seller === 'number'

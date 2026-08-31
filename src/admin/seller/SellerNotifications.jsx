@@ -13,11 +13,11 @@ import { API_URL } from "../../utils/config";
 
 const SellerNotifications = () => {
     const [notifications, setNotifications] = useState([]);
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-              
+
                 const url = `${API_URL}/api/seller/notifications`;
                 const response = await fetch(url, {
                     method: "GET",
@@ -76,79 +76,79 @@ const SellerNotifications = () => {
     };
 
     const markAsRead = async (id) => {
-         try {
-            
-                const url = `${API_URL}/api/seller/notifications/${id}/read`;
-                const response = await fetch(url, {
-                    method: "PUT",
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify({ id }),
-                });
+        try {
 
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(
-                        result.message || "Failed to fetch notifications"
-                    );
-                }
+            const url = `${API_URL}/api/seller/notifications/${id}/read`;
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`,
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify({ id }),
+            });
 
-                if (result.success) {
-                     setNotifications((prev) =>
-            prev.map((notification) =>
-                notification._id === id ? { ...notification,    isRead: true,} : notification
-            )
-        );
-                }
-
-            } catch (error) {
-                console.error(
-                    "❌ Failed to mark as read notifications:",
-                    error
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Failed to fetch notifications"
                 );
             }
-      
+
+            if (result.success) {
+                setNotifications((prev) =>
+                    prev.map((notification) =>
+                        notification._id === id ? { ...notification, isRead: true, } : notification
+                    )
+                );
+            }
+
+        } catch (error) {
+            console.error(
+                "❌ Failed to mark as read notifications:",
+                error
+            );
+        }
+
     };
 
     const markAllAsRead = async () => {
         try {
-            
-                const url = `${API_URL}/api/seller/notifications/read-all`;
-                const response = await fetch(url, {
-                    method: "PUT",
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`,
-                        "Content-Type":
-                            "application/json",
-                    },
-                    body: JSON.stringify({}),
-                });
 
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(
-                        result.message || "Failed to fetch notifications"
-                    );
-                }
+            const url = `${API_URL}/api/seller/notifications/read-all`;
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    Authorization:
+                        `Bearer ${token}`,
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify({}),
+            });
 
-                if (result.success) {
-                     setNotifications((prev) =>
-            prev.map((notification) => ({  ...notification, isRead: true, }))
-        );
-                }
-
-            } catch (error) {
-                console.error(
-                    "❌ Failed to mark as read notifications:",
-                    error
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Failed to fetch notifications"
                 );
             }
-       
+
+            if (result.success) {
+                setNotifications((prev) =>
+                    prev.map((notification) => ({ ...notification, isRead: true, }))
+                );
+            }
+
+        } catch (error) {
+            console.error(
+                "❌ Failed to mark as read notifications:",
+                error
+            );
+        }
+
     };
     console.log("Notifications:", notifications);
     return (
@@ -243,7 +243,7 @@ const SellerNotifications = () => {
                     </div>
 
                     {notifications.length === 0 ? (
-            
+
                         <div className="py-20 text-center">
 
                             <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
@@ -268,8 +268,8 @@ const SellerNotifications = () => {
                                 <div
                                     key={notification._id}
                                     className={`relative p-5 border-b border-gray-100 last:border-b-0 transition hover:bg-gray-50 ${!notification.isRead
-                                            ? "bg-blue-50/40"
-                                            : "bg-white"
+                                        ? "bg-blue-50/40"
+                                        : "bg-white"
                                         }`}
                                 >
 
@@ -278,8 +278,8 @@ const SellerNotifications = () => {
                                         {/* Icon */}
                                         <div
                                             className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ${!notification.isRead
-                                                    ? "bg-blue-100 text-blue-600"
-                                                    : "bg-gray-100 text-gray-500"
+                                                ? "bg-blue-100 text-blue-600"
+                                                : "bg-gray-100 text-gray-500"
                                                 }`}
                                         >
                                             {getIcon(notification.type)}
@@ -310,21 +310,21 @@ const SellerNotifications = () => {
 
                                                 <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
                                                     <Clock size={13} />
-                                                    {notification.createdAt} 
-                                               
-                                                
-                                                    </div>
+                                                    {notification.createdAt}
+
+
+                                                </div>
 
                                             </div>
 
                                             {/* Order + Action */}
                                             <div className="flex flex-wrap items-center gap-3 mt-4">
-                                                             
+
                                                 {notification.orderNumber && (
                                                     <span className="text-xs font-medium bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg">
                                                         {notification.orderNumber}
-                                                  
-                                                   </span>
+
+                                                    </span>
                                                 )}
 
                                                 {!notification.isRead && (

@@ -182,7 +182,7 @@ const Login = () => {
           const errorText = await loginResponse.text()
           throw new Error(`Login failed: ${loginResponse.status} ${loginResponse.statusText}. ${errorText}`)
         }
-
+debugger;
         const loginData = await loginResponse.json()
         token = normalizeAuthToken(
           loginData.token ||
@@ -264,6 +264,7 @@ const Login = () => {
         })
 
         if (usersResponse.ok) {
+          debugger;
           const usersData = await usersResponse.json()
           const users = Array.isArray(usersData) ? usersData : usersData.users || usersData.data || []
           const normalizedEmail = formData.email.trim().toLowerCase()
