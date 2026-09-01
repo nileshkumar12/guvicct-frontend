@@ -18,8 +18,6 @@ https://ecommerce-nilesh.netlify.app/
 **Frontend Github Repository:**  
 https://github.com/nileshkumar12/guvicct-frontend  
 
-**Backend:**      
-https://guvicct.onrender.com/ 
 
 **Backend Github Repository:**   
 https://github.com/nileshkumar12/guvicct     
