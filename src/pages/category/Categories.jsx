@@ -44,7 +44,7 @@ const Categories = () => {
     <>
       <section className="py-16">
 
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="mx-auto px-6">
 
 
 
@@ -55,14 +55,14 @@ const Categories = () => {
                         </h2>
 
                         <p className="mt-3 text-[#5d4e3f] text-xl">
-                            — Find the perfect product by category —
+                            — Everything You Need, All in One Place —
                         </p>
 
                     </div>
 
 
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {loading ? (
                         <div className="col-span-1 text-center text-[#5d4e3f]">
                           Loading categories...
@@ -82,28 +82,35 @@ const Categories = () => {
                           const imageSrc = getImageSrc(category.image || category.imageUrl || category.image_url || '')
 
                           return (
+                             <article
+                               
+                                className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
+                            >
+                               <div className="relative overflow-hidden pt-3">
                             <Link
                               key={category._id || category.id || category.slug || index}
                               to={`/category/${category._id || category.id || category.slug || index}`}
                               className="group text-center"
                             >
-                              <div className="bg-white border shadow-sm hover:shadow-xl duration-300 p-8">
+                             
                                 {imageSrc ? (
                                   <img
                                     src={imageSrc}
                                     alt={categoryName}
-                                    className="mx-auto h-72 object-contain group-hover:scale-105 duration-300"
+                                    className="mx-auto h-72  group-hover:scale-105 duration-300"
                                   />
                                 ) : (
                                   <div className="mx-auto flex h-72 w-full items-center justify-center rounded-lg bg-[#f9f5f0] text-sm text-[#5d4e3f]">
                                     No image
                                   </div>
                                 )}
-                              </div>
-                              <h3 className="uppercase tracking-wide mt-5 text-lg text-[#1c1c1c]">
+                             
+                              <h3 className="px-4 py-2 overflow-hidden tracking-wide mt-5 text-lg text-[#ffffff] bg-[#b68a3b]">
                                 {categoryName}
                               </h3>
                             </Link>
+                            </div>
+                            </article>
                           )
                         })
                       )}

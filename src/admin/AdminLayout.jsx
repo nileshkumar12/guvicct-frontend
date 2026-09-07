@@ -11,7 +11,7 @@ const userRole = JSON.parse(localStorage.getItem('user'));
       <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
         <div className="flex items-center gap-4">
           <div>
-            <Link to="/"> <img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{maxWidth:"45px"}}/></Link>
+            <Link to="/admin/dashboard"><img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{maxWidth:"45px"}}/></Link>
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-slate-800">Admin Panel</h1>

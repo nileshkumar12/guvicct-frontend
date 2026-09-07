@@ -11,7 +11,7 @@ const Dashboard = () => {
   return (
 
      <>
-         <div className="container mx-auto px-4 pt-6 text-end">
+         <div className="mx-auto px-4 pt-6 text-end">
           <nav className="flex items-center text-sm text-gray-600">
             <Link
               to="/dashboard"

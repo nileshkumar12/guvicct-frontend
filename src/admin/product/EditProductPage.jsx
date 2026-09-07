@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom"
 import { API_URL, getImageUrl, uploadImageToCloudinary } from "../../utils/config.js"
 import { useToast } from "../../components/ToastProvider.jsx"
 import { fetchProductOptions, getOptionValue, getProductEntityValue } from "./productOptions.js"
+import Variants from "./Variants.jsx"
+import Specifications from "./Specifications.jsx"
+import Addons from "./Addons.jsx"
 
 const EditProductPage = () => {
   const { id } = useParams()
@@ -15,17 +18,22 @@ const EditProductPage = () => {
   const [categories, setCategories] = useState([])
   const [optionsLoading, setOptionsLoading] = useState(true)
   const [optionsError, setOptionsError] = useState("")
+  const [specifications, setSpecifications] = useState([]);
+  const [addons, setAddons] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     category: "",
+    subcategory: "",
     brand: "",
     price: "",
     rating: "",
     stock: "",
+    variants: [],
     image: "",
     imageFile: null,
     imagePreview: "",
+    gallery: [],
     seller: "",
   })
   const navigate = useNavigate()
@@ -58,18 +66,24 @@ const EditProductPage = () => {
           name: item.name || "",
           description: item.description || "",
           category: getProductEntityValue(item.category),
+          subcategory: getProductEntityValue(item.subcategory),
           brand: getProductEntityValue(item.brand),
           price: item.price ?? "",
           rating: item.rating ?? "",
           stock: item.stock ?? "",
+          status: item.status || "active",
+          variants: Array.isArray(item.variants) ? item.variants : [],
           image: item.image || "",
           imageFile: null,
           imagePreview: item.image || "",
+          gallery: [...new Set([...(Array.isArray(item.gallery) ? item.gallery : []), ...(Array.isArray(item.images) ? item.images : [])])],
           seller:
             typeof item.seller === "string"
               ? item.seller
               : item.seller?._id || item.seller?.id || item.seller?.sellerId || "",
         })
+              setSpecifications(Array.isArray(item.specifications) ? item.specifications : [])
+              setAddons(Array.isArray(item.addons) ? item.addons : [])
       } catch (fetchError) {
         setError(fetchError.message)
       } finally {
@@ -128,6 +142,51 @@ const EditProductPage = () => {
     setImageError("")
   }
 
+  const handleGalleryChange = async (e) => {
+    const files = Array.from(e.target.files || [])
+    if (!files.length) return
+
+    if (files.some((file) => file.size > 3 * 1024 * 1024)) {
+      setImageError("Each image file must be under 3MB.")
+      e.target.value = ""
+      return
+    }
+
+    try {
+      const gallery = await Promise.all(files.map((file) => uploadImageToCloudinary(file)))
+      setFormData((prev) => ({ ...prev, gallery: [...prev.gallery, ...gallery] }))
+      setImageError("")
+    } catch (uploadError) {
+      setImageError(uploadError.message || "Failed to upload product images.")
+    } finally {
+      e.target.value = ""
+    }
+  }
+
+  const removeGalleryImage = (indexToRemove) => {
+    setFormData((prev) => ({ ...prev, gallery: prev.gallery.filter((_, index) => index !== indexToRemove) }))
+  }
+
+  const getVariantsPayload = () =>
+    formData.variants.map((variant) => {
+      const { image, images, ...variantData } = variant
+      const mainImage = typeof image === "string" && image.trim() ? image.trim() : ""
+      const additionalImages = [...new Set((images || []).filter((item) => typeof item === "string" && item.trim()))]
+        .filter((item) => item !== mainImage)
+
+      return {
+        ...variantData,
+        ...(mainImage ? { image: mainImage } : {}),
+        ...(additionalImages.length ? { images: additionalImages } : {}),
+        attributes: Object.fromEntries(
+          Object.entries(variant.attributes || {}).map(([key, value]) => [
+            key.trim(),
+            value,
+          ]),
+        ),
+      }
+    })
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitStatus("loading")
@@ -138,12 +197,18 @@ const EditProductPage = () => {
       formPayload.append("name", formData.name)
       formPayload.append("description", formData.description)
       formPayload.append("category", formData.category)
+      formPayload.append("subcategory", formData.subcategory)
       formPayload.append("brand", formData.brand)
       formPayload.append("price", Number(formData.price))
       formPayload.append("rating", Number(formData.rating))
       formPayload.append("stock", Number(formData.stock))
+      formPayload.append("status", formData.status)
+      formPayload.append("variants", JSON.stringify(getVariantsPayload()))
+      formPayload.append("images", JSON.stringify(formData.gallery))
+      formPayload.append("gallery", JSON.stringify(formData.gallery))
       formPayload.append("seller", formData.seller)
-
+      formPayload.append("specifications", JSON.stringify(specifications))
+      formPayload.append("addons", JSON.stringify(addons))  
       if (formData.imageFile) {
         const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
         formPayload.append("image", uploadedImageUrl)
@@ -179,7 +244,7 @@ const EditProductPage = () => {
   if (error) {
     return <div className="text-red-600">{error}</div>
   }
- 
+
   const imageSrc = getImageUrl(formData.imagePreview || formData.image)
 
   return (
@@ -271,22 +336,17 @@ const EditProductPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#5d4e3f]">Product Image</label>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Subcategory</label>
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              name="subcategory"
+              value={formData.subcategory}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              required
             />
-            {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
-            {imageSrc && (
-              <img
-                src={imageSrc}
-                alt="Product"
-                className="mt-3 h-28 w-full max-w-xs rounded-lg object-cover border border-[#d5bea8]"
-              />
-            )}
           </div>
+
+
 
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Price</label>
@@ -299,6 +359,8 @@ const EditProductPage = () => {
               required
             />
           </div>
+
+
 
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Stock</label>
@@ -326,7 +388,19 @@ const EditProductPage = () => {
               required
             />
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8]  px-4 py-3  outline-none"
+              required
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-[#5d4e3f]">Seller ID</label>
             <input
@@ -336,7 +410,63 @@ const EditProductPage = () => {
               className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-[#f4e9d7] px-4 py-3 text-[#5d4e3f] outline-none"
             />
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Product Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+            />
+            {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
+            {imageSrc && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-[#d5bea8]">
+                  <img
+                    src={imageSrc}
+                    alt="Product"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">Additional Product Images</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleGalleryChange}
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+            />
+            {formData.gallery.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {formData.gallery.map((image, index) => (
+                  <div key={`${getImageUrl(image)}-${index}`} className="relative h-20 w-20 overflow-hidden rounded-lg border border-[#d5bea8]">
+                    <img src={getImageUrl(image)} alt="Product gallery" className="h-full w-full object-cover" />
+                    <button type="button" onClick={() => removeGalleryImage(index)} className="absolute right-1 top-1 rounded-full bg-red-600 px-1.5 text-xs text-white" aria-label="Remove image">x</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <hr className="md:col-span-2 my-2 border-t border-[#d5bea8]" />
+          <div className="block md:col-span-2">
+            <Variants
+              value={formData.variants}
+              onChange={(variants) => setFormData((prev) => ({ ...prev, variants }))}
+            />
+          </div>
+          <hr className="md:col-span-2 my-2 border-t border-[#d5bea8]" />
+          <div className="block md:col-span-2">
+            <Specifications value={specifications} onChange={setSpecifications} />
+          </div>
+          <hr className="md:col-span-2 my-2 border-t border-[#d5bea8]" />
+          <div className="block md:col-span-2">
+            <Addons value={addons} onChange={setAddons} />
+          </div>
+          <hr className="md:col-span-2 my-2 border-t border-[#d5bea8]" />
           <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
@@ -344,9 +474,10 @@ const EditProductPage = () => {
             >
               Save Changes
             </button>
-           
+
           </div>
         </form>
+
       </div>
     </div>
   )

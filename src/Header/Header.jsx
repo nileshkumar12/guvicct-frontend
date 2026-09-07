@@ -171,12 +171,10 @@ const Header = () => {
     }
     return (
         <>
-
-
             <header className="sticky top-0 z-50 bg-white shadow-md">
                 {/* Top Bar */}
                 <div className="bg-[#111111] text-white text-sm">
-                    <div className="container mx-auto flex justify-between items-center px-4 py-2">
+                    <div className=" mx-auto flex justify-between items-center px-4 py-2">
                         <p>🚚 Free Shipping on Orders Over ₹1999</p>
                         <div className="flex gap-5">
                             {/* <a href="#">Track Order</a> */}
@@ -187,7 +185,7 @@ const Header = () => {
                 </div>
 
                 {/* Main Header */}
-                <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                <div className=" mx-auto px-4 py-4 flex items-center justify-between">
 
                     {/* Logo */}
                     <div className="text-3xl font-bold text-[#1c1c1c]">
@@ -242,14 +240,12 @@ const Header = () => {
 
                     {/* Right Icons */}
                     <div className="hidden md:flex items-center gap-6">
-
                         <Link to="/wishlist" className="relative">
                             <Heart />
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
                                 {wishlistCount}
                             </span>
                         </Link>
-
                         <Link to="/cart" className="relative">
                             <ShoppingCart />
                             <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
@@ -287,8 +283,6 @@ const Header = () => {
                                         <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
                                             Dashboard
                                         </Link>
-                                       
-
                                         <button onClick={handleSignOut} className="w-full text-left px-4 py-2 hover:bg-gray-100">
                                             Sign Out
                                         </button>
@@ -308,21 +302,48 @@ const Header = () => {
                     </div>
 
                     {/* Mobile */}
+                    <div className="md:hidden">
+                        {isLogged ? (
+                            <div className="relative">
+                                <div className="flex items-center gap-4">
+                                    <Link to="/wishlist" className="relative">
+                                        <Heart />
+                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
+                                            {wishlistCount}
+                                        </span>
+                                    </Link>
+
+                                    <Link to="/cart" className="relative">
+                                        <ShoppingCart />
+                                        <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
+                                            {cartQuantity}
+                                        </span>
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#b68a3b]">
+                                    Login
+                                </Link>
+                                <Link to="/register" className="bg-[#b68a3b] text-white px-3 py-1 rounded hover:bg-[#906e30]">
+                                    Register
+                                </Link>
+                            </div>
+                        )}
+                    </div>
                     <button
                         className="md:hidden"
                         onClick={() => setMobileMenu(!mobileMenu)}
                     >
-                        {mobileMenu ? <X /> : <Menu />}
+                        {mobileMenu ? <X /> : <><Menu /> </>}
                     </button>
-
                 </div>
 
                 {/* Navigation */}
-                <nav className="hidden md:block border-t">
-                    <div className="container mx-auto">
-
+                <nav className="hidden md:block border-t" >
+                    <div className="mx-auto">
                         <ul className="flex gap-8 px-4 py-4 font-medium">
-
                             <li>
                                 <Link to="/" className="hover:text-[#b68a3b]">
                                     Home
@@ -333,9 +354,6 @@ const Header = () => {
                                     Products
                                 </Link>
                             </li>
-
-                          
-
                             {/* <li className="group relative">
 
                                 <button className="flex items-center gap-1 hover:text-[#b68a3b]">
@@ -364,24 +382,24 @@ const Header = () => {
 
                             </li> */}
                             {categories.length > 0 ? (
-                                        categories.slice(0, 6).map((category) => {
-                                            const categoryId = category._id || category.id || category.slug || category.name
-                                            const categoryName = category.name || category.title || category.category || 'Category'
-                                            return (
-                                                <li className="hover:text-[#b68a3b]">
-                                                <Link
-                                                    key={categoryId}
-                                                    to={`/category/${categoryId}`}
-                                                    
-                                                >
-                                                    {categoryName}
-                                                </Link>
-                                                </li>
-                                            )
-                                        })
-                                    ) : (
-                                        <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
-                                    )}
+                                categories.slice(0, 6).map((category) => {
+                                    const categoryId = category._id || category.id || category.slug || category.name
+                                    const categoryName = category.name || category.title || category.category || 'Category'
+                                    return (
+                                        <li className="hover:text-[#b68a3b]">
+                                            <Link
+                                                key={categoryId}
+                                                to={`/category/${categoryId}`}
+
+                                            >
+                                                {categoryName}
+                                            </Link>
+                                        </li>
+                                    )
+                                })
+                            ) : (
+                                <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
+                            )}
                             {/* <li>
                                 <a href="#" className="hover:text-[#b68a3b]">
                                     New Arrivals
@@ -406,23 +424,11 @@ const Header = () => {
                                 </a>
                             </li> */}
                             <li>
-                               
                                 <Link to="/about" className="hover:text-[#b68a3b]">About Us</Link>
-                            </li>
-
+                           </li>
                             <li>
-                               
                                 <Link to="/contact" className="hover:text-[#b68a3b]">Contact Us</Link>
                             </li>
-
-                            {userRole === 'seller' && (
-                                <li>
-                                    <Link to="/admin/dashboard" className="hover:text-[#b68a3b]">
-                                        Admin
-                                    </Link>
-                                </li>
-                            )}
-
                         </ul>
 
                     </div>
@@ -430,29 +436,69 @@ const Header = () => {
 
                 {/* Mobile Menu */}
                 {mobileMenu && (
-                    <div className="md:hidden border-t bg-white">
-
+                    <div className="md:hidden border-t bg-white" onClick={() => setMobileMenu(false)}>
                         <div className="p-4">
-
                             <input
                                 placeholder="Search..."
                                 className="w-full border rounded-lg p-3 mb-4"
                             />
-
                             <ul className="space-y-4">
+                                <li>
+                                    <Link to="/" className="hover:text-[#b68a3b]">
+                                        Home
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/products" className="hover:text-[#b68a3b]">
+                                        Products
+                                    </Link>
+                                </li>
 
-                                <li><a href="#">Home</a></li>
-                                <li><a href="#">Shop</a></li>
-                                <li><a href="#">Categories</a></li>
-                                <li><a href="#">Deals</a></li>
-                                <li><a href="#">New Arrivals</a></li>
-                                <li><a href="#">Best Sellers</a></li>
-                                <li><Link to="/wishlist">Wishlist</Link></li>
-                                <li><Link to="/cart">Cart</Link></li>
-                                <li><Link to="/orders">Order List</Link></li>
-                                <li><a href="#">Account</a></li>
-                                <li><a href="#">Contact</a></li>
+                                {categories.length > 0 ? (
+                                    categories.slice(0, 6).map((category) => {
+                                        const categoryId = category._id || category.id || category.slug || category.name
+                                        const categoryName = category.name || category.title || category.category || 'Category'
+                                        return (
+                                            <li className="hover:text-[#b68a3b]">
+                                                <Link
+                                                    key={categoryId}
+                                                    to={`/category/${categoryId}`}
 
+                                                >
+                                                    {categoryName}
+                                                </Link>
+                                            </li>
+                                        )
+                                    })
+                                ) : (
+                                    <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
+                                )}
+
+                                <li>
+                                    <Link to="/about" className="hover:text-[#b68a3b]">About Us</Link>
+                                </li>
+                                <li>
+                                    <Link to="/contact" className="hover:text-[#b68a3b]">Contact Us</Link>
+                                </li>
+                                 {accountOpen && (
+                                    <>
+                                        {userEmail && (
+                                            <li className="px-4 py-3 border-b border-gray-100 text-sm text-gray-700 break-all">
+                                                {userEmail}
+                                            </li>
+                                        )}
+                                        <li>
+                                        <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
+                                            Dashboard
+                                        </Link>
+                                        </li>
+                                        <li>
+                                        <button onClick={handleSignOut} className="w-full text-left px-4 py-2 hover:bg-gray-100">
+                                            Sign Out
+                                        </button>
+                                    </li>
+                                    </>
+                                )}
                             </ul>
 
                         </div>

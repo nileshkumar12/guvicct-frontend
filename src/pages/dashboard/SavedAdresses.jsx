@@ -87,7 +87,7 @@ const SavedAdresses = () => {
 
 
     return (
-        <div className="container px-4 mx-auto p-6">
+        <div className="px-4 mx-auto p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
                 <div>

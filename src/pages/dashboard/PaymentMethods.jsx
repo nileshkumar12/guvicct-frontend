@@ -3,7 +3,7 @@ import React from 'react'
 const PaymentMethods = () => {
     return (
         <>
-            <div class="container mx-auto px-4 mt-10">
+            <div class="mx-auto px-4 mt-10">
 
                 <div class="flex justify-between items-center mb-8">
                     <div>

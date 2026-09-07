@@ -129,7 +129,7 @@ const Order = () => {
 
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto  px-6">
 
         {/* Header */}
         <div className="mb-8">

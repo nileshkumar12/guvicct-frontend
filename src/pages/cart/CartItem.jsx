@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom'
 
 
 const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
-   
- const itemTotal = item.price * item.quantity
 
+  const variantAttributes = {
+    ...(item.selectedVariant?.attributes || {}),
+    ...(item.attributes || {}),
+    ...(item.variantAttributes || {}),
+  }
   return (
     <>
     <div className="rounded-[10px] border border-[#e9e2d9] bg-white p-5 shadow-sm mb-3">
@@ -32,21 +35,30 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
         <div className="space-y-3">
           <div className="flex flex-col gap-2">
             <h3 className="text-xl font-semibold text-[#1c1c1c]"><Link to={`/product/${item.id}`}>{item.title}</Link></h3>
-            <p className="text-sm text-[#5d4e3f]">{item.brand || 'ShopKart'}</p>
+            <p className="text-sm text-[#5d4e3f]">{item.brand || ''}</p>
           </div>
 
-          {/* <div className="flex flex-wrap gap-2 text-sm text-[#5d4e3f]">
-            {item.selectedSize && (
-              <span className="rounded-full border border-[#e9e2d9] bg-[#f8f5ef] px-3 py-1">
-                {item.selectedSize}
-              </span>
-            )}
-            {item.selectedFinish && (
-              <span className="rounded-full border border-[#e9e2d9] bg-[#f8f5ef] px-3 py-1">
-                {item.selectedFinish}
-              </span>
-            )}
-          </div> */}
+          {Object.keys(variantAttributes).length > 0 && (
+            <div className="flex flex-wrap gap-2 text-sm text-[#5d4e3f]">
+              {Object.entries(variantAttributes).map(([name, value]) => (
+                <span key={name} className="rounded-full border border-[#e9e2d9] bg-[#f8f5ef] px-3 py-1 capitalize">
+                  {name}: {value}
+                </span>
+              ))}
+              {item.variantSku && <span className="font-mono pt-2  text-xs">SKU: {item.variantSku}</span>}
+            </div>
+          )}
+
+          {item.addons?.length > 0 && (
+            <div className="space-y-1 text-sm text-[#5d4e3f]">
+              <p className="font-semibold text-[#1c1c1c]">Add-ons</p>
+              {item.addons.map((addon) => (
+                <p key={addon.key || addon.name}>
+                  {addon.name}: +₹{Number(addon.price || 0).toFixed(2)}
+                </p>
+              ))}
+            </div>
+          )}
 
           <p className="text-sm text-[#5d4e3f]">{item.stock && item.stock !== Infinity ? `${item.stock} available` : 'In stock'}</p>
         </div>
@@ -71,8 +83,7 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
           </div>
 
           <div className="space-y-2 text-right">
-            <p className="text-lg font-semibold text-[#1c1c1c]">₹{item.price.toFixed(2)}</p>
-            <p className="text-sm text-[#5d4e3f]">₹{itemTotal.toFixed(2)} total</p>
+            <p className="text-lg font-semibold text-[#1c1c1c]">₹{Number(item.price || 0).toFixed(2)} each</p>
           </div>
 
           <button

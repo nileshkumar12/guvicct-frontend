@@ -172,9 +172,12 @@ const normalizeCartResponse = (responseItems) => {
   return responseItems.map((item) => {
     const product = item.product || item.productId || item._id || item.id || {}
     const productId = typeof product === 'object' ? product._id || product.id : product
+    const selectedVariant = item.selectedVariant || item.variant || {}
+    const variantId = item.variantId || item.variant_id || selectedVariant._id || selectedVariant.id || selectedVariant.sku || ''
+    const variantAttributes = item.variantAttributes || item.attributes || selectedVariant.attributes || {}
     const quantity = Number(item.quantity || item.qty || 1)
     const price = Number(item.price || product.price || 0)
-    const key = `${productId || item.id || item._id || item.productId || 'item'}`
+    const key = item.key || `${productId || item.id || item._id || item.productId || 'item'}${variantId ? `:${variantId}` : ''}`
 
     return {
       id: productId || item.id || item._id || item.key,
@@ -186,9 +189,12 @@ const normalizeCartResponse = (responseItems) => {
       quantity,
       stock: item.stock != null ? Number(item.stock) : Infinity,
       isSelected: item.isSelected !== false,
+      variantId,
+      variantSku: item.variantSku || item.sku || selectedVariant.sku || '',
+      variantAttributes,
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
-      image: item.image || product.image || '',
+      image: item.image || selectedVariant.image || product.image || '',
     }
   })
 }
@@ -383,6 +389,9 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
       quantity: Number(item.quantity || 1),
       stock: Number(item.stock ?? 0),
       isSelected: item.isSelected !== false,
+      variantId: item.variantId || '',
+      variantSku: item.variantSku || '',
+      variantAttributes: item.variantAttributes || item.attributes || item.selectedVariant?.attributes || {},
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
       image: item.image || '',
@@ -401,6 +410,11 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         isSelected: item.isSelected !== false,
         name: item.name || item.title || '',
         title: item.title || item.name || '',
+        key: item.key,
+        variantId: item.variantId || '',
+        variantSku: item.variantSku || '',
+        attributes: item.variantAttributes || {},
+        variantAttributes: item.variantAttributes || {},
       })),
       cartItems: normalizedItems.map((item) => ({
         product: item.productId || item._id,
@@ -410,6 +424,11 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         isSelected: item.isSelected !== false,
         name: item.name || item.title || '',
         title: item.title || item.name || '',
+        key: item.key,
+        variantId: item.variantId || '',
+        variantSku: item.variantSku || '',
+        attributes: item.variantAttributes || {},
+        variantAttributes: item.variantAttributes || {},
       })),
     }
 

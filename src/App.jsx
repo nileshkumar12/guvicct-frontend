@@ -43,7 +43,7 @@ import ContactUs from './pages/contact/ContactUs'
 import Products from './pages/products/Products'
 import AboutUs from './pages/about/AboutUs'
 import Help from './pages/help/Help'
-
+import RoleBasedRedirect from './Header/RoleBasedRedirect'
 const App = () => {
   const location = useLocation();
 
@@ -54,7 +54,8 @@ const App = () => {
     <>
       {!hideHeader && <Header />}
       <Routes>
-        <Route path="/" element={<Home />}  />
+
+        <Route path="/" element={<><Home /> || <RoleBasedRedirect /></>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />

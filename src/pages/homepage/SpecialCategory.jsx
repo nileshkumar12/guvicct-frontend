@@ -42,7 +42,7 @@ const SpecialCategory = () => {
   return (
     <>
     <section className="py-16 bg-[#fffdfa]">
-    <div className="max-w-7xl mx-auto px-4">
+    <div className="mx-auto px-4">
 
 
         <div className="text-center mb-14">

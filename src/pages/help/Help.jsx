@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 const Help = () => {
   const [openFaq, setOpenFaq] = useState(null);
-
   const categories = [
     {
       icon: "📦",

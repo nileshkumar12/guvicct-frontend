@@ -59,7 +59,7 @@ const Cart = () => {
 
   return (
     <section className="py-4">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="mx-auto px-6">
         <h2 className="py-5 text-4xl font-bold">
           Cart Items
         </h2>

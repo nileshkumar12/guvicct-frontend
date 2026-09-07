@@ -3,7 +3,7 @@ a, button{cursor: pointer;}
 .error{ color:rgb(238, 78, 78)}
 
 .pdtailsPrice {
-  font-size: 45px !important;
+  font-size: 35px !important;
   color: #1aa184;
   font-weight: bold;
 }

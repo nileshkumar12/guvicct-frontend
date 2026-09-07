@@ -2,9 +2,14 @@ import React, { useState, useEffect } from "react";
 import { API_URL } from "../../utils/config.js";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../components/ToastProvider.jsx";
 const Shipment = () => {
   const [selectedShipment, setSelectedShipment] = useState(null);
-const[shipments, setShipments] = useState([]);
+  const [shipments, setShipments] = useState([]);
+  const [filters, setFilters] = useState({ order: "", tracking: "", status: "", carrier: "" });
+  const [statusToUpdate, setStatusToUpdate] = useState("");
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const { addToast } = useToast();
  
 
 useEffect(() => {
@@ -22,9 +27,11 @@ const fetchShipments = async () => {
     if (!response.ok) {
       throw new Error("Failed to fetch shipments");
     }
-    const data = await response.json();
-    setShipments(data.shipments);
-    console.log("Fetched Shipments:", data.shipments);
+      const data = await response.json();
+      const shipmentList = Array.isArray(data)
+        ? data
+        : data.shipments || data.data || data.items || data.results || [];
+      setShipments(Array.isArray(shipmentList) ? shipmentList : []);
   } catch (error) {
     console.error("Error fetching shipments:", error);
   }
@@ -83,6 +90,66 @@ const fetchShipments = async () => {
       minute: "2-digit",
     });
   };
+  console.log(selectedShipment);
+  const updateFilter = (name, value) => {
+    setFilters((current) => ({ ...current, [name]: value }));
+  };
+
+  const getShipmentOrderNumber = (shipment) =>
+    shipment.orderNumber || shipment.order?.orderNumber || shipment.order?.orderNo || shipment.order?._id || "";
+
+  const filteredShipments = shipments.filter((shipment) => {
+    const orderNumber = `${getShipmentOrderNumber(shipment)}`.toLowerCase();
+    const trackingNumber = `${shipment.trackingNumber || shipment.tracking || ""}`.toLowerCase();
+    const status = `${shipment.status || shipment.shipmentStatus || ""}`.trim().toLowerCase();
+    const carrier = `${shipment.carrier || ""}`.trim().toLowerCase();
+
+    return (
+      orderNumber.includes(filters.order.trim().toLowerCase()) &&
+      trackingNumber.includes(filters.tracking.trim().toLowerCase()) &&
+      (!filters.status || status === filters.status) &&
+      (!filters.carrier || carrier === filters.carrier)
+    );
+  });
+
+  const handleStatusUpdate = async () => {
+    if (!selectedShipment?._id || !statusToUpdate || statusToUpdate === selectedShipment.status) return;
+
+    setIsUpdatingStatus(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/shipments/${selectedShipment._id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: statusToUpdate }),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || "Failed to update shipment status");
+      }
+
+      const updatedShipment = data.shipment || data.data || data;
+      const nextShipment = {
+        ...selectedShipment,
+        ...(updatedShipment && typeof updatedShipment === "object" ? updatedShipment : {}),
+        status: updatedShipment?.status || statusToUpdate,
+      };
+      setShipments((current) => current.map((shipment) =>
+        shipment._id === selectedShipment._id ? nextShipment : shipment,
+      ));
+      setSelectedShipment(nextShipment);
+      setStatusToUpdate(nextShipment.status);
+      addToast(data.message || "Shipment status updated successfully.", "success");
+    } catch (error) {
+      addToast(error.message || "Failed to update shipment status.", "error");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
  console.log(selectedShipment);
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -120,7 +187,6 @@ const fetchShipments = async () => {
           </Link>
 
         </div>
-
 
         {/* ================= STAT CARDS ================= */}
 
@@ -192,6 +258,8 @@ const fetchShipments = async () => {
               <input
               type="text"
               placeholder="Search order number..."
+                value={filters.order}
+                onChange={(event) => updateFilter("order", event.target.value)}
               className="
                 w-full
                 border
@@ -207,6 +275,8 @@ const fetchShipments = async () => {
             <input
               type="text"
               placeholder="Search tracking number..."
+              value={filters.tracking}
+              onChange={(event) => updateFilter("tracking", event.target.value)}
               className="
                 w-full
                 border
@@ -224,6 +294,8 @@ const fetchShipments = async () => {
 
 
             <select
+              value={filters.status}
+              onChange={(event) => updateFilter("status", event.target.value)}
               className="
                 w-full
                 border
@@ -272,6 +344,8 @@ const fetchShipments = async () => {
 
 
             <select
+              value={filters.carrier}
+              onChange={(event) => updateFilter("carrier", event.target.value)}
               className="
                 w-full
                 border
@@ -371,7 +445,7 @@ const fetchShipments = async () => {
 
               <tbody className="divide-y">
 
-                {shipments.map((shipment) => (
+                {filteredShipments.map((shipment) => (
 
                   <tr
                     key={shipment._id}
@@ -452,9 +526,10 @@ const fetchShipments = async () => {
                     <td className="px-5 py-4 text-right">
 
                       <button
-                        onClick={() =>
+                        onClick={() => {
                           setSelectedShipment(shipment)
-                        }
+                          setStatusToUpdate(shipment.status || shipment.shipmentStatus || "pending")
+                        }}
                         className="
                           text-red-500
                           hover:text-red-700
@@ -603,9 +678,8 @@ const fetchShipments = async () => {
                   <div className="flex flex-col sm:flex-row gap-3">
 
                     <select
-                      defaultValue={
-                        selectedShipment.status
-                      }
+                      value={statusToUpdate}
+                      onChange={(event) => setStatusToUpdate(event.target.value)}
                       className="
                         flex-1
                         border
@@ -650,6 +724,9 @@ const fetchShipments = async () => {
 
 
                     <button
+                      type="button"
+                      onClick={handleStatusUpdate}
+                      disabled={isUpdatingStatus || !statusToUpdate || statusToUpdate === selectedShipment.status}
                       className="
                         bg-red-500
                         hover:bg-red-600
@@ -659,8 +736,8 @@ const fetchShipments = async () => {
                         py-3
                         rounded-lg
                       "
-                    >
-                      Update Status
+                      >
+                        {isUpdatingStatus ? "Updating..." : "Update Status"}
                     </button>
 
                   </div>

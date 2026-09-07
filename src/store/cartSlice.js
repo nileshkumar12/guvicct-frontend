@@ -33,7 +33,15 @@ const loadCartFromLocalStorage = () => {
 
 const getItemId = (item = {}) => item.id || item._id || item.productId || item.product || item.key || ''
 
-const normalizeItemKey = (item = {}) => `${getItemId(item)}`
+const normalizeItemKey = (item = {}) => `${item.key || getItemId(item)}`
+
+const getVariantAttributes = (item = {}) => ({
+  ...(item.selectedVariant?.attributes || {}),
+  ...(item.attributes || {}),
+  ...(item.variantAttributes || {}),
+})
+
+const getAddons = (item = {}) => (Array.isArray(item.addons) ? item.addons : [])
 
 const initialState = {
   items: loadCartFromLocalStorage(),
@@ -43,6 +51,7 @@ const initialState = {
 
 const normalizeCartItem = (item = {}) => {
   const key = normalizeItemKey(item)
+  const variantAttributes = getVariantAttributes(item)
   return {
     ...item,
     id: item.id || item._id || item.productId || getItemId(item),
@@ -51,6 +60,10 @@ const normalizeCartItem = (item = {}) => {
     quantity: Number(item.quantity) || 1,
     stock: item.stock != null ? Number(item.stock) : Infinity,
     isSelected: item.isSelected !== false,
+    variantId: item.variantId || '',
+    variantSku: item.variantSku || '',
+    variantAttributes,
+    addons: getAddons(item),
     selectedSize: item.selectedSize || '',
     selectedFinish: item.selectedFinish || '',
   }
@@ -92,6 +105,8 @@ const cartSlice = createSlice({
             quantity: Math.max(Number(existing.quantity) || 0, Number(normalized.quantity) || 0),
             price: normalized.price ?? existing.price,
             stock: normalized.stock ?? existing.stock,
+            variantAttributes: { ...existing.variantAttributes, ...normalized.variantAttributes },
+            addons: normalized.addons?.length ? normalized.addons : existing.addons || [],
           })
         } else {
           mergedByKey.set(key, normalized)
@@ -114,6 +129,8 @@ const cartSlice = createSlice({
             ...existing,
             ...normalized,
             quantity: Number(normalized.quantity) || Number(existing.quantity) || 1,
+            variantAttributes: { ...existing.variantAttributes, ...normalized.variantAttributes },
+            addons: normalized.addons?.length ? normalized.addons : existing.addons || [],
           })
           return
         }
@@ -134,6 +151,10 @@ const cartSlice = createSlice({
         existing.quantity = Math.min(existing.quantity + quantity, stock)
         existing.selectedSize = item.selectedSize || existing.selectedSize
         existing.selectedFinish = item.selectedFinish || existing.selectedFinish
+        existing.variantId = item.variantId || existing.variantId
+        existing.variantSku = item.variantSku || existing.variantSku
+        existing.variantAttributes = { ...existing.variantAttributes, ...getVariantAttributes(item) }
+        existing.addons = item.addons?.length ? item.addons : existing.addons || []
       } else {
         state.items.push({
           ...item,
@@ -143,6 +164,10 @@ const cartSlice = createSlice({
           quantity: Math.min(quantity, stock),
           stock,
           isSelected: item.isSelected !== false,
+          variantId: item.variantId || '',
+          variantSku: item.variantSku || '',
+          variantAttributes: getVariantAttributes(item),
+          addons: getAddons(item),
           selectedSize: item.selectedSize || '',
           selectedFinish: item.selectedFinish || '',
         })

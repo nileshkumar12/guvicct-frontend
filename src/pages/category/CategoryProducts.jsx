@@ -230,9 +230,9 @@ const CategoryProducts = () => {
   const categoryDescription = category?.description || category?.summary || ''
 
   return (
-    <section className="py-16">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-8">
+    <section className="py-5">
+      <div className="mx-auto px-6">
+        <div className="mb-5">
           <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">
             Home
           </Link>
@@ -255,11 +255,11 @@ const CategoryProducts = () => {
             {searchTerm ? `No products found for "${searchTerm}" in this category.` : 'No products found for this category.'}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product) => {
               const productName = product.name || product.title || 'Unnamed product'
               const productImage = getImageSrc(product.image || product.imageUrl || product.image_url || '')
-              const stockLabel = product.stock == null ? 'Out of stock' : product.stock <= 5 ? 'Low stock' : 'In stock'
+             const stockLabel = product.stock <= 0 ? 'Out of stock' : '';
               const stockClass = product.stock == null ? 'bg-red-600 text-white' : product.stock <= 5 ? 'bg-amber-500 text-[#1c1c1c]' : 'bg-emerald-500 text-white'
               const productId = product._id || product.id || product.sku || productName
               const wishlistKey = `${productId}`
@@ -282,16 +282,16 @@ const CategoryProducts = () => {
               return (
                 <article
                   key={productId}
-                  className="group relative overflow-hidden rounded-3xl border border-[#e9e2d9] bg-white shadow-sm"
+                  className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
                 >
-                  <div className="relative overflow-hidden pt-3">
+                  <div className="relative text-center overflow-hidden pt-3">
                     <Link to={`/product/${productId}`}>
                       {productImage ? (
 
                         <img
                           src={productImage}
                           alt={productName}
-                          className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
+                          className="h-72 m-auto transition duration-500 group-hover:scale-105"
                         />
 
                       ) : (
@@ -299,10 +299,11 @@ const CategoryProducts = () => {
                           No image
                         </div>
                       )}
-
+                      {product.stock <= 0 && (
                       <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
                         {stockLabel}
                       </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
 
                     <div className="absolute right-4 top-4 flex flex-col gap-3 opacity-0 transition duration-300 group-hover:opacity-100">
@@ -341,7 +342,7 @@ const CategoryProducts = () => {
                     <p className="text-sm text-[#5d4e3f]">{product.brand || product.category || 'Gift basket'}</p>
                     <div className="text-2xl font-bold text-[#1aa184]">
                       <div className='flex justify-between'>
-                        <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${product.price}` : '₹0.00'}</span>
+                        <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
                         <Link to={`/product/${productId}`} className="inline-block text-right rounded-full bg-[#b68a3b] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#a57c2e]">
                           Buy Now
                         </Link>

@@ -13,8 +13,11 @@ const ProductDetails = () => {
   const [error, setError] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState('')
-  const [selectedSize, setSelectedSize] = useState('')
-  const [selectedFinish, setSelectedFinish] = useState('')
+  const [selectedAttributes, setSelectedAttributes] = useState({})
+  const [selectedVariantId, setSelectedVariantId] = useState('')
+  const [selectedAddons, setSelectedAddons] = useState([])
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
+  const [isZooming, setIsZooming] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
   const [openAccordion, setOpenAccordion] = useState('info')
   const dispatch = useDispatch()
@@ -33,23 +36,36 @@ const ProductDetails = () => {
 
   const addToCart = () => {
     if (!product) return
+    if (variants.length && !selectedVariant) {
+      addToast('Please select a product variant.', 'error')
+      return
+    }
     if (!isInStock) {
       addToast('Sorry, this product is out of stock.', 'error')
       return
     }
 
     const idVal = product._id || product.id || product.sku || Date.now()
+    const variantId = selectedVariant?._id || selectedVariant?.id || selectedVariant?.sku || ''
+    const basePrice = Number(selectedVariant?.price ?? product.price ?? 0)
+    const addonTotal = selectedAddons.reduce((sum, addon) => sum + Number(addon.price || 0), 0)
+    const addonKey = selectedAddons.map((addon) => addon.key).sort().join(',')
     const cartItem = {
       id: idVal,
-      key: `${idVal}`,
+      key: `${idVal}${variantId ? `:${variantId}` : ''}${addonKey ? `:addons-${addonKey}` : ''}`,
+      productId: idVal,
+      variantId,
+      variantSku: selectedVariant?.sku || '',
+      variantAttributes: { ...selectedVariant?.attributes, ...selectedAttributes },
       name: product.name || product.title || '',
       title: product.name || product.title || '',
       image: productImage,
-      price: Number(product.price ?? 0),
+      basePrice,
+      addonTotal,
+      price: basePrice + addonTotal,
+      addons: selectedAddons,
       quantity,
-      stock: product.stock != null ? Number(product.stock) : Infinity,
-      selectedSize,
-      selectedFinish,
+      stock: selectedVariant?.stock != null ? Number(selectedVariant.stock) : product.stock != null ? Number(product.stock) : Infinity,
       brand: product.brand || '',
     }
 
@@ -133,14 +149,86 @@ const ProductDetails = () => {
 
   const getImageSrc = getImageUrl
 
-  const images = [
+  const variants = (product?.variants || []).filter((variant) => variant.status === 'active')
+  const selectedVariant = variants.find((variant) => `${variant._id || variant.id || variant.sku || ''}` === selectedVariantId)
+  const normalizeAttributeValue = (value) => String(value ?? '').trim().toLowerCase()
+  const getVariantAttributeValue = (variant, attributeName) => {
+    const entry = Object.entries(variant?.attributes || {}).find(([name]) =>
+      normalizeAttributeValue(name) === normalizeAttributeValue(attributeName),
+    )
+    return entry?.[1]
+  }
+  const getSelectedAttributeValue = (attributeName) => {
+    const entry = Object.entries(selectedAttributes).find(([name]) =>
+      normalizeAttributeValue(name) === normalizeAttributeValue(attributeName),
+    )
+    return entry?.[1]
+  }
+  const variantAttributes = variants.reduce((groups, variant) => {
+    Object.entries(variant.attributes || {}).forEach(([name, value]) => {
+      if (!value) return
+      const groupName = Object.keys(groups).find((key) =>
+        normalizeAttributeValue(key) === normalizeAttributeValue(name),
+      ) || name
+      groups[groupName] = Array.from(new Set([...(groups[groupName] || []), value]))
+    })
+    return groups
+  }, {})
+  const isAttributeValueAvailable = (attributeName, value) =>
+    variants.some((variant) => {
+      const matchesValue = normalizeAttributeValue(getVariantAttributeValue(variant, attributeName)) === normalizeAttributeValue(value)
+      const matchesOtherSelections = Object.entries(selectedAttributes).every(([name, selectedValue]) =>
+        normalizeAttributeValue(name) === normalizeAttributeValue(attributeName) ||
+        normalizeAttributeValue(getVariantAttributeValue(variant, name)) === normalizeAttributeValue(selectedValue),
+      )
+      return matchesValue && matchesOtherSelections
+    })
+  const availableVariantAttributes = Object.fromEntries(
+    Object.entries(variantAttributes)
+      .map(([name, values]) => [name, values.filter((value) => isAttributeValueAvailable(name, value))])
+      .filter(([, values]) => values.length > 0),
+  )
+  const getUniqueImages = (imageSources) => Array.from(new Set(
+    imageSources
+      .filter(Boolean)
+      .map(getImageSrc)
+      .filter(Boolean),
+  ))
+  const productImages = getUniqueImages([
     product?.image,
     product?.imageUrl,
     product?.image_url,
     ...(product?.gallery || []),
-  ]
-    .filter(Boolean)
-    .map(getImageSrc)
+    ...(product?.images || []),
+  ])
+  const selectedVariantImages = getUniqueImages([
+    selectedVariant?.image,
+    ...(selectedVariant?.images || []),
+  ])
+  const images = selectedVariant
+    ? (selectedVariantImages.length ? selectedVariantImages : productImages)
+    : productImages
+
+  useEffect(() => {
+    const firstVariant = variants[0]
+    const variantId = firstVariant?._id || firstVariant?.id || firstVariant?.sku || ''
+    setSelectedVariantId(`${variantId}`)
+    setSelectedAttributes(firstVariant?.attributes || {})
+    setSelectedAddons((product?.addons || [])
+      .filter((addon) => addon.status !== 'inactive' && addon.isRequired)
+      .map((addon, index) => ({
+        ...addon,
+        key: addon._id || addon.id || `${index}-${addon.name}`,
+        price: Number(addon.price) || 0,
+      })))
+    setQuantity(1)
+  }, [product])
+
+  useEffect(() => {
+    const nextImage = images[0] || ''
+    setSelectedImage((currentImage) => currentImage === nextImage ? currentImage : nextImage)
+  }, [selectedVariantId, product])
+
   const sizeOptions = ['XS', 'S', 'M', 'L', 'XL']
   const productImage = selectedImage || images[0] || ''
   const productTitle = product?.name || product?.title || 'Product'
@@ -150,7 +238,47 @@ const ProductDetails = () => {
   const brandName = product?.brand || ''
   const ratingValue = Number(product?.rating) || 0
   const ratingStars = Array.from({ length: 5 }, (_, index) => index + 1)
-  const isInStock = product?.stock != null && Number(product.stock) > 0
+  const isInStock = selectedVariant?.stock != null
+    ? Number(selectedVariant.stock) > 0
+    : product?.stock != null && Number(product.stock) > 0
+  const displayedPrice = selectedVariant?.price ?? product?.price
+  const activeAddons = (product?.addons || []).filter((addon) => addon.status !== 'inactive')
+  const addonTotal = selectedAddons.reduce((sum, addon) => sum + Number(addon.price || 0), 0)
+  const totalDisplayedPrice = Number(displayedPrice || 0) + addonTotal
+
+  const toggleAddon = (addon, checked, index) => {
+    const key = addon._id || addon.id || `${index}-${addon.name}`
+    const normalizedAddon = { ...addon, key, price: Number(addon.price) || 0 }
+    setSelectedAddons((current) => checked
+      ? [...current.filter((item) => item.key !== key), normalizedAddon]
+      : current.filter((item) => item.key !== key))
+  }
+
+  const selectAttribute = (attributeName, value) => {
+    const nextAttributes = { ...selectedAttributes, [attributeName]: value }
+    const matchingVariant = variants.find((variant) =>
+      Object.entries(nextAttributes).every(([name, selectedValue]) =>
+        normalizeAttributeValue(getVariantAttributeValue(variant, name)) === normalizeAttributeValue(selectedValue),
+      ),
+    ) || variants.find((variant) =>
+      normalizeAttributeValue(getVariantAttributeValue(variant, attributeName)) === normalizeAttributeValue(value),
+    )
+    if (!matchingVariant) return
+
+    const variantId = matchingVariant._id || matchingVariant.id || matchingVariant.sku || ''
+    setSelectedVariantId(`${variantId}`)
+    setSelectedAttributes(matchingVariant.attributes || nextAttributes)
+    setSelectedImage(getImageUrl(matchingVariant.image || matchingVariant.images?.[0] || ''))
+    setQuantity(1)
+  }
+
+  const updateZoomPosition = (event) => {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    setZoomPosition({
+      x: ((event.clientX - bounds.left) / bounds.width) * 100,
+      y: ((event.clientY - bounds.top) / bounds.height) * 100,
+    })
+  }
   const detailFeatures = [
     'Fast delivery within 3-5 business days',
     '7-day easy returns',
@@ -161,7 +289,7 @@ const ProductDetails = () => {
     <>
 
       <section className="py-8 bg-[#f6f2eb]">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className=" mx-auto px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">
               ← Back to home
@@ -180,15 +308,28 @@ const ProductDetails = () => {
           ) : (
             <>
               <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_1.2fr]">
-                <div className="rounded-[10px] bg-white p-6">
+                <div className="rounded-[10px] bg-white p-6 shadow-sm">
                   <div className="grid gap-0">
                     {productImage ? (
-                      <img
-                        src={productImage}
-                        alt={productTitle}
-                        className="w-full rounded-[32px] object-cover"
-                        style={{ maxHeight: '460px' }}
-                      />
+                      <div
+                        className="overflow-hidden rounded-[10px]"
+                        onMouseEnter={() => setIsZooming(true)}
+                        onMouseLeave={() => setIsZooming(false)}
+                        onMouseMove={updateZoomPosition}
+                      >
+                        {/* <img
+                          src={productImage}
+                          alt={productTitle}
+                          className="w-full object-cover transition-transform duration-200"
+                          style={{ maxHeight: '460px', transform: isZooming ? 'scale(1.75)' : 'scale(1)', transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }}
+                        /> */}
+                         <img
+                          src={productImage}
+                          alt={productTitle}
+                          className="w-auto m-auto transition-transform duration-200"
+                          style={{ maxHeight: '460px', transform: isZooming ? 'scale(1.75)' : 'scale(1)', transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`, maxWidth: '100%' }}
+                        />
+                      </div>
                     ) : (
                       <div className="flex h-[460px] items-center justify-center rounded-[32px] bg-[#f9f5f0] text-[#5d4e3f]">
                         No image available
@@ -202,9 +343,9 @@ const ProductDetails = () => {
                           key={index}
                           type="button"
                           onClick={() => setSelectedImage(img)}
-                          className={`h-32 overflow-hidden rounded-[28px] border ${img === productImage ? 'border-[#1aa184]' : 'border-[#e9e2d9]'} bg-white shadow-sm`}
+                          className={`h-22 m-2 overflow-hidden rounded-[10px] p-2 border ${img === productImage ? 'border-[#1aa184]' : 'border-[#e9e2d9]'} bg-white shadow-sm`}
                         >
-                          <img src={img} alt={`${productTitle} thumbnail ${index + 1}`} className="h-full w-full object-cover" />
+                          <img src={img} alt={`${productTitle} thumbnail ${index + 1}`} className=" w-full" />
                         </button>
                       ))}
                     </div>
@@ -214,18 +355,18 @@ const ProductDetails = () => {
                   <div className="space-y-6">
                     <div className="space-y-5">
                       <div className="flex flex-col gap-2">
-                        <h1 className="text-4xl font-semibold tracking-tight text-[#1c1c1c]">{productTitle}</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight text-[#1c1c1c]">{productTitle}</h1>
                       </div>
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="space-y-3">
                           <div className="flex items-center gap-4 text-5xl font-bold text-[#1c1c1c]">
-                            <span className='text-4xl font-semibold pdtailsPrice' >{product.price != null ? `₹${product.price}` : '₹0'}</span>
+                            <span className='text-4xl font-semibold pdtailsPrice' >₹{totalDisplayedPrice.toLocaleString('en-IN')}</span>
                             {product.discount && (
                               <div className="rounded-full bg-[#f4e5d4] px-3 py-1 text-sm font-semibold text-[#1a775f]">{product.discount} OFF</div>
                             )}
                           </div>
                           {product.oldPrice && (
-                            <p className="text-sm text-5xl text-[#9a9a9a] line-through">₹{product.oldPrice}</p>
+                            <p className="text-sm text-5xl text-[#9a9a9a] line-through">₹{Number(product.oldPrice).toLocaleString('en-IN')}</p>
                           )}
                         </div>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-[#5d4e3f]">
@@ -242,47 +383,27 @@ const ProductDetails = () => {
                       </div>
                     </div>
 
-                    {/* <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm uppercase tracking-[0.2em] text-[#7a674c]">Ring size</p>
-                        <p className="mt-1 text-xs text-[#5d4e3f]">Pick your size</p>
+                    {Object.entries(availableVariantAttributes).map(([attributeName, values]) => (
+                      <div key={attributeName} className="">
+                        <p className="text-sm font-semibold capitalize text-[#1c1c1c]">{attributeName}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {values.map((value) => (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => selectAttribute(attributeName, value)}
+                              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${normalizeAttributeValue(getSelectedAttributeValue(attributeName)) === normalizeAttributeValue(value) ? 'border-[#1aa184] bg-[#1aa184] text-white' : 'border-[#e9e2d9] bg-white text-[#5d4e3f]'}`}
+                            >
+                              {value}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <select
-                        value={selectedSize}
-                        onChange={(e) => setSelectedSize(e.target.value)}
-                        className="w-36 rounded-3xl border border-[#d1c8b5] bg-white px-4 py-3 text-sm text-[#1c1c1c] outline-none transition focus:border-[#1aa184]"
-                      >
-                        {sizeOptions.map((size) => (
-                          <option key={size} value={size}>{size}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[28px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-sm uppercase tracking-[0.2em] text-[#7a674c]">Finishing</p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {['Shiny', 'Matte', 'Glossy'].map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => setSelectedFinish(option)}
-                            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${selectedFinish === option ? 'bg-[#1aa184] text-white' : 'bg-white text-[#5d4e3f] border border-[#e9e2d9]'}`}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div> */}
+                    ))}
 
                     <div className="grid gap-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="text-sm  text-[#222222]">Quantity</span>
+                        <span className="text-sm  font-semibold text-[#222222]">Quantity</span>
                         <div className="inline-flex overflow-hidden rounded-full border border-[#e9e2d9] bg-white shadow-sm">
                           <button
                             type="button"
@@ -302,10 +423,38 @@ const ProductDetails = () => {
                             +
                           </button>
                         </div>
-                        {product?.stock != null && (
-                          <span className="text-sm text-[#5d4e3f]">Max {product.stock}</span>
+                        {(selectedVariant?.stock ?? product?.stock) != null && (
+                          <span className="text-sm text-[#5d4e3f]">Max {selectedVariant?.stock ?? product.stock}</span>
                         )}
                       </div>
+                      {activeAddons.length > 0 && (
+                        <div className="">
+                          <p className="text-sm font-semibold text-[#1c1c1c]">Add-ons</p>
+                          <div className="mt-3 space-y-3">
+                            {activeAddons.map((addon, index) => {
+                              const addonKey = addon._id || addon.id || `${index}-${addon.name}`
+                              const isSelected = selectedAddons.some((item) => item.key === addonKey)
+                              return (
+                                <label key={addonKey} className="flex cursor-pointer items-start gap-3 rounded-lg border border-[#e9e2d9] bg-white p-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(event) => toggleAddon(addon, event.target.checked, index)}
+                                    className="mt-1 h-4 w-4 accent-[#1aa184]"
+                                  />
+                                  <span className="flex-1">
+                                    <span className="flex justify-between gap-3 text-sm font-semibold text-[#1c1c1c]">
+                                      <span>{addon.name || 'Add-on'}</span>
+                                      <span>+₹{Number(addon.price || 0).toLocaleString('en-IN')}</span>
+                                    </span>
+                                    {addon.description && <span className="mt-1 block text-xs text-[#5d4e3f]">{addon.description}</span>}
+                                  </span>
+                                </label>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex flex-col gap-3 sm:flex-row">
                         <button
                           type="button"
@@ -318,6 +467,20 @@ const ProductDetails = () => {
 
                       </div>
                     </div>
+                    {Array.isArray(product.specifications) && product.specifications.length > 0 && (
+                      <div className="rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
+                        <p className="text-base font-semibold text-[#1c1c1c]">Product Specifications:</p>
+                        <div className="mt-3 divide-y divide-[#e9e2d9]">
+                          {product.specifications.map((specification, index) => (
+                            <div key={`${specification.name || 'specification'}-${index}`} className="flex justify-between gap-4 py-2 text-sm">
+                              <span className="font-medium text-[#1c1c1c]">{specification.name}</span>
+                              <span className="text-right text-[#5d4e3f]">{specification.value}{specification.unit ? ` ${specification.unit}` : ''}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
                       <p className="text-base font-semibold text-[#1c1c1c]">Product Description:</p>
                       <p className="mt-3 text-[#5d4e3f] leading-relaxed whitespace-pre-line">{product.description || product.summary || 'No product description available.'}</p>
@@ -351,7 +514,7 @@ const ProductDetails = () => {
                 <div className="rounded-[10px] mt-8 border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
                   <div className="flex items-center justify-between gap-4 border-b border-[#e9e2d9] pb-4">
                     <div>
-                      <h3 className="text-3xl font-semibold text-[#1c1c1c]">Related products</h3>
+                      <h3 className="text-3xl font-semibold text-[#1c1c1c]">Related Products</h3>
                       <p className="text-sm text-[#5d4e3f]">Hand-picked selections that match your interests.</p>
                     </div>
                   </div>
@@ -364,10 +527,10 @@ const ProductDetails = () => {
                         <Link
                           key={rid || rName}
                           to={`/product/${rid}`}
-                          className="group overflow-hidden rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                          className="group overflow-hidden relative overflow-hidden pt-3 rounded-[10px] border border-[#e9e2d9] bg-[#ffffff] shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                         >
                           {rImage ? (
-                            <img src={rImage} alt={rName} className="h-56 w-full object-cover transition duration-500 group-hover:scale-105" />
+                            <img src={rImage} alt={rName} className="h-72 m-auto transition duration-500 group-hover:scale-105" />
                           ) : (
                             <div className="flex h-56 items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">No image</div>
                           )}

@@ -532,7 +532,7 @@ const OrderList = () => {
 
   return (
     <section className="min-h-[70vh]  from-slate-50 via-white to-amber-50 py-6">
-      <div className="container mx-auto px-4">
+      <div className="mx-auto px-4">
         <div className="mb-8 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Order history</p>
           <h1 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Your orders</h1>
@@ -658,7 +658,7 @@ const OrderList = () => {
                               className="h-16 w-16 rounded-lg object-cover"
                             />
                             <div className="min-w-0 flex-1">
-                              <p className="truncate font-semibold text-slate-900">{item.title}</p>
+                              <p className="truncate font-semibold text-slate-900" style={{ whiteSpace: 'normal' }}>{item.title}</p>
                               <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
                             </div>
                             <p className="font-semibold text-slate-900">{formatCurrency(item.price * item.quantity)}</p>

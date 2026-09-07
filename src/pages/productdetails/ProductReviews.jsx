@@ -195,8 +195,8 @@ const ProductReviews = ({ productId }) => {
 
   return (
     <>
-      <div className="mt-8 rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] p-6 shadow-sm">
-        <div className="mx-auto max-w-6xl px-4">
+      <div className="mt-8 rounded-[10px] border border-[#e9e2d9] bg-[#fffdfa] py-3 shadow-sm">
+        <div className="mx-auto px-4">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>

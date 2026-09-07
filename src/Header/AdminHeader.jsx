@@ -5,8 +5,6 @@ const AdminHeader = () => {
 
     <>
     <div className="min-h-screen bg-gray-100">
-
-
       <header className="h-20 bg-white shadow-sm border-b flex items-center px-8">
         <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
           <span className="text-4xl font-bold text-purple-700">NK</span>

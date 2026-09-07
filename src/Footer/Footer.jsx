@@ -6,6 +6,8 @@ import { API_URL } from '../utils/config'
 
 const Footer=()=> {
 const [categories, setCategories] = useState([])
+const [count, setCount] = useState(0)
+
 
   useEffect(() => {
           const loadCategories = async () => {

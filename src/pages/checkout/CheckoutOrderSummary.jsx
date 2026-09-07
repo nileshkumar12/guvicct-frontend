@@ -23,10 +23,22 @@ const CheckoutOrderSummary = ({
                     <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
                     {/* Products */}
                     <div className="space-y-5">
-                        {items.map(({ key, title, quantity, price })=>(
+                                                {items.map(({ key, title, quantity, price, variantAttributes, variantSku, addons })=>(
                                 <div className="flex justify-between" key={key}>
-                                <span>{title} × {quantity}</span>
-                                <span>₹ {price*quantity}</span>
+                                                                <span style={{ maxWidth: '70%' }}>
+                                                                    {title} × <b>{quantity}</b>
+                                                                    {Object.keys(variantAttributes || {}).length > 0 && (
+                                                                        <small className="block text-gray-500 capitalize">
+                                                                            {Object.entries(variantAttributes).map(([name, value]) => `${name}: ${value}`).join(', ')}{variantSku ? ` (${variantSku})` : ''}
+                                                                        </small>
+                                                                    )}
+                                                                    {addons?.length > 0 && (
+                                                                        <small className="block text-gray-500">
+                                                                            Add-ons: {addons.map((addon) => `${addon.name} (+₹${Number(addon.price || 0).toFixed(2)})`).join(', ')}
+                                                                        </small>
+                                                                    )}
+                                                                </span>
+                                <span>₹ {Number(price || 0) * quantity}</span>
                                 </div>
                         ))}
             </div>

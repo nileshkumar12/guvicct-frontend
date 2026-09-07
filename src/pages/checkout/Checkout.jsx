@@ -127,6 +127,13 @@ const buildCheckoutItems = (items = []) =>
             qty: quantity,
             amount: quantity,
             image: item.image || '',
+            variantId: item.variantId || '',
+            variant: item.variantId || '',
+            variantSku: item.variantSku || '',
+            sku: item.variantSku || item.sku || '',
+            attributes: item.variantAttributes || {},
+            variantAttributes: item.variantAttributes || {},
+            addons: item.addons || [],
         }
     })
 
@@ -954,7 +961,7 @@ const Checkout = () => {
         <>
             <div>
                 <section className=" py-12">
-                    <div className="max-w-7xl mx-auto px-6">
+                    <div className="mx-auto px-6">
                         <div className="mb-10">
                             <h1 className="text-4xl font-bold text-[#1c1c1c]">Checkout</h1>
                             <p className="mt-2 text-gray-500">
