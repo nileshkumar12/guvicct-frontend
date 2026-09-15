@@ -13,6 +13,7 @@ import {
   selectShipping,
   selectCartTotal,
   selectCartCoupon,
+  selectCartGstSummary,
   toggleItemSelection,
   toggleAllSelections,
   updateQuantity,
@@ -30,6 +31,7 @@ const Cart = () => {
   const shipping = useSelector(selectShipping);
   const total = useSelector(selectCartTotal);
   const coupon = useSelector(selectCartCoupon);
+  const gstSummary = useSelector(selectCartGstSummary);
   const allSelected = items.length > 0 && checkedItems.length === items.length;
 
   const handleQuantityChange = (key, quantity) => {
@@ -113,6 +115,7 @@ const Cart = () => {
                   shipping={shipping}
                   total={total}
                   coupon={coupon}
+                  gstSummary={gstSummary}
                   onClearCart={handleClearCart}
                   hasItems={checkedItems.length > 0}
                 />

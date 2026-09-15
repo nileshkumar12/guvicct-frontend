@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom"
 
-const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart, hasItems }) => {
-    
-    
+const OrderSummary = ({ subtotal, discount, shipping, total, coupon, gstSummary, onClearCart, hasItems }) => {
+    const gstAmount = Number(gstSummary?.gstAmount || 0)
+    const cgstAmount = Number(gstSummary?.cgstAmount || 0)
+    const sgstAmount = Number(gstSummary?.sgstAmount || 0)
+    const igstAmount = Number(gstSummary?.igstAmount || 0)
+    const isInterState = Boolean(gstSummary?.isInterState)
+
     return (
         <div className="rounded-[10px] border border-[#e9e2d9] bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-semibold text-[#1c1c1c]">Order summary</h2>
@@ -15,6 +19,25 @@ const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart
                     <span>Discount</span>
                     <span>−₹{discount.toFixed(2)}</span>
                 </div>
+                {gstAmount > 0 && (
+                    isInterState ? (
+                        <div className="flex items-center justify-between">
+                            <span>IGST</span>
+                            <span>₹{igstAmount.toFixed(2)}</span>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center justify-between">
+                                <span>CGST</span>
+                                <span>₹{cgstAmount.toFixed(2)}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span>SGST</span>
+                                <span>₹{sgstAmount.toFixed(2)}</span>
+                            </div>
+                        </>
+                    )
+                )}
                 <div className="flex items-center justify-between">
                     <span>Shipping</span>
                     {shipping === 0.00 ? (

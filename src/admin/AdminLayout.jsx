@@ -1,17 +1,17 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Globe, Monitor, User  } from 'lucide-react'
 import AdminLogout from './AdminLogout'
-
+import vyasonImg from "../../src/assets/vyason.png";
 const AdminLayout = () => {
   const location = useLocation()
   const isAdminPath = (path) => location.pathname === `/admin/${path}` || location.pathname.startsWith(`/admin/${path}/`)
 const userRole = JSON.parse(localStorage.getItem('user'));
   return (
     <div className="min-h-screen bg-[#f7f1e3]">
-      <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
+      <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-2">
         <div className="flex items-center gap-4">
           <div>
-            <Link to="/admin/dashboard"><img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{maxWidth:"45px"}}/></Link>
+            <Link to="/admin/dashboard"><img src={vyasonImg} style={{maxWidth:"220px"}}/></Link>
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-slate-800">Admin Panel</h1>

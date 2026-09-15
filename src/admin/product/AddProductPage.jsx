@@ -32,6 +32,9 @@ const AddProductPage = () => {
     imagePreview: "",
     gallery: [],
     seller: "",
+    hsnCode: "",
+    gstRate: "",
+    priceIncludesGST: false,
   })
   const navigate = useNavigate()
 
@@ -71,8 +74,8 @@ const AddProductPage = () => {
   }, [addToast])
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }))
   }
 
   const handleImageChange = (e) => {
@@ -178,6 +181,9 @@ const AddProductPage = () => {
       formPayload.append("seller", sellerId || formData.seller)
       formPayload.append("specifications", JSON.stringify(specifications))
       formPayload.append("addons", JSON.stringify(addons))
+      formPayload.append("hsnCode", formData.hsnCode)
+      formPayload.append("gstRate", Number(formData.gstRate) || 0)
+      formPayload.append("priceIncludesGST", formData.priceIncludesGST)
 
       if (formData.imageFile) {
         const uploadedImageUrl = await uploadImageToCloudinary(formData.imageFile)
@@ -320,6 +326,46 @@ const AddProductPage = () => {
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">HSN Code</label>
+            <input
+              name="hsnCode"
+              value={formData.hsnCode}
+              onChange={handleChange}
+              placeholder="e.g. 8517"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#5d4e3f]">GST Rate (%)</label>
+            <input
+              type="number"
+              name="gstRate"
+              min="0"
+              max="100"
+              step="0.01"
+              value={formData.gstRate}
+              onChange={handleChange}
+              placeholder="e.g. 18"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 self-end pb-3">
+            <input
+              type="checkbox"
+              id="priceIncludesGST"
+              name="priceIncludesGST"
+              checked={formData.priceIncludesGST}
+              onChange={handleChange}
+              className="h-4 w-4"
+            />
+            <label htmlFor="priceIncludesGST" className="text-sm font-medium text-[#5d4e3f]">
+              Price includes GST
+            </label>
           </div>
 
          

@@ -115,6 +115,12 @@ const CategoryProducts = () => {
           '',
 
       sku: product.sku || '',
+
+      hsnCode: product.hsnCode || '',
+
+      gstRate: Number(product.gstRate) || 0,
+
+      priceIncludesGST: product.priceIncludesGST === true,
     }
 
     console.log(
@@ -213,7 +219,11 @@ const CategoryProducts = () => {
           })
           : productList
 
-        setProducts(filteredProducts)
+        const activeProducts = filteredProducts.filter(
+          (product) => `${product.status || 'active'}`.trim().toLowerCase() !== 'inactive'
+        )
+
+        setProducts(activeProducts)
       } catch (fetchError) {
         setError(fetchError.message || 'Failed to load category products.')
       } finally {

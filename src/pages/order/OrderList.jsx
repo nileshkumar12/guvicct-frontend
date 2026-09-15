@@ -329,6 +329,9 @@ const OrderList = () => {
         price: Number(item.price || 0),
         quantity: Math.max(1, Number(item.quantity || 1)),
         isSelected: true,
+        hsnCode: item.hsnCode || '',
+        gstRate: Number(item.gstRate) || 0,
+        priceIncludesGST: item.priceIncludesGST === true,
       }))
     })
 

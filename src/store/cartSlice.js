@@ -1,4 +1,5 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit'
+import { calculateCartGst, round2 } from '../utils/gst'
 
 const getCurrentUserIdentifier = () => {
   if (typeof window === 'undefined') return 'guest'
@@ -66,6 +67,10 @@ const normalizeCartItem = (item = {}) => {
     addons: getAddons(item),
     selectedSize: item.selectedSize || '',
     selectedFinish: item.selectedFinish || '',
+    // Backward compatible defaults for products/orders created before GST support.
+    hsnCode: item.hsnCode || '',
+    gstRate: Number(item.gstRate) || 0,
+    priceIncludesGST: item.priceIncludesGST === true,
   }
 }
 
@@ -107,6 +112,10 @@ const cartSlice = createSlice({
             stock: normalized.stock ?? existing.stock,
             variantAttributes: { ...existing.variantAttributes, ...normalized.variantAttributes },
             addons: normalized.addons?.length ? normalized.addons : existing.addons || [],
+            // Backend cart APIs may not echo GST fields yet; keep whatever was already known locally.
+            hsnCode: item.hsnCode || existing.hsnCode || '',
+            gstRate: item.gstRate != null ? Number(item.gstRate) || 0 : (Number(existing.gstRate) || 0),
+            priceIncludesGST: item.priceIncludesGST != null ? item.priceIncludesGST === true : existing.priceIncludesGST === true,
           })
         } else {
           mergedByKey.set(key, normalized)
@@ -118,10 +127,18 @@ const cartSlice = createSlice({
     },
     replaceCartItems(state, action) {
       const incomingItems = Array.isArray(action.payload) ? action.payload : []
+      const previousByKey = new Map(state.items.map((item) => [normalizeItemKey(item), item]))
       const byKey = new Map()
 
       incomingItems.forEach((item) => {
+        const previous = previousByKey.get(normalizeItemKey(item))
         const normalized = normalizeCartItem(item)
+        if (previous) {
+          // Backend cart APIs may not echo GST fields yet; keep whatever was already known locally.
+          normalized.hsnCode = item.hsnCode || previous.hsnCode || ''
+          normalized.gstRate = item.gstRate != null ? Number(item.gstRate) || 0 : (Number(previous.gstRate) || 0)
+          normalized.priceIncludesGST = item.priceIncludesGST != null ? item.priceIncludesGST === true : previous.priceIncludesGST === true
+        }
         const existing = byKey.get(normalized.key)
 
         if (existing) {
@@ -155,6 +172,9 @@ const cartSlice = createSlice({
         existing.variantSku = item.variantSku || existing.variantSku
         existing.variantAttributes = { ...existing.variantAttributes, ...getVariantAttributes(item) }
         existing.addons = item.addons?.length ? item.addons : existing.addons || []
+        existing.hsnCode = item.hsnCode || existing.hsnCode || ''
+        existing.gstRate = item.gstRate != null ? Number(item.gstRate) || 0 : (Number(existing.gstRate) || 0)
+        existing.priceIncludesGST = item.priceIncludesGST != null ? item.priceIncludesGST === true : existing.priceIncludesGST === true
       } else {
         state.items.push({
           ...item,
@@ -170,6 +190,9 @@ const cartSlice = createSlice({
           addons: getAddons(item),
           selectedSize: item.selectedSize || '',
           selectedFinish: item.selectedFinish || '',
+          hsnCode: item.hsnCode || '',
+          gstRate: Number(item.gstRate) || 0,
+          priceIncludesGST: item.priceIncludesGST === true,
         })
       }
     },
@@ -227,6 +250,15 @@ const selectCartSubtotal = createSelector([selectCheckedCartItems], (items) =>
   items.reduce((sum, item) => sum + item.price * item.quantity, 0),
 )
 
+// GST is computed per item since different products can carry different GST rates.
+// Customer state is unknown at cart stage, so the split defaults to intra-state (CGST + SGST).
+const selectCartGstSummary = createSelector([selectCheckedCartItems], (items) =>
+  calculateCartGst(items, ''),
+)
+
+const selectCartTaxableAmount = createSelector([selectCartGstSummary], (summary) => summary.taxableAmount)
+const selectCartGstAmount = createSelector([selectCartGstSummary], (summary) => summary.gstAmount)
+
 const selectCartTotalQuantity = createSelector([selectCartItems], (items) =>
   items.reduce((sum, item) => sum + item.quantity, 0),
 )
@@ -255,8 +287,9 @@ const selectShipping = createSelector(
 )
 
 const selectCartTotal = createSelector(
-  [selectCartSubtotal, selectCartDiscount, selectShipping],
-  (subtotal, discount, shipping) => Math.max(0, subtotal - discount + shipping),
+  [selectCartGstSummary, selectCartDiscount, selectShipping],
+  (gstSummary, discount, shipping) =>
+    round2(Math.max(0, gstSummary.taxableAmount + gstSummary.gstAmount - discount + shipping)),
 )
 
 export const {
@@ -283,9 +316,10 @@ export {
   selectCartDiscount,
   selectShipping,
   selectCartTotal,
+  selectCartGstSummary,
+  selectCartTaxableAmount,
+  selectCartGstAmount,
   getCartStorageKey,
-
-  
 }
 
 export default cartSlice.reducer

@@ -29,7 +29,10 @@ const Products = () => {
                 }
 
                 const data = await response.json()
-                setProduct(data.data)
+                const activeProducts = (data.data || []).filter(
+                    (item) => `${item.status || 'active'}`.trim().toLowerCase() !== 'inactive'
+                )
+                setProduct(activeProducts)
                 console.log(data.data)
             } catch (error) {
                 console.error('Error fetching products:', error)
@@ -133,6 +136,12 @@ const Products = () => {
                     '',
 
             sku: product.sku || '',
+
+            hsnCode: product.hsnCode || '',
+
+            gstRate: Number(product.gstRate) || 0,
+
+            priceIncludesGST: product.priceIncludesGST === true,
         }
 
         console.log(

@@ -84,6 +84,11 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
 
           <div className="space-y-2 text-right">
             <p className="text-lg font-semibold text-[#1c1c1c]">₹{Number(item.price || 0).toFixed(2)} each</p>
+            {Number(item.gstRate) > 0 && (
+              <p className="text-xs text-[#5d4e3f]">
+                GST {item.gstRate}% {item.priceIncludesGST ? '(incl.)' : '(extra)'}
+              </p>
+            )}
           </div>
 
           <button

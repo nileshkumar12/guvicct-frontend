@@ -1,6 +1,8 @@
 import React from 'react'
 import { useSelector } from "react-redux";
+import { useFormContext } from "react-hook-form";
 import {selectCheckedCartItems, selectCartSubtotal, selectCartDiscount,  selectShipping,  selectCartTotal,  selectCartCoupon,} from "../../store/cartSlice";
+import { calculateCartGst } from "../../utils/gst";
 const CheckoutOrderSummary = ({
     hasSelectedItems,   isSubmitting,
     submitLabel = 'Place Order',
@@ -13,6 +15,9 @@ const CheckoutOrderSummary = ({
       const shipping = useSelector(selectShipping);
       const total = useSelector(selectCartTotal);
       const coupon = useSelector(selectCartCoupon);
+      const { watch } = useFormContext();
+      const customerState = watch('state');
+      const gstSummary = calculateCartGst(items, customerState);
     
     return (
         <>
@@ -54,6 +59,25 @@ const CheckoutOrderSummary = ({
                             <span>Discount</span>
                             <span>-₹ {discount}</span>
                         </div>
+                        {gstSummary.gstAmount > 0 && (
+                            gstSummary.isInterState ? (
+                                <div className="flex justify-between">
+                                    <span>IGST</span>
+                                    <span>₹ {gstSummary.igstAmount.toFixed(2)}</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex justify-between">
+                                        <span>CGST</span>
+                                        <span>₹ {gstSummary.cgstAmount.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>SGST</span>
+                                        <span>₹ {gstSummary.sgstAmount.toFixed(2)}</span>
+                                    </div>
+                                </>
+                            )
+                        )}
                         <div className="flex justify-between">
                             <span>Shipping</span>
                            {shipping === 0.00 ? (

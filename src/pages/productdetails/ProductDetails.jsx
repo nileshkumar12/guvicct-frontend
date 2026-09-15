@@ -67,6 +67,9 @@ const ProductDetails = () => {
       quantity,
       stock: selectedVariant?.stock != null ? Number(selectedVariant.stock) : product.stock != null ? Number(product.stock) : Infinity,
       brand: product.brand || '',
+      hsnCode: product.hsnCode || '',
+      gstRate: Number(product.gstRate) || 0,
+      priceIncludesGST: product.priceIncludesGST === true,
     }
 
     dispatch(addItem(cartItem))
@@ -93,9 +96,10 @@ const ProductDetails = () => {
 
         const data = await response.json()
         const prod = data.product || data.data || data || null
-        setProduct(prod)
+        const isInactive = prod && `${prod.status || 'active'}`.trim().toLowerCase() === 'inactive'
+        setProduct(isInactive ? null : prod)
         console.log('Fetched product:', prod)
-        if (prod) {
+        if (prod && !isInactive) {
           try {
             let related = []
             // prefer category-based related
@@ -107,7 +111,8 @@ const ProductDetails = () => {
               const relRes = await fetch(`${API_URL}/api/products?category=${encodeURIComponent(categoryId)}`)
               if (relRes.ok) {
                 const relData = await relRes.json()
-                related = Array.isArray(relData) ? relData : relData.products || relData.data || relData.items || relData.result || []
+                const rawRelated = Array.isArray(relData) ? relData : relData.products || relData.data || relData.items || relData.result || []
+                related = rawRelated.filter((p) => p && `${p.status || 'active'}`.trim().toLowerCase() !== 'inactive')
               }
             }
 
@@ -119,6 +124,7 @@ const ProductDetails = () => {
                 const all = Array.isArray(allData) ? allData : allData.products || allData.data || allData.items || allData.result || []
                 related = all.filter((p) => {
                   if (!p) return false
+                  if (`${p.status || 'active'}`.trim().toLowerCase() === 'inactive') return false
                   const pid = p._id || p.id || p.sku
                   if (String(pid) === String(prod._id || prod.id || prod.sku)) return false
                   // match by category id or brand

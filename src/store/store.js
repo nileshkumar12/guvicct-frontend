@@ -195,6 +195,9 @@ const normalizeCartResponse = (responseItems) => {
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
       image: item.image || selectedVariant.image || product.image || '',
+      hsnCode: item.hsnCode || product.hsnCode || '',
+      gstRate: Number(item.gstRate ?? product.gstRate) || 0,
+      priceIncludesGST: (item.priceIncludesGST ?? product.priceIncludesGST) === true,
     }
   })
 }
@@ -395,6 +398,9 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
       image: item.image || '',
+      hsnCode: item.hsnCode || '',
+      gstRate: Number(item.gstRate) || 0,
+      priceIncludesGST: item.priceIncludesGST === true,
     }))
 
     const storedUser = getStoredUser()
@@ -415,6 +421,9 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         variantSku: item.variantSku || '',
         attributes: item.variantAttributes || {},
         variantAttributes: item.variantAttributes || {},
+        hsnCode: item.hsnCode || '',
+        gstRate: item.gstRate || 0,
+        priceIncludesGST: item.priceIncludesGST === true,
       })),
       cartItems: normalizedItems.map((item) => ({
         product: item.productId || item._id,
@@ -429,6 +438,9 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         variantSku: item.variantSku || '',
         attributes: item.variantAttributes || {},
         variantAttributes: item.variantAttributes || {},
+        hsnCode: item.hsnCode || '',
+        gstRate: item.gstRate || 0,
+        priceIncludesGST: item.priceIncludesGST === true,
       })),
     }
 

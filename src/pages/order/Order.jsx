@@ -206,6 +206,12 @@ const Order = () => {
                     <p className="text-sm text-gray-500">
                       {formatCurrency(item.price)} each
                     </p>
+
+                    {Number(item.gstRate) > 0 && (
+                      <p className="text-xs text-gray-400">
+                        HSN {item.hsnCode || '-'} · GST {item.gstRate}% ({formatCurrency(item.gstAmount)})
+                      </p>
+                    )}
                   </div>
 
                 </div>
@@ -296,6 +302,24 @@ const Order = () => {
                   </span>
                 </div>
 
+                {Number(orderDetails.igstAmount) > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span>IGST</span>
+                    <span>{formatCurrency(orderDetails.igstAmount)}</span>
+                  </div>
+                ) : (Number(orderDetails.cgstAmount) > 0 || Number(orderDetails.sgstAmount) > 0) && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span>CGST</span>
+                      <span>{formatCurrency(orderDetails.cgstAmount)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>SGST</span>
+                      <span>{formatCurrency(orderDetails.sgstAmount)}</span>
+                    </div>
+                  </>
+                )}
+
                 <div className="flex items-center justify-between">
                   <span>Shipping</span>
                   <span>
@@ -313,7 +337,7 @@ const Order = () => {
                   <span>Total</span>
 
                   <span>
-                    {formatCurrency(orderDetails.total)}
+                    {formatCurrency(orderDetails.grandTotal || orderDetails.total)}
                   </span>
                 </div>
 

@@ -15,6 +15,7 @@ import { useToast } from '../../components/ToastProvider';
 import LoginRequiredCard from '../../components/LoginRequiredCard';
 import { createRazorpayOrder, resetPayment, verifyRazorpayPayment } from '../../store/paymentSlice';
 import { loadRazorpay } from '../../utils/loadRazorpay';
+import { calculateCartGst } from '../../utils/gst';
 import { selectCheckedCartItems, selectCartSubtotal, selectCartDiscount, selectShipping, selectCartTotal, selectCartCoupon, removeSelectedItems} from '../../store/cartSlice';
 const normalizeAuthToken = (value) => {
     if (!value) return ''
@@ -134,6 +135,13 @@ const buildCheckoutItems = (items = []) =>
             attributes: item.variantAttributes || {},
             variantAttributes: item.variantAttributes || {},
             addons: item.addons || [],
+            hsnCode: item.hsnCode || '',
+            gstRate: Number(item.gstRate) || 0,
+            taxableAmount: Number(item.taxableAmount) || 0,
+            cgstAmount: Number(item.cgstAmount) || 0,
+            sgstAmount: Number(item.sgstAmount) || 0,
+            igstAmount: Number(item.igstAmount) || 0,
+            gstAmount: Number(item.gstAmount) || 0,
         }
     })
 
@@ -634,7 +642,12 @@ const Checkout = () => {
         const customerEmail = normalizeEmail( data.email || authContext.email || user?.email || '')
         const customerMobile =normalizeText( data.mobile || user?.mobile || user?.phone || '')
         const customerName = normalizeText( `${shippingAddress.firstName} ${shippingAddress.lastName}`)
-        const orderLineItems = buildCheckoutItems(selectedItems)
+        // Recalculated here for the payload/Razorpay amount; backend must still recompute and trust its own figures.
+        const gstSummary = calculateCartGst(selectedItems, shippingAddress.state)
+        const orderLineItems = buildCheckoutItems(gstSummary.items)
+        const grandTotal = Number(
+            (gstSummary.taxableAmount + gstSummary.gstAmount - Number(discount || 0) + Number(shipping || 0)).toFixed(2)
+        )
 
 
         const payload = {
@@ -720,11 +733,16 @@ const Checkout = () => {
             discount: Number(discount || 0),
             shippingCost: Number(shipping || 0),
             shippingFee: Number(shipping || 0),
-            total: Number(total || 0),
-            totalAmount: Number(total || 0),
-            totalPrice: Number(total || 0),
-            grandTotal: Number(total || 0),
-            amount: Number(total || 0),
+            taxableAmount: gstSummary.taxableAmount,
+            cgstAmount: gstSummary.cgstAmount,
+            sgstAmount: gstSummary.sgstAmount,
+            igstAmount: gstSummary.igstAmount,
+            gstAmount: gstSummary.gstAmount,
+            total: grandTotal,
+            totalAmount: grandTotal,
+            totalPrice: grandTotal,
+            grandTotal: grandTotal,
+            amount: grandTotal,
             items: orderLineItems,
             orderItems: orderLineItems,
             cartItems: orderLineItems,
@@ -758,7 +776,7 @@ const Checkout = () => {
                 try {
 
                     paymentResult = await startRazorpayPayment({
-                            amount: Number(total || 0),
+                            amount: grandTotal,
                             customer: {
                                 name: customerName || user?.name ||'',
                                 email: customerEmail,
