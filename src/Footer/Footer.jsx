@@ -34,9 +34,10 @@ const [count, setCount] = useState(0)
   return (
     <>
     <footer className="bg-[#141414] px-4 py-10 text-[#d4c5a4] sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid  gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <h2 className="text-lg font-semibold text-white"><Link to="/"><img style={{maxWidth:"250px", borderRadius:"5px"}} src={vyasonImgfooter}/></Link></h2>
+            {/* <h2 className="text-lg font-semibold text-white"><Link to="/"><img style={{maxWidth:"250px", borderRadius:"5px"}} src={vyasonImgfooter}/></Link></h2> */}
+             <h3 className="font-semibold text-white">Working Hours</h3>
             <p className="mt-3 text-sm">
               Mon-Fri 9:30 AM - 6:30 PM
               <br />

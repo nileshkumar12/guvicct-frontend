@@ -15,8 +15,8 @@ const WishLists = () => {
   }
 
   return (
-    <section className="py-16">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="py-10">
+      <div className="mx-auto  px-6">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">
@@ -49,21 +49,24 @@ const WishLists = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {wishlistItems.map((item) => {
               const imageUrl = getImageUrl(item.image || '')
               return (
-                <article key={item.key} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+                <article key={item.key} className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                   <div className="relative overflow-hidden pt-3">
                   <Link to={`/product/${item.id}`} className="block">
                     {imageUrl ? (
-                      <img src={imageUrl} alt={item.name} className="h-64 w-full object-cover" />
+                     
+                        <img src={imageUrl} alt={item.name} className="mx-auto h-72  group-hover:scale-105 duration-300" />
+                      
                     ) : (
                       <div className="flex h-64 items-center justify-center bg-gray-100 text-sm text-gray-500">
                         No image available
                       </div>
                     )}
                   </Link>
-
+                  </div>
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div>
