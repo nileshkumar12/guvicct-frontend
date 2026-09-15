@@ -233,14 +233,14 @@ const Products = () => {
                                 </div>
 
                                 <div className="space-y-4 p-6">
-                                    <Link to={`/product/${item._id}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#b68a3b]">
+                                    <Link to={`/product/${item._id}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
                                         {item.name ? item.name : 'Unnamed Product'}
                                     </Link>
                                     <p className="text-sm text-[#5d4e3f]">{item.brand || item.category}</p>
                                     <div className="text-2xl font-bold text-[#1c1c1c]">
                                         <div className='flex justify-between'>
                                             <span className="text-sm font-bold text-4xl text-[#1aa184]"> {item.price != null ? `₹${Number(item.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
-                                        <Link to={`/product/${item._id}`} className="inline-block text-right rounded-full bg-[#b68a3b] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#a57c2e]">
+                                        <Link to={`/product/${item._id}`} className="inline-block text-right rounded-full bg-[#4254bf] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3546ae]">
                                        Buy Now
                                     </Link>
                                         </div>

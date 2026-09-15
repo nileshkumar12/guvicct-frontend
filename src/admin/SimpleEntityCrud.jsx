@@ -119,7 +119,7 @@ export const SimpleEntityListPage = ({ config }) => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         {config.labelPlural}
       </div>
 
@@ -130,7 +130,7 @@ export const SimpleEntityListPage = ({ config }) => {
         </div>
         <Link
           to={`/admin/${config.route}/add`}
-          className="inline-flex items-center justify-center rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
+          className="inline-flex items-center justify-center rounded-full bg-[#4254bf] px-6 py-3 text-white hover:bg-[#3546ae] transition"
         >
           Add {config.label}
         </Link>
@@ -380,7 +380,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         {title}
       </div>
 
@@ -406,7 +406,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -418,7 +418,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
             />
           </div>
 
@@ -430,7 +430,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
                 accept="image/*"
                 required={mode === "add"}
                 onChange={handleImageChange}
-                className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+                className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#4254bf]"
               />
               {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
               {imageSrc && (
@@ -446,7 +446,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
           <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
-              className="rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
+              className="rounded-full bg-[#4254bf] px-6 py-3 text-white hover:bg-[#3546ae] transition"
             >
               {actionLabel}
             </button>

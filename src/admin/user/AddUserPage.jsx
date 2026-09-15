@@ -43,7 +43,7 @@ const AddUserPage = () => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         Add User
       </div>
 
@@ -69,7 +69,7 @@ const AddUserPage = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -80,7 +80,7 @@ const AddUserPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -90,7 +90,7 @@ const AddUserPage = () => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
             />
           </div>
           <div>
@@ -100,7 +100,7 @@ const AddUserPage = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -110,7 +110,7 @@ const AddUserPage = () => {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
             >
               <option value="buyer">Buyer</option>
               <option value="seller">Seller</option>
@@ -122,7 +122,7 @@ const AddUserPage = () => {
           <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
-              className="rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
+              className="rounded-full bg-[#4254bf] px-6 py-3 text-white hover:bg-[#3546ae] transition"
             >
               Create User
             </button>

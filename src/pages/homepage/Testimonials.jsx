@@ -21,7 +21,7 @@ const Testimonials = () => {
          <section className="bg-white">
         <div className="mx-auto px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[#b68a3b]">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#4254bf]">
               Testimonials
             </p>
             <h2 className="mt-2 text-3xl font-bold">Customers love producting with us</h2>

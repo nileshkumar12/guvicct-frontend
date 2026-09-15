@@ -336,14 +336,14 @@ const CategoryProducts = () => {
                   </div>
 
                   <div className="space-y-4 p-6">
-                    <Link to={`/product/${productId}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#b68a3b]">
+                    <Link to={`/product/${productId}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
                       {productName}
                     </Link>
                     <p className="text-sm text-[#5d4e3f]">{product.brand || product.category || 'Gift basket'}</p>
                     <div className="text-2xl font-bold text-[#1aa184]">
                       <div className='flex justify-between'>
                         <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
-                        <Link to={`/product/${productId}`} className="inline-block text-right rounded-full bg-[#b68a3b] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#a57c2e]">
+                        <Link to={`/product/${productId}`} className="inline-block text-right rounded-full bg-[#4254bf] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3546ae]">
                           Buy Now
                         </Link>
                       </div>

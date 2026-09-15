@@ -13,7 +13,7 @@ import {
 import { hydrateCartForUser, selectCartTotalQuantity } from '../store/cartSlice'
 import { hydrateWishlistForUser } from '../store/wishlistSlice'
 import { API_URL } from '../utils/config'
-
+import vyasonImg from "../../src/assets/vyason.png";
 const getAuthToken = () => {
     const candidates = [
         localStorage.getItem('token'),
@@ -189,7 +189,7 @@ const Header = () => {
 
                     {/* Logo */}
                     <div className="text-3xl font-bold text-[#1c1c1c]">
-                        <Link to="/"> <img src="https://nileshdesigner.co.in/assets/images/logo.png" style={{ maxWidth: "45px" }} /></Link>
+                        <Link to="/"> <img src={vyasonImg} style={{ maxWidth: "250px" }} /></Link>
                     </div>
 
                     {/* Search */}
@@ -232,7 +232,7 @@ const Header = () => {
 
                         <button
                             type="submit"
-                            className="bg-[#b68a3b] text-white px-6 rounded-r-lg hover:bg-[#906e30]"
+                            className="bg-[#4254bf] text-white px-6 rounded-r-lg hover:bg-[#3546ae]"
                         >
                             <Search size={20} />
                         </button>
@@ -248,7 +248,7 @@ const Header = () => {
                         </Link>
                         <Link to="/cart" className="relative">
                             <ShoppingCart />
-                            <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
+                            <span className="absolute -top-2 -right-2 bg-[#4254bf] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
                                 {cartQuantity}
                             </span>
                         </Link>
@@ -291,10 +291,10 @@ const Header = () => {
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
-                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#b68a3b]">
+                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#4254bf]">
                                     Login
                                 </Link>
-                                <Link to="/register" className="bg-[#b68a3b] text-white px-3 py-1 rounded hover:bg-[#906e30]">
+                                <Link to="/register" className="bg-[#4254bf] text-white px-3 py-1 rounded hover:bg-[#3546ae]">
                                     Register
                                 </Link>
                             </div>
@@ -315,7 +315,7 @@ const Header = () => {
 
                                     <Link to="/cart" className="relative">
                                         <ShoppingCart />
-                                        <span className="absolute -top-2 -right-2 bg-[#b68a3b] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
+                                        <span className="absolute -top-2 -right-2 bg-[#4254bf] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
                                             {cartQuantity}
                                         </span>
                                     </Link>
@@ -323,10 +323,10 @@ const Header = () => {
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
-                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#b68a3b]">
+                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#4254bf]">
                                     Login
                                 </Link>
-                                <Link to="/register" className="bg-[#b68a3b] text-white px-3 py-1 rounded hover:bg-[#906e30]">
+                                <Link to="/register" className="bg-[#4254bf] text-white px-3 py-1 rounded hover:bg-[#3546ae]">
                                     Register
                                 </Link>
                             </div>
@@ -345,18 +345,18 @@ const Header = () => {
                     <div className="mx-auto">
                         <ul className="flex gap-8 px-4 py-4 font-medium">
                             <li>
-                                <Link to="/" className="hover:text-[#b68a3b]">
+                                <Link to="/" className="hover:text-[#4254bf]">
                                     Home
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/products" className="hover:text-[#b68a3b]">
+                                <Link to="/products" className="hover:text-[#4254bf]">
                                     Products
                                 </Link>
                             </li>
                             {/* <li className="group relative">
 
-                                <button className="flex items-center gap-1 hover:text-[#b68a3b]">
+                                <button className="flex items-center gap-1 hover:text-[#4254bf]">
                                     Product by Category <ChevronDown size={16} />
                                 </button>
 
@@ -386,7 +386,7 @@ const Header = () => {
                                     const categoryId = category._id || category.id || category.slug || category.name
                                     const categoryName = category.name || category.title || category.category || 'Category'
                                     return (
-                                        <li className="hover:text-[#b68a3b]">
+                                        <li className="hover:text-[#4254bf]">
                                             <Link
                                                 key={categoryId}
                                                 to={`/category/${categoryId}`}
@@ -401,33 +401,33 @@ const Header = () => {
                                 <span className="block px-4 py-3 text-sm text-gray-500">Loading categories...</span>
                             )}
                             {/* <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
+                                <a href="#" className="hover:text-[#4254bf]">
                                     New Arrivals
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
+                                <a href="#" className="hover:text-[#4254bf]">
                                     Best Sellers
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
+                                <a href="#" className="hover:text-[#4254bf]">
                                     Deals
                                 </a>
                             </li>
 
                             <li>
-                                <a href="#" className="hover:text-[#b68a3b]">
+                                <a href="#" className="hover:text-[#4254bf]">
                                     Brands
                                 </a>
                             </li> */}
                             <li>
-                                <Link to="/about" className="hover:text-[#b68a3b]">About Us</Link>
+                                <Link to="/about" className="hover:text-[#4254bf]">About Us</Link>
                            </li>
                             <li>
-                                <Link to="/contact" className="hover:text-[#b68a3b]">Contact Us</Link>
+                                <Link to="/contact" className="hover:text-[#4254bf]">Contact Us</Link>
                             </li>
                         </ul>
 
@@ -444,12 +444,12 @@ const Header = () => {
                             />
                             <ul className="space-y-4">
                                 <li>
-                                    <Link to="/" className="hover:text-[#b68a3b]">
+                                    <Link to="/" className="hover:text-[#4254bf]">
                                         Home
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/products" className="hover:text-[#b68a3b]">
+                                    <Link to="/products" className="hover:text-[#4254bf]">
                                         Products
                                     </Link>
                                 </li>
@@ -459,7 +459,7 @@ const Header = () => {
                                         const categoryId = category._id || category.id || category.slug || category.name
                                         const categoryName = category.name || category.title || category.category || 'Category'
                                         return (
-                                            <li className="hover:text-[#b68a3b]">
+                                            <li className="hover:text-[#4254bf]">
                                                 <Link
                                                     key={categoryId}
                                                     to={`/category/${categoryId}`}
@@ -475,10 +475,10 @@ const Header = () => {
                                 )}
 
                                 <li>
-                                    <Link to="/about" className="hover:text-[#b68a3b]">About Us</Link>
+                                    <Link to="/about" className="hover:text-[#4254bf]">About Us</Link>
                                 </li>
                                 <li>
-                                    <Link to="/contact" className="hover:text-[#b68a3b]">Contact Us</Link>
+                                    <Link to="/contact" className="hover:text-[#4254bf]">Contact Us</Link>
                                 </li>
                                  {accountOpen && (
                                     <>

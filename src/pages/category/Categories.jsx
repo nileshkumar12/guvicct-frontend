@@ -105,7 +105,7 @@ const Categories = () => {
                                   </div>
                                 )}
                              
-                              <h3 className="px-4 py-2 overflow-hidden tracking-wide mt-5 text-lg text-[#ffffff] bg-[#b68a3b]">
+                              <h3 className="px-4 py-2 overflow-hidden tracking-wide mt-5 text-lg text-[#ffffff] bg-[#4254bf]">
                                 {categoryName}
                               </h3>
                             </Link>

@@ -38,7 +38,7 @@ const OrderSummary = ({ subtotal, discount, shipping, total, coupon, onClearCart
             </Link>
  <Link
                 to="/"
-                className="mt-3 block w-full text-sm text-center rounded-full border  rounded-full bg-[#b68a3b] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#b68a3b]"
+                className="mt-3 block w-full text-sm text-center rounded-full border  rounded-full bg-[#4254bf] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#4254bf]"
             >
                Continue Shopping
             </Link>

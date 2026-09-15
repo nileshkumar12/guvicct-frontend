@@ -140,12 +140,12 @@ export default function Register() {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#b68a3b] hover:bg-[#906e30] text-white py-3 rounded-lg font-semibold transition duration-300"
+            className="w-full bg-[#4254bf] hover:bg-[#3546ae] text-white py-3 rounded-lg font-semibold transition duration-300"
           >
             Register
           </button>
 
-          {status === 'loading' && <p className="text-center text-sm text-[#b68a3b]">Creating account...</p>}
+          {status === 'loading' && <p className="text-center text-sm text-[#4254bf]">Creating account...</p>}
           {status === 'success' && <p className="text-center text-sm text-green-600">Registered successfully.</p>}
           {status === 'error' && <p className="text-center text-sm text-red-600">{error}</p>}
 
@@ -160,7 +160,7 @@ export default function Register() {
 
           <p className="text-center text-[#5d4e3f] text-sm">
             Already have an account?{' '}
-            <Link to="/login" className="text-[#b68a3b] font-semibold hover:underline">
+            <Link to="/login" className="text-[#4254bf] font-semibold hover:underline">
               Sign In
             </Link>
           </p>

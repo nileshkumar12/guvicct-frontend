@@ -210,7 +210,7 @@ const AddProductPage = () => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         Add Product
       </div>
 
@@ -236,7 +236,7 @@ const AddProductPage = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -247,7 +247,7 @@ const AddProductPage = () => {
               name="brand"
               value={formData.brand}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
               disabled={optionsLoading}
             >
@@ -271,7 +271,7 @@ const AddProductPage = () => {
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -282,7 +282,7 @@ const AddProductPage = () => {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               disabled={optionsLoading}
               required
             >
@@ -304,7 +304,7 @@ const AddProductPage = () => {
               name="subcategory"
               value={formData.subcategory}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -317,7 +317,7 @@ const AddProductPage = () => {
               name="price"
               value={formData.price}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -331,7 +331,7 @@ const AddProductPage = () => {
               name="stock"
               value={formData.stock}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -346,7 +346,7 @@ const AddProductPage = () => {
               name="rating"
               value={formData.rating}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
               required
             />
           </div>
@@ -380,7 +380,7 @@ const AddProductPage = () => {
               accept="image/*"
               required
               onChange={handleImageChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#4254bf]"
             />
             {imageError && <p className="mt-2 text-sm text-red-600">{imageError}</p>}
             {formData.imagePreview && (
@@ -404,7 +404,7 @@ const AddProductPage = () => {
               accept="image/*"
               multiple
               onChange={handleGalleryChange}
-              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#b68a3b]"
+              className="mt-2 w-full rounded-lg border border-[#d5bea8] bg-white px-4 py-2 outline-none focus:ring-2 focus:ring-[#4254bf]"
             />
             {formData.gallery.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-3">
@@ -455,7 +455,7 @@ const AddProductPage = () => {
              <div className="md:col-span-2 flex flex-col items-start gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="submit"
-              className="rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
+              className="rounded-full bg-[#4254bf] px-6 py-3 text-white hover:bg-[#3546ae] transition"
             >
               Add Product
             </button>

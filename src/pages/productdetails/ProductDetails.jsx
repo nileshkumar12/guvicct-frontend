@@ -371,7 +371,7 @@ const ProductDetails = () => {
                         </div>
                         <div className="flex flex-wrap items-center gap-3 text-sm text-[#5d4e3f]">
                           {/* {ratingValue > 0 && (
-                          <span className="flex items-center gap-2 text-[#b68a3b]">
+                          <span className="flex items-center gap-2 text-[#4254bf]">
                             {ratingStars.map((star) => (
                               <span key={star}>{star <= Math.round(ratingValue) ? '★' : '☆'}</span>
                             ))}
@@ -459,7 +459,7 @@ const ProductDetails = () => {
                         <button
                           type="button"
                           onClick={addToCart}
-                          className="flex-1 rounded-full bg-[#b68a3b] border border-[#b68a3b]  px-6 py-4 text-sm font-semibold text-[#ffffff] transition hover:bg-[#906e30]"
+                          className="flex-1 rounded-full bg-[#4254bf] border border-[#4254bf]  px-6 py-4 text-sm font-semibold text-[#ffffff] transition hover:bg-[#3546ae]"
                         >
                           Add to Cart
                         </button>

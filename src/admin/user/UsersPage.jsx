@@ -71,7 +71,7 @@ const UsersPage = () => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         Registered Users
       </div>
       <div className="bg-white rounded-3xl shadow-sm border overflow-hidden">
@@ -82,7 +82,7 @@ const UsersPage = () => {
           </div>
           <Link
             to="/admin/users/add"
-            className="rounded-full bg-[#b68a3b] px-5 py-2 text-white hover:bg-[#906e30] transition"
+            className="rounded-full bg-[#4254bf] px-5 py-2 text-white hover:bg-[#3546ae] transition"
           >
             Add User
           </Link>

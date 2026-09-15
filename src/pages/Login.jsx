@@ -347,13 +347,13 @@ debugger;
           {/* Remember Me */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2">
-              <input type="checkbox" className="accent-[#b68a3b]" />
+              <input type="checkbox" className="accent-[#4254bf]" />
               Remember me
             </label>
 
             <a
               href="#"
-              className="text-[#b68a3b] hover:text-[#906e30] hover:underline"
+              className="text-[#4254bf] hover:text-[#3546ae] hover:underline"
             >
               Forgot Password?
             </a>
@@ -362,7 +362,7 @@ debugger;
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#b68a3b] hover:bg-[#906e30] text-white py-3 rounded-lg font-semibold transition duration-300"
+            className="w-full bg-[#4254bf] hover:bg-[#3546ae] text-white py-3 rounded-lg font-semibold transition duration-300"
           >
             Login
           </button>
@@ -378,7 +378,7 @@ debugger;
           </div>
 
           {status === 'loading' && (
-            <p className="text-center text-sm text-[#b68a3b]">Checking your credentials...</p>
+            <p className="text-center text-sm text-[#4254bf]">Checking your credentials...</p>
           )}
 
           {status === 'success' && (
@@ -396,7 +396,7 @@ debugger;
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="text-[#b68a3b] font-semibold hover:underline"
+              className="text-[#4254bf] font-semibold hover:underline"
             >
               Sign Up
             </Link>

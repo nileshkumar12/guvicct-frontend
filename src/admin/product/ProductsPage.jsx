@@ -107,7 +107,7 @@ const ProductsPage = () => {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-[#b68a3b] to-[#906e30] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
+      <div className="bg-gradient-to-r from-[#4254bf] to-[#3546ae] text-white text-3xl font-semibold px-8 py-6 rounded-xl shadow-lg mb-6">
         Products
       </div>
 
@@ -118,7 +118,7 @@ const ProductsPage = () => {
         </div>
         <Link
           to="/admin/products/add"
-          className="inline-flex items-center justify-center rounded-full bg-[#b68a3b] px-6 py-3 text-white hover:bg-[#906e30] transition"
+          className="inline-flex items-center justify-center rounded-full bg-[#4254bf] px-6 py-3 text-white hover:bg-[#3546ae] transition"
         >
           Add Product
         </Link>
