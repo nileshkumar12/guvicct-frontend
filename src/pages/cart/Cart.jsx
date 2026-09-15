@@ -66,7 +66,7 @@ const Cart = () => {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left Side */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             {items.length > 0 ? (
               <>
                 <label className="flex items-center gap-3 rounded-xl border border-[#e9e2d9] bg-white px-4 py-3 text-sm font-medium text-[#1c1c1c] shadow-sm">
@@ -102,7 +102,7 @@ const Cart = () => {
           </div>
 
           {/* Right Side */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-4 space-y-6">
 
             {checkedItems.length > 0 && (
               <>
