@@ -31,17 +31,49 @@ const fetchShipments = async () => {
       const shipmentList = Array.isArray(data)
         ? data
         : data.shipments || data.data || data.items || data.results || [];
-      setShipments(Array.isArray(shipmentList) ? shipmentList : []);
+      const normalizedShipments = Array.isArray(shipmentList)
+        ? shipmentList.map((shipment) => ({
+            ...shipment,
+            status: getValidShipmentStatus(shipment.status || shipment.shipmentStatus),
+          }))
+        : [];
+      setShipments(normalizedShipments);
   } catch (error) {
     console.error("Error fetching shipments:", error);
   }
 };
 
 
+  const VALID_SHIPMENT_STATUSES = [
+    "pending",
+    "confirmed",
+    "processing",
+    "packed",
+    "shipped",
+    "out_for_delivery",
+    "delivered",
+    "cancelled",
+    "returned",
+  ];
+
+  const getValidShipmentStatus = (status) => {
+    const normalized = `${status || ""}`.trim().toLowerCase();
+
+    if (!normalized) return "pending";
+
+    return VALID_SHIPMENT_STATUSES.includes(normalized) ? normalized : "pending";
+  };
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "pending":
         return "bg-gray-100 text-gray-700";
+
+      case "confirmed":
+        return "bg-blue-100 text-blue-700";
+
+      case "processing":
+        return "bg-yellow-100 text-yellow-700";
 
       case "packed":
         return "bg-yellow-100 text-yellow-700";
@@ -55,11 +87,11 @@ const fetchShipments = async () => {
       case "delivered":
         return "bg-green-100 text-green-700";
 
-      case "returned":
-        return "bg-orange-100 text-orange-700";
-
       case "cancelled":
         return "bg-red-100 text-red-700";
+
+      case "returned":
+        return "bg-orange-100 text-orange-700";
 
       default:
         return "bg-gray-100 text-gray-700";
@@ -90,7 +122,6 @@ const fetchShipments = async () => {
       minute: "2-digit",
     });
   };
-  console.log(selectedShipment);
   const updateFilter = (name, value) => {
     setFilters((current) => ({ ...current, [name]: value }));
   };
@@ -113,7 +144,9 @@ const fetchShipments = async () => {
   });
 
   const handleStatusUpdate = async () => {
-    if (!selectedShipment?._id || !statusToUpdate || statusToUpdate === selectedShipment.status) return;
+    const normalizedStatus = getValidShipmentStatus(statusToUpdate);
+
+    if (!selectedShipment?._id || !normalizedStatus || normalizedStatus === getValidShipmentStatus(selectedShipment.status)) return;
 
     setIsUpdatingStatus(true);
     try {
@@ -124,7 +157,7 @@ const fetchShipments = async () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status: statusToUpdate }),
+        body: JSON.stringify({ status: normalizedStatus }),
       });
       const data = await response.json().catch(() => ({}));
 
@@ -133,16 +166,17 @@ const fetchShipments = async () => {
       }
 
       const updatedShipment = data.shipment || data.data || data;
+      const nextStatus = getValidShipmentStatus(updatedShipment?.status || normalizedStatus);
       const nextShipment = {
         ...selectedShipment,
         ...(updatedShipment && typeof updatedShipment === "object" ? updatedShipment : {}),
-        status: updatedShipment?.status || statusToUpdate,
+        status: nextStatus,
       };
       setShipments((current) => current.map((shipment) =>
         shipment._id === selectedShipment._id ? nextShipment : shipment,
       ));
       setSelectedShipment(nextShipment);
-      setStatusToUpdate(nextShipment.status);
+      setStatusToUpdate(nextStatus);
       addToast(data.message || "Shipment status updated successfully.", "success");
     } catch (error) {
       addToast(error.message || "Failed to update shipment status.", "error");
@@ -150,7 +184,7 @@ const fetchShipments = async () => {
       setIsUpdatingStatus(false);
     }
   };
- console.log(selectedShipment);
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
 
@@ -316,6 +350,14 @@ const fetchShipments = async () => {
                 Pending
               </option>
 
+              <option value="confirmed">
+                Confirmed
+              </option>
+
+              <option value="processing">
+                Processing
+              </option>
+
               <option value="packed">
                 Packed
               </option>
@@ -332,12 +374,12 @@ const fetchShipments = async () => {
                 Delivered
               </option>
 
-              <option value="returned">
-                Returned
-              </option>
-
               <option value="cancelled">
                 Cancelled
+              </option>
+
+              <option value="returned">
+                Returned
               </option>
 
             </select>
@@ -527,8 +569,12 @@ const fetchShipments = async () => {
 
                       <button
                         onClick={() => {
-                          setSelectedShipment(shipment)
-                          setStatusToUpdate(shipment.status || shipment.shipmentStatus || "pending")
+                          const normalizedShipment = {
+                            ...shipment,
+                            status: getValidShipmentStatus(shipment.status || shipment.shipmentStatus || "pending"),
+                          };
+                          setSelectedShipment(normalizedShipment);
+                          setStatusToUpdate(normalizedShipment.status);
                         }}
                         className="
                           text-red-500
@@ -696,6 +742,14 @@ const fetchShipments = async () => {
                         Pending
                       </option>
 
+                      <option value="confirmed">
+                        Confirmed
+                      </option>
+
+                      <option value="processing">
+                        Processing
+                      </option>
+
                       <option value="packed">
                         Packed
                       </option>
@@ -712,12 +766,12 @@ const fetchShipments = async () => {
                         Delivered
                       </option>
 
-                      <option value="returned">
-                        Returned
-                      </option>
-
                       <option value="cancelled">
                         Cancelled
+                      </option>
+
+                      <option value="returned">
+                        Returned
                       </option>
 
                     </select>

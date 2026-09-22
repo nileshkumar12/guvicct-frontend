@@ -437,11 +437,12 @@ const ProductDetails = () => {
                         <div className="">
                           <p className="text-sm font-semibold text-[#1c1c1c]">Add-ons</p>
                           <div className="mt-3 space-y-3">
+                            <span className="w-full block divide-y divide-[#e9e2d9] cursor-pointer gap-3 rounded-lg border border-[#e9e2d9] bg-white p-3">
                             {activeAddons.map((addon, index) => {
                               const addonKey = addon._id || addon.id || `${index}-${addon.name}`
                               const isSelected = selectedAddons.some((item) => item.key === addonKey)
                               return (
-                                <label key={addonKey} className="flex cursor-pointer items-start gap-3 rounded-lg border border-[#e9e2d9] bg-white p-3">
+                                <label key={addonKey} className='w-full flex items-start gap-3 cursor-pointer' >
                                   <input
                                     type="checkbox"
                                     checked={isSelected}
@@ -458,6 +459,7 @@ const ProductDetails = () => {
                                 </label>
                               )
                             })}
+                          </span>
                           </div>
                         </div>
                       )}

@@ -414,6 +414,14 @@ const AddShipment = () => {
                       Pending
                     </option>
 
+                    <option value="confirmed">
+                      Confirmed
+                    </option>
+
+                    <option value="processing">
+                      Processing
+                    </option>
+
                     <option value="packed">
                       Packed
                     </option>
@@ -430,12 +438,12 @@ const AddShipment = () => {
                       Delivered
                     </option>
 
-                    <option value="returned">
-                      Returned
-                    </option>
-
                     <option value="cancelled">
                       Cancelled
+                    </option>
+
+                    <option value="returned">
+                      Returned
                     </option>
 
                   </select>
