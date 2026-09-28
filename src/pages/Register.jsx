@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { API_URL } from '../utils/config'
+import PageTitle from '../components/PageTitle'
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -52,6 +53,8 @@ export default function Register() {
   }
 
   return (
+    <>
+    <PageTitle title="Register" />
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4 py-5">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
@@ -167,5 +170,6 @@ export default function Register() {
         </form>
       </div>
     </div>
+    </>
   )
 }

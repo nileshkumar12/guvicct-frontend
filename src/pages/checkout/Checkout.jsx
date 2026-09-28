@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from "react-hook-form";
 import { API_URLS } from '../../utils/config';
-
+import PageTitle from '../../components/PageTitle';
 import ContactInfo from './ContactInfo';
 import ShippingAddress from './ShippingAddress';
 import DeliveryMethods from './DeliveryMethods';
@@ -384,7 +384,7 @@ const buildPaymentFailureMessage = ({ orderId, orderNumber, error }) => {
 }
 
 const Checkout = () => {
-
+    
     const navigate = useNavigate()
     const { addToast } = useToast()
     const selectedItems = useSelector(selectCheckedCartItems)
@@ -646,7 +646,7 @@ const Checkout = () => {
         const gstSummary = calculateCartGst(selectedItems, shippingAddress.state)
         const orderLineItems = buildCheckoutItems(gstSummary.items)
         const grandTotal = Number(
-            (gstSummary.taxableAmount + gstSummary.gstAmount - Number(discount || 0) + Number(shipping || 0)).toFixed(2)
+            (subtotal + gstSummary.gstAmount - Number(discount || 0) + Number(shipping || 0)).toFixed(2)
         )
 
 
@@ -733,7 +733,7 @@ const Checkout = () => {
             discount: Number(discount || 0),
             shippingCost: Number(shipping || 0),
             shippingFee: Number(shipping || 0),
-            taxableAmount: gstSummary.taxableAmount,
+            taxableAmount: Number(subtotal || 0),
             cgstAmount: gstSummary.cgstAmount,
             sgstAmount: gstSummary.sgstAmount,
             igstAmount: gstSummary.igstAmount,
@@ -964,6 +964,9 @@ const Checkout = () => {
 
     if (!isAuthenticated) {
         return (
+            <>
+                <PageTitle title="Secure Checkout" />
+          
             <section className="py-12">
                 <div className="max-w-4xl mx-auto px-6">
                     <LoginRequiredCard
@@ -972,14 +975,16 @@ const Checkout = () => {
                     />
                 </div>
             </section>
+            </>
         )
     }
 
     return (
         <>
+         <PageTitle title="Secure Checkout" />
             <div>
                 <section className=" py-12">
-                    <div className="mx-auto px-6">
+                    <div className="container mx-auto px-6">
                         <div className="mb-10">
                             <h1 className="text-4xl font-bold text-[#1c1c1c]">Checkout</h1>
                             <p className="mt-2 text-gray-500">

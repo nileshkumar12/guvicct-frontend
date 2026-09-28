@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import PageTitle from "../../components/PageTitle.jsx";
 const Help = () => {
   const [openFaq, setOpenFaq] = useState(null);
   const categories = [
@@ -89,6 +89,8 @@ const Help = () => {
   };
 
   return (
+    <>
+    <PageTitle title="Help Center" />
     <main className="min-h-screen bg-white text-[#172231]">
 
 
@@ -106,7 +108,7 @@ const Help = () => {
               Help Center
             </p>
 
-            <h1 className="mt-5 font-serif text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5  text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
               How can we
               <span className="block text-blue-300">
                 help you today?
@@ -167,7 +169,7 @@ const Help = () => {
               Browse Topics
             </p>
 
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-[#172231] sm:text-4xl">
+            <h2 className="mt-3  text-3xl font-semibold text-[#172231] sm:text-4xl">
               What can we help with?
             </h2>
 
@@ -224,7 +226,7 @@ const Help = () => {
                 Quick Answers
               </p>
 
-              <h2 className="mt-4 font-serif text-3xl font-semibold leading-tight text-[#172231] sm:text-4xl">
+              <h2 className="mt-4  text-3xl font-semibold leading-tight text-[#172231] sm:text-4xl">
                 Popular questions
               </h2>
 
@@ -317,7 +319,7 @@ const Help = () => {
                   Order Tracking
                 </p>
 
-                <h2 className="mt-4 font-serif text-3xl font-semibold text-white sm:text-4xl">
+                <h2 className="mt-4  text-3xl font-semibold text-white sm:text-4xl">
                   Wondering where your order is?
                 </h2>
 
@@ -424,7 +426,7 @@ const Help = () => {
               FAQ
             </p>
 
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-[#172231] sm:text-4xl">
+            <h2 className="mt-4  text-3xl font-semibold text-[#172231] sm:text-4xl">
               Frequently asked questions
             </h2>
 
@@ -490,7 +492,7 @@ const Help = () => {
               💬
             </div>
 
-            <h2 className="mt-6 font-serif text-3xl font-semibold text-[#172231] sm:text-4xl">
+            <h2 className="mt-6  text-3xl font-semibold text-[#172231] sm:text-4xl">
               Still need help?
             </h2>
 
@@ -528,6 +530,7 @@ const Help = () => {
       </section>
 
     </main>
+    </>
   );
 };
 

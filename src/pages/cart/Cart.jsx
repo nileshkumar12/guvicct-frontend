@@ -20,6 +20,7 @@ import {
   removeItem,
   clearCart,
 } from "../../store/cartSlice";
+import PageTitle from "../../components/PageTitle";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -60,8 +61,10 @@ const Cart = () => {
   };
 
   return (
+    <>
+    <PageTitle title="Shopping Cart" />
     <section className="py-4">
-      <div className="mx-auto px-6">
+      <div className="container mx-auto px-6">
         <h2 className="py-5 text-4xl font-bold">
           Cart Items
         </h2>
@@ -125,6 +128,7 @@ const Cart = () => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

@@ -87,8 +87,10 @@ const SavedAdresses = () => {
 
 
     return (
+        <>
+        <PageTitle title="Saved Addresses"  />
         <div className="px-4 mx-auto p-6">
-            {/* Header */}
+          
             <div className="flex items-center justify-between mb-5">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">
@@ -105,7 +107,7 @@ const SavedAdresses = () => {
                 </button>
             </div>
 
-            {/* Address Cards */}
+           
             <div className="grid md:grid-cols-2 gap-6">
 
                 {selectedAddress !== 0 && (
@@ -232,6 +234,7 @@ const SavedAdresses = () => {
                 </form>
             )}
         </div>
+        </>
     );
 };
 

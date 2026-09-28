@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { hydrateCartForUser, selectCartTotalQuantity } from '../../store/cartSlice'
 import { hydrateWishlistForUser } from '../../store/wishlistSlice'
+import PageTitle from "../../components/PageTitle.jsx";
 
 const getAuthToken = () => {
   const candidates = [
@@ -98,6 +99,8 @@ const ChangePassword = () => {
   };
 
   return (
+    <>
+    <PageTitle title="Profile Details| Change Password" />
     <div className="max-w-lg mx-auto bg-white rounded-xl shadow-md p-8 my-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-2">
         Change Password
@@ -189,6 +192,7 @@ const ChangePassword = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
 

@@ -2,8 +2,12 @@ import Categories from "../category/Categories";
 import MainSlider from "./MainSlider"
 import SpecialCategory from "./SpecialCategory"
 import Testimonials from "./Testimonials"
-
+import WhyChoose from "./WhyChoose"
+import TrendingProducts from "./TrendingProducts"
+import PageTitle from "../../components/PageTitle";
 import React from "react";
+
+
 const giftGuideItems = [
   {
     title: 'New Arrivals',
@@ -68,13 +72,17 @@ const giftGuideItems = [
 ]
 
 const Home = () => {
+  
   return (
     <>
+    <PageTitle title="Online Shopping for Fashion, Gifts & Many More" />
     <MainSlider/>
     <Categories/>
     <SpecialCategory/>
+    <WhyChoose/>
+    <TrendingProducts/>
     <Testimonials/>
-    
+
     </>
   )
 }

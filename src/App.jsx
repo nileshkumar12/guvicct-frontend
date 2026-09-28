@@ -44,6 +44,8 @@ import Products from './pages/products/Products'
 import AboutUs from './pages/about/AboutUs'
 import Help from './pages/help/Help'
 import RoleBasedRedirect from './Header/RoleBasedRedirect'
+import SellerOrders from './admin/seller/SellerOrders'
+import SellerOrderDetails from './admin/seller/SellerOrderDetails'
 const App = () => {
   const location = useLocation();
 
@@ -55,7 +57,8 @@ const App = () => {
       {!hideHeader && <Header />}
       <Routes>
 
-        <Route path="/" element={<><Home /> || <RoleBasedRedirect /></>} />
+        {/* <Route path="/" element={<><Home /> || <RoleBasedRedirect /></>} /> */}
+        <Route path="/" element={<><Home /> <RoleBasedRedirect /></>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/category/:id" element={<CategoryProducts />} />
@@ -68,7 +71,6 @@ const App = () => {
          <Route path="/help" element={<Help />} />
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-        {/* <Route path="/orders" element={<ProtectedRoute><OrderList /></ProtectedRoute>} /> */}
         <Route path="/wishlist" element={<ProtectedRoute><WishLists /></ProtectedRoute>} />
 
         <Route path="/admin" element={<ProtectedRoute role="seller"><AdminLayout /></ProtectedRoute>}>
@@ -92,6 +94,8 @@ const App = () => {
           <Route path="adminprofile" element={<AdminProfile />} />
           <Route path="addsellerstore" element={<SellerStoreInfo mode="add" />} />
           <Route path="editsellerstore" element={<SellerStoreInfo mode="edit" />} />
+          <Route path="sellerorders" element={<SellerOrders />} />
+          <Route path="sellerorders/:id" element={<SellerOrderDetails />} />
         </Route>
 
         <Route
@@ -103,8 +107,7 @@ const App = () => {
           }
         >
           <Route path="profile" element={<Profile />} />
-       
-          <Route index element={<DashboardHome />} />
+           <Route index element={<DashboardHome />} />
           <Route path="orders" element={<OrderList />} />
           <Route path="order/:id" element={<Order />} />
           <Route path="changepassword" element={<ChangePassword />} />

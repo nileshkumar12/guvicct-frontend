@@ -8,7 +8,7 @@ const DashboardHome = () => {
 
   
   return (
-    <div className="mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">My Account</h1>
         <p className="text-gray-500 mt-2">Manage your account settings and orders</p>
@@ -40,7 +40,7 @@ const DashboardHome = () => {
         </Link>
 
 
-        <Link to="/dashboard/savedaddresses">
+        {/* <Link to="/dashboard/savedaddresses">
           <div className="bg-white rounded-xl shadow hover:shadow-lg transition p-6 cursor-pointer border">
             <div className="text-5xl mb-4">📍</div>
             <h2 className="text-xl font-semibold">Saved Addresses</h2>
@@ -53,17 +53,17 @@ const DashboardHome = () => {
             <h2 className="text-xl font-semibold">Payment Methods</h2>
             <p className="text-gray-500 mt-2">Manage your payment options.</p>
           </div>
-        </Link>
+        </Link> */}
         {/* <div className="bg-white rounded-xl shadow hover:shadow-lg transition p-6 cursor-pointer border">
         <div className="text-5xl mb-4">🎁</div>
         <h2 className="text-xl font-semibold">Coupons</h2>
         <p className="text-gray-500 mt-2">View available and applied coupons.</p>
       </div> */}
-     <div className="bg-white rounded-xl shadow hover:shadow-lg transition p-6 cursor-pointer border">
+     {/* <div className="bg-white rounded-xl shadow hover:shadow-lg transition p-6 cursor-pointer border">
           <div className="text-5xl mb-4">🔔</div>
           <h2 className="text-xl font-semibold">Notifications</h2>
           <p className="text-gray-500 mt-2">Manage email and SMS preferences.</p>
-        </div>
+        </div> */}
 
 
 

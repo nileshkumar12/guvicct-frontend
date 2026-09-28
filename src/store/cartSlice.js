@@ -246,14 +246,12 @@ const selectCheckedCartItems = createSelector([selectCartItems], (items) =>
   items.filter((item) => item.isSelected !== false),
 )
 
-const selectCartSubtotal = createSelector([selectCheckedCartItems], (items) =>
-  items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-)
-
-// GST is computed per item since different products can carry different GST rates.
-// Customer state is unknown at cart stage, so the split defaults to intra-state (CGST + SGST).
 const selectCartGstSummary = createSelector([selectCheckedCartItems], (items) =>
   calculateCartGst(items, ''),
+)
+
+const selectCartSubtotal = createSelector([selectCheckedCartItems], (items) =>
+  round2(items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0)),
 )
 
 const selectCartTaxableAmount = createSelector([selectCartGstSummary], (summary) => summary.taxableAmount)
@@ -287,9 +285,9 @@ const selectShipping = createSelector(
 )
 
 const selectCartTotal = createSelector(
-  [selectCartGstSummary, selectCartDiscount, selectShipping],
-  (gstSummary, discount, shipping) =>
-    round2(Math.max(0, gstSummary.taxableAmount + gstSummary.gstAmount - discount + shipping)),
+  [selectCartSubtotal, selectCartGstSummary, selectCartDiscount, selectShipping],
+  (subtotal, gstSummary, discount, shipping) =>
+    round2(Math.max(0, subtotal + gstSummary.gstAmount - discount + shipping)),
 )
 
 export const {

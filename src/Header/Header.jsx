@@ -25,6 +25,8 @@ const getAuthToken = () => {
     return candidates.find((value) => `${value || ''}`.trim()) || ''
 }
 
+const getSearchQueryFromLocation = (search) => new URLSearchParams(search).get('search') || ''
+
 const Header = () => {
     const [mobileMenu, setMobileMenu] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
@@ -33,6 +35,7 @@ const Header = () => {
     const [products, setProducts] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [showSearchResults, setShowSearchResults] = useState(false);
     const [userRole, setUserRole] = useState(() => {
         try {
             const u = localStorage.getItem('user')
@@ -91,7 +94,18 @@ const Header = () => {
     }, [])
 
     useEffect(() => {
+        const queryFromLocation = getSearchQueryFromLocation(location.search)
+        setSearchQuery(queryFromLocation)
+        setShowSearchResults(false)
+    }, [location.search])
+
+    useEffect(() => {
         const normalizedQuery = searchQuery.trim().toLowerCase()
+
+        if (!showSearchResults) {
+            setSearchResults([])
+            return
+        }
 
         if (!normalizedQuery) {
             setSearchResults([])
@@ -166,9 +180,25 @@ const Header = () => {
         const trimmedQuery = searchQuery.trim()
         if (!trimmedQuery) return
 
+        setSearchQuery(trimmedQuery)
+        setShowSearchResults(false)
         navigate(buildSearchPath(trimmedQuery))
-        setSearchQuery('')
     }
+
+    const handleClearSearch = () => {
+        setSearchQuery('')
+        setSearchResults([])
+        setShowSearchResults(false)
+
+        const params = new URLSearchParams(location.search)
+        if (params.has('search')) {
+            params.delete('search')
+            const nextQuery = params.toString()
+            const nextPath = `${location.pathname}${nextQuery ? `?${nextQuery}` : ''}`
+            navigate(nextPath, { replace: true })
+        }
+    }
+
     return (
         <>
             <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -189,7 +219,7 @@ const Header = () => {
 
                     {/* Logo */}
                     <div className="text-3xl font-bold text-[#1c1c1c]">
-                        <Link to="/"> <img src={vyasonImg} style={{ maxWidth: "250px" }} /></Link>
+                        <Link to="/"> <img src={vyasonImg} style={{ maxWidth: "175px" }} /></Link>
                     </div>
 
                     {/* Search */}
@@ -198,12 +228,27 @@ const Header = () => {
                             <input
                                 type="text"
                                 value={searchQuery}
-                                onChange={(event) => setSearchQuery(event.target.value)}
+                                onChange={(event) => {
+                                    const nextValue = event.target.value
+                                    setSearchQuery(nextValue)
+                                    setShowSearchResults(nextValue.trim().length > 0)
+                                }}
                                 placeholder="Search products..."
-                                className="w-full border px-4 py-2 rounded-l-lg outline-none"
+                                className="w-full border px-4 py-2 pr-12 rounded-[25px] outline-none"
                             />
 
                             {searchQuery.trim() && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearSearch}
+                                    aria-label="Clear search"
+                                    className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
+
+                            {showSearchResults && searchQuery.trim() && (
                                 <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                                     {searchResults.length > 0 ? (
                                         searchResults.map((product) => {
@@ -216,7 +261,11 @@ const Header = () => {
                                                     key={productId}
                                                     to={buildSearchPath(productName)}
                                                     className="block border-b border-gray-100 px-4 py-3 text-sm hover:bg-gray-50"
-                                                    onClick={() => setSearchQuery('')}
+                                                    onClick={() => {
+                                                        setSearchResults([])
+                                                        setShowSearchResults(false)
+                                                        setSearchQuery(productName)
+                                                    }}
                                                 >
                                                     <div className="font-semibold text-gray-900">{productName}</div>
                                                     {categoryName && <div className="text-xs text-gray-500">{categoryName}</div>}
@@ -232,7 +281,7 @@ const Header = () => {
 
                         <button
                             type="submit"
-                            className="bg-[#4254bf] text-white px-6 rounded-r-lg hover:bg-[#3546ae]"
+                            className="bg-[#4254bf] text-white px-3 rounded-[25px] hover:bg-[#3546ae]" style={{ marginLeft: "-43px" }}
                         >
                             <Search size={20} />
                         </button>
@@ -341,7 +390,8 @@ const Header = () => {
                 </div>
 
                 {/* Navigation */}
-                <nav className="hidden md:block border-t" >
+                <nav className="hidden md:block"  style={{ boxShadow: '0 0 5px #ccc' }}>
+
                     <div className="mx-auto">
                         <ul className="flex gap-8 px-4 py-4 font-medium">
                             <li>
@@ -349,11 +399,11 @@ const Header = () => {
                                     Home
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Link to="/products" className="hover:text-[#4254bf]">
                                     Products
                                 </Link>
-                            </li>
+                            </li> */}
                             {/* <li className="group relative">
 
                                 <button className="flex items-center gap-1 hover:text-[#4254bf]">
@@ -382,11 +432,11 @@ const Header = () => {
 
                             </li> */}
                             {categories.length > 0 ? (
-                                categories.slice(0, 6).map((category) => {
+                                categories.slice(0, 8).map((category) => {
                                     const categoryId = category._id || category.id || category.slug || category.name
                                     const categoryName = category.name || category.title || category.category || 'Category'
                                     return (
-                                        <li className="hover:text-[#4254bf]">
+                                        <li key={category._id} className="hover:text-[#4254bf]">
                                             <Link
                                                 key={categoryId}
                                                 to={`/category/${categoryId}`}
@@ -423,12 +473,12 @@ const Header = () => {
                                     Brands
                                 </a>
                             </li> */}
-                            <li>
+                            {/* <li>
                                 <Link to="/about" className="hover:text-[#4254bf]">About Us</Link>
                            </li>
                             <li>
                                 <Link to="/contact" className="hover:text-[#4254bf]">Contact Us</Link>
-                            </li>
+                            </li> */}
                         </ul>
 
                     </div>
@@ -448,11 +498,11 @@ const Header = () => {
                                         Home
                                     </Link>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <Link to="/products" className="hover:text-[#4254bf]">
                                         Products
                                     </Link>
-                                </li>
+                                </li> */}
 
                                 {categories.length > 0 ? (
                                     categories.slice(0, 6).map((category) => {

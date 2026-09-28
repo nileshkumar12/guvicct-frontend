@@ -6,7 +6,8 @@ import { Heart, Search, ShoppingCart } from 'lucide-react'
 import { addToWishlist, removeFromWishlist } from '../../store/wishlistSlice'
 import { addItem } from '../../store/cartSlice'
 import { useToast } from '../../components/ToastProvider.jsx'
-
+import PageTitle from '../../components/PageTitle.jsx'
+import Loader from '../../components/Loader.jsx'
 
 const CategoryProducts = () => {
   const { id } = useParams()
@@ -240,8 +241,10 @@ const CategoryProducts = () => {
   const categoryDescription = category?.description || category?.summary || ''
 
   return (
+    <>
+    <PageTitle title={`${categoryName}`} />
     <section className="py-5">
-      <div className="mx-auto px-6">
+      <div className="container mx-auto px-6">
         <div className="mb-5">
           <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">
             Home
@@ -257,7 +260,7 @@ const CategoryProducts = () => {
 
 
         {loading ? (
-          <div className="text-[#5d4e3f]">Loading products...</div>
+          <Loader />
         ) : error ? (
           <div className="text-red-600">{error}</div>
         ) : products.length === 0 ? (
@@ -366,6 +369,7 @@ const CategoryProducts = () => {
         )}
       </div>
     </section>
+    </>
   )
 }
 

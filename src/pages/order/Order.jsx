@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { API_URL } from "../../utils/config";
 import { useNavigate } from 'react-router-dom';
+import PageTitle from "../../components/PageTitle";
+import Loader from "../../components/Loader";
 
 const formatCurrency = (value) =>
   `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -87,13 +89,10 @@ const Order = () => {
   // Loading
   if (loading) {
     return (
-      <section className="py-16">
-        <div className="mx-auto max-w-5xl px-6 text-center">
-          <p className="text-gray-500">
-            Loading order details...
-          </p>
-        </div>
-      </section>
+      <>
+      <PageTitle title={`Order Details ${orderDetails?.orderNumber || 'N/A'}`} />
+     <Loader />
+      </>
     );
   }
 
@@ -129,9 +128,9 @@ const Order = () => {
 
   return (
     <section className="py-12">
-      <div className="mx-auto  px-6">
+      <div className="container mx-auto px-6">
 
-        {/* Header */}
+    
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">
             Order confirmed

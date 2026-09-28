@@ -19,12 +19,12 @@ const Testimonials = () => {
   return (
     <>
          <section className="bg-white">
-        <div className="mx-auto px-4 py-12 sm:px-6 lg:px-8">
+        <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="mb-8 text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-[#4254bf]">
               Testimonials
             </p>
-            <h2 className="mt-2 text-3xl font-bold">Customers love producting with us</h2>
+            <h2 className="text-3xl md:text-5xl font-light uppercase tracking-wide text-[#2c2c2c] leading-tight">Customers Say</h2>
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">

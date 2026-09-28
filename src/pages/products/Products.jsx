@@ -7,7 +7,8 @@ import { Heart, Search, ShoppingCart } from 'lucide-react'
 import { addToWishlist, removeFromWishlist } from '../../store/wishlistSlice'
 import { addItem } from '../../store/cartSlice'
 import { useToast } from '../../components/ToastProvider.jsx'
-
+import PageTitle from '../../components/PageTitle.jsx'
+import Loader from '../../components/Loader.jsx'
 
 const Products = () => {
     const [product, setProduct] = useState([])
@@ -161,13 +162,14 @@ const Products = () => {
 
     return (
         <>
+        <PageTitle title="All Products" />
             <div className="mx-auto px-4 py-8">
                 <h1 className="text-3xl font-bold mb-6">All Products</h1>
                 
                 {loading ? (
-                    <div className="col-span-full  py-5">
-                        <p className="text-lg text-gray-500">Loading products...</p>
-                    </div>
+                    
+                        <Loader />
+                   
                 ) : (
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"> 
                     {product.map((item) => {

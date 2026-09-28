@@ -5,7 +5,8 @@ import { API_URL, getImageUrl } from '../../utils/config'
 import { addItem } from '../../store/cartSlice'
 import { useToast } from '../../components/ToastProvider.jsx'
 import ProductReviews from './ProductReviews'
-
+import PageTitle from '../../components/PageTitle.jsx'
+import Loader from '../../components/Loader.jsx'
 const ProductDetails = () => {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
@@ -293,9 +294,9 @@ const ProductDetails = () => {
 
   return (
     <>
-
+  <PageTitle title={`${productTitle} - ${categoryName}`} />
       <section className="py-8 bg-[#f6f2eb]">
-        <div className=" mx-auto px-6">
+        <div className="container mx-auto px-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">
               ← Back to home
@@ -306,7 +307,7 @@ const ProductDetails = () => {
           </div>
 
           {loading ? (
-            <div className="mt-8 text-[#5d4e3f]">Loading product...</div>
+            <Loader/>
           ) : error ? (
             <div className="mt-8 text-red-600">{error}</div>
           ) : !product ? (
@@ -333,7 +334,7 @@ const ProductDetails = () => {
                           src={productImage}
                           alt={productTitle}
                           className="w-auto m-auto transition-transform duration-200"
-                          style={{ maxHeight: '460px', transform: isZooming ? 'scale(1.75)' : 'scale(1)', transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`, maxWidth: '100%' }}
+                          style={{transform: isZooming ? 'scale(1.75)' : 'scale(1)', transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`, maxWidth: '100%' }}
                         />
                       </div>
                     ) : (

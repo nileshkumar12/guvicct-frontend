@@ -42,15 +42,21 @@ const SpecialCategory = () => {
   return (
     <>
     <section className="py-16 bg-[#fffdfa]">
-    <div className="mx-auto px-4">
+    <div className="container mx-auto px-4">
 
 
         <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-light uppercase tracking-wide text-[#2c2c2c] leading-tight">
+            {/* <h2 className="text-3xl md:text-5xl font-light uppercase tracking-wide text-[#2c2c2c] leading-tight">
                 Show Someone They Are Special
                 <br/>
                 Through Personalized Products
-            </h2>
+            </h2> */}
+            <h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]">
+            Show Someone They Are Special Through
+            <b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">
+            Personalized Products
+            </b>
+          </h2>
 
             <p className="mt-4 text-[#5d4e3f] text-lg">
                 Our products come with lots of different options to make your product extra special
@@ -69,7 +75,7 @@ const SpecialCategory = () => {
               const brandName = brand.name || brand.title || brand.brand || `Brand ${index + 1}`
               const imageSrc = getImageSrc(brand.image || brand.imageUrl || brand.image_url || '')
               return (
-                <a key={brand._id || brand.id || index} href="#" className="group relative overflow-hidden shadow-md">
+                <a key={brand._id || brand.id || index} href="/products" className="group relative overflow-hidden shadow-md">
                   {imageSrc ? (
                     <img
                       src={imageSrc}

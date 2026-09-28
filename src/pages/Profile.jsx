@@ -4,6 +4,7 @@ import LoginRequiredCard from '../components/LoginRequiredCard'
 import { useToast } from '../components/ToastProvider'
 import { Pencil } from 'lucide-react'
 import { API_URL, getImageUrl, uploadImageToCloudinary } from "../utils/config"
+import PageTitle from '../components/PageTitle'
 
 const getStoredUser = () => {
   try {
@@ -160,6 +161,8 @@ const Profile = () => {
   const profileImageSrc = getImageUrl(user?.profileimg) || 'https://via.placeholder.com/150'
 
   return (
+    <>
+    <PageTitle title="Profile Details" />
     <section className="py-6">
       <div className="container mx-auto px-4">
 
@@ -323,6 +326,7 @@ const Profile = () => {
         )}
       </div>
     </section>
+    </>
   )
 }
 

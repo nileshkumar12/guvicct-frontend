@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { API_URLS, getImageUrl } from '../../utils/config'
 import { addItem, selectCartTotalQuantity } from '../../store/cartSlice'
 import { useToast } from '../../components/ToastProvider'
+import PageTitle from '../../components/PageTitle'
 
 const normalizeAuthToken = (value) => {
   if (!value) return ''
@@ -534,8 +535,10 @@ const OrderList = () => {
 
 
   return (
+    <>
+    <PageTitle title="Order History" />
     <section className="min-h-[70vh]  from-slate-50 via-white to-amber-50 py-6">
-      <div className="mx-auto px-4">
+      <div className="container mx-auto px-4">
         <div className="mb-8 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm backdrop-blur">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-700">Order history</p>
           <h1 className="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Your orders</h1>
@@ -720,6 +723,7 @@ const OrderList = () => {
         )}
       </div>
     </section>
+    </>
   )
 }
 

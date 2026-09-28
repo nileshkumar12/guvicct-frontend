@@ -1,5 +1,7 @@
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
+import PageTitle from "../../components/PageTitle";
+
 
 const Dashboard = () => {
   const location = useLocation();
@@ -11,7 +13,8 @@ const Dashboard = () => {
   return (
 
      <>
-         <div className="mx-auto px-4 pt-6 text-end">
+    <PageTitle title="Dashboard" />
+         <div className="container mx-auto px-4 pt-6 text-end">
           <nav className="flex items-center text-sm text-gray-600">
             <Link
               to="/dashboard"

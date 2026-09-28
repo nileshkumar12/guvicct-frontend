@@ -5,6 +5,7 @@ import { API_URL } from '../utils/config';
 import { getCartStorageKey, hydrateCartForUser } from '../store/cartSlice'
 import { getWishlistStorageKey, hydrateWishlistForUser } from '../store/wishlistSlice'
 import { useToast } from '../../src/components/ToastProvider';
+import PageTitle from "../components/PageTitle";
 
 const normalizeAuthToken = (value) => {
   if (!value) return ''
@@ -302,6 +303,8 @@ debugger;
 
 
   return (
+    <>
+    <PageTitle title="Sign In" />
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#f7f1e3] via-[#f4e5d4] to-[#efe5d0] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
@@ -404,6 +407,7 @@ debugger;
         </form>
       </div>
     </div>
+    </>
   );
 }
 

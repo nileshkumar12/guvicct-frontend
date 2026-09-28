@@ -5,8 +5,9 @@ import { Heart, ShoppingCart, Trash2 } from 'lucide-react'
 
 import { getImageUrl } from '../../utils/config'
 import { removeFromWishlist } from '../../store/wishlistSlice'
-
+import PageTitle from '../../components/PageTitle'
 const WishLists = () => {
+
   const dispatch = useDispatch()
   const wishlistItems = useSelector((state) => state.wishlist.items)
 
@@ -15,8 +16,10 @@ const WishLists = () => {
   }
 
   return (
-    <section className="py-10">
-      <div className="mx-auto  px-6">
+    <>  
+    <PageTitle title="Your Loving Wishlist" />
+      <section className="py-10">
+      <div className="container mx-auto  px-6">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">
@@ -104,6 +107,7 @@ const WishLists = () => {
         )}
       </div>
     </section>
+    </>
   )
 }
 

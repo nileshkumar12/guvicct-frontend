@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { API_URL, API_URLS, getImageUrl } from '../../utils/config'
-
+import Loader from '../../components/Loader'
 const Categories = () => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -44,15 +44,19 @@ const Categories = () => {
     <>
       <section className="py-16">
 
-                <div className="mx-auto px-6">
-
-
+                <div className="container mx-auto px-6">
 
                     <div className="text-center mb-14">
-
-                        <h2 className="text-5xl font-light tracking-wide uppercase">
+                        <p class="text-sm font-semibold uppercase tracking-widest text-[#4254bf]">Shop by category</p>
+                        {/* <h2 className="text-5xl font-light tracking-wide uppercase">
                             Product Categories
-                        </h2>
+                        </h2> */}
+                        <h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]">
+                        Explore Our 
+            <b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">
+            Collections
+            </b>
+          </h2>
 
                         <p className="mt-3 text-[#5d4e3f] text-xl">
                             — Everything You Need, All in One Place —
@@ -64,9 +68,9 @@ const Categories = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {loading ? (
-                        <div className="col-span-1 text-center text-[#5d4e3f]">
-                          Loading categories...
-                        </div>
+                        
+                          <Loader />
+                      
                       ) : error ? (
                         <div className="col-span-1 text-center text-red-600">
                           {error}
