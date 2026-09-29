@@ -57,6 +57,9 @@ const Header = () => {
     const dispatch = useDispatch();
     const cartQuantity = useSelector(selectCartTotalQuantity)
     const wishlistCount = useSelector((state) => state.wishlist.items.length)
+    const activeCategoryId = location.pathname.startsWith('/category/')
+        ? decodeURIComponent(location.pathname.split('/')[2] || '')
+        : ''
 
     useEffect(() => {
         const loadCategories = async () => {
@@ -433,12 +436,14 @@ const Header = () => {
                                 categories.slice(0, 8).map((category) => {
                                     const categoryId = category._id || category.id || category.slug || category.name
                                     const categoryName = category.name || category.title || category.category || 'Category'
+                                    const isActive = String(categoryId).toLowerCase() === activeCategoryId.toLowerCase()
                                     return (
                                         <li key={category._id} className="hover:text-[#4254bf]">
                                             <Link
                                                 key={categoryId}
                                                 to={`/category/${categoryId}`}
-
+                                                aria-current={isActive ? 'page' : undefined}
+                                                className={isActive ? 'border-b-2 border-[#4254bf] pb-1 font-semibold text-[#4254bf]' : 'hover:text-[#4254bf]'}
                                             >
                                                 {categoryName}
                                             </Link>
@@ -506,12 +511,13 @@ const Header = () => {
                                     categories.slice(0, 6).map((category) => {
                                         const categoryId = category._id || category.id || category.slug || category.name
                                         const categoryName = category.name || category.title || category.category || 'Category'
+                                        const isActive = String(categoryId).toLowerCase() === activeCategoryId.toLowerCase()
                                         return (
-                                            <li className="hover:text-[#4254bf]">
+                                            <li key={categoryId} className="hover:text-[#4254bf]">
                                                 <Link
-                                                    key={categoryId}
                                                     to={`/category/${categoryId}`}
-
+                                                    aria-current={isActive ? 'page' : undefined}
+                                                    className={isActive ? 'font-semibold text-[#4254bf]' : 'hover:text-[#4254bf]'}
                                                 >
                                                     {categoryName}
                                                 </Link>

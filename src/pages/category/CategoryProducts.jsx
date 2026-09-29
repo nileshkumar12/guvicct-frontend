@@ -9,6 +9,20 @@ import { useToast } from '../../components/ToastProvider.jsx'
 import PageTitle from '../../components/PageTitle.jsx'
 import Loader from '../../components/Loader.jsx'
 
+const getApiList = (payload, key) => {
+  if (Array.isArray(payload)) return payload
+
+  const candidates = [
+    payload?.[key],
+    payload?.data?.[key],
+    payload?.data,
+    payload?.items,
+    payload?.result,
+  ]
+
+  return candidates.find(Array.isArray) || []
+}
+
 const CategoryProducts = () => {
   const { id } = useParams()
   const location = useLocation()
@@ -153,9 +167,7 @@ const CategoryProducts = () => {
           throw new Error(`Failed to load category (${listResponse.status})`)
         }
         const listData = await listResponse.json()
-        const categoryList = Array.isArray(listData)
-          ? listData
-          : listData.categories || listData.data || listData.items || listData.result || []
+        const categoryList = getApiList(listData, 'categories')
         currentCategory = categoryList.find(
           (item) =>
             item._id === id ||
@@ -170,37 +182,56 @@ const CategoryProducts = () => {
         setCategory(currentCategory)
 
         const isAllCategory = String(id).toLowerCase() === 'all'
-        const productResponse = isAllCategory
+        let usedAllProductsFallback = isAllCategory
+        let productResponse = isAllCategory
           ? await fetch(`${API_URL}/api/products`)
-          : await fetch(`${API_URL}/api/products?category=${id}`)
+          : await fetch(`${API_URL}/api/products?category=${encodeURIComponent(id)}`)
         let productList = []
         if (productResponse.ok) {
-          const rawProducts = await productResponse.json()
-          productList = Array.isArray(rawProducts)
-            ? rawProducts
-            : rawProducts.products || rawProducts.data || rawProducts.items || rawProducts.result || []
+          productList = getApiList(await productResponse.json(), 'products')
         } else {
-          const allResponse = await fetch(`${API_URL}/api/products`)
-          if (!allResponse.ok) {
-            throw new Error(`Failed to load products (${allResponse.status})`)
+          productList = []
+        }
+
+        if (!isAllCategory && productList.length === 0) {
+          usedAllProductsFallback = true
+          productResponse = await fetch(`${API_URL}/api/products`)
+          if (!productResponse.ok) {
+            throw new Error(`Failed to load products (${productResponse.status})`)
           }
-          const rawProducts = await allResponse.json()
-          const allProducts = Array.isArray(rawProducts)
-            ? rawProducts
-            : rawProducts.products || rawProducts.data || rawProducts.items || rawProducts.result || []
-          productList = isAllCategory
-            ? allProducts
-            : allProducts.filter((product) => {
-              const productCategory = product.category
-              if (!productCategory) return false
-              if (typeof productCategory === 'string' || typeof productCategory === 'number') {
-                return String(productCategory) === String(id)
-              }
-              return (
-                String(productCategory._id || productCategory.id || productCategory) === String(id) ||
-                String(productCategory.name || productCategory.title) === String(id)
+          productList = getApiList(await productResponse.json(), 'products')
+        }
+
+        if (!isAllCategory) {
+          const categoryValues = [
+            id,
+            currentCategory?._id,
+            currentCategory?.id,
+            currentCategory?.slug,
+            currentCategory?.name,
+            currentCategory?.title,
+          ]
+            .filter(Boolean)
+            .map((value) => String(value).trim().toLowerCase())
+
+          productList = productList.filter((product) => {
+            const productCategory = product.category ?? product.categoryId ?? product.category_id
+            if (!productCategory) return !usedAllProductsFallback
+
+            const productCategoryValues = Array.isArray(productCategory)
+              ? productCategory.flatMap((value) =>
+                typeof value === 'object' && value !== null
+                  ? [value._id, value.id, value.slug, value.name, value.title]
+                  : [value],
               )
-            })
+              : typeof productCategory === 'object'
+                ? [productCategory._id, productCategory.id, productCategory.slug, productCategory.name, productCategory.title]
+                : [productCategory]
+
+            return productCategoryValues
+              .filter(Boolean)
+              .some((value) => categoryValues.includes(String(value).trim().toLowerCase()))
+          })
         }
 
         const filteredProducts = searchTerm
@@ -237,7 +268,7 @@ const CategoryProducts = () => {
 
   const getImageSrc = getImageUrl
 
-  const categoryName = category?.name || category?.title || category?.category || 'Search Results'
+  const categoryName = category?.name || category?.title || category?.category || id || 'Search Results'
   const categoryDescription = category?.description || category?.summary || ''
 
   return (
