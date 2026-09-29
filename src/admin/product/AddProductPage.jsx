@@ -254,7 +254,7 @@ const AddProductPage = () => {
               value={formData.brand}
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
-              required
+              // required
               disabled={optionsLoading}
             >
               <option value="">{optionsLoading ? "Loading brands..." : "Select brand"}</option>

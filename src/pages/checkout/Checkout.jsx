@@ -17,6 +17,7 @@ import { createRazorpayOrder, resetPayment, verifyRazorpayPayment } from '../../
 import { loadRazorpay } from '../../utils/loadRazorpay';
 import { calculateCartGst } from '../../utils/gst';
 import { selectCheckedCartItems, selectCartSubtotal, selectCartDiscount, selectShipping, selectCartTotal, selectCartCoupon, removeSelectedItems} from '../../store/cartSlice';
+import { replaceCurrentCartOnApi } from '../../store/store';
 const normalizeAuthToken = (value) => {
     if (!value) return ''
     if (typeof value === 'string') return value.trim().replace(/^Bearer\s+/i, '')
@@ -112,38 +113,412 @@ const normalizeText = (value) => `${value || ''}`.trim()
 
 const normalizeEmail = (value) => normalizeText(value).toLowerCase()
 
+const getProductIdentifier = (value) => {
+    if (!value || typeof value !== 'object') return value || ''
+    return value._id || value.id || value.productId || ''
+}
+
 const buildCheckoutItems = (items = []) =>
     items.map((item) => {
-        const productId = item.id || item._id || item.productId || item.product || item.key
-        const quantity = Number(item.quantity || 1)
-        const price = Number(item.price || 0)
+
+        const productId = getProductIdentifier(
+            item.id ||
+            item._id ||
+            item.productId ||
+            item.product ||
+            item.key
+        )
+
+        const quantity =
+            Number(item.quantity || item.qty || 1)
+
+        const price =
+            Number(item.price || 0)
+
+
+        // -----------------------------------------
+        // Selected Variant
+        // -----------------------------------------
+
+        // Keep both object and string variant formats.
+        const selectedVariantValue = item.selectedVariant
+
+        const selectedVariant =
+            selectedVariantValue &&
+            typeof selectedVariantValue === 'object' &&
+            !Array.isArray(selectedVariantValue)
+                ? selectedVariantValue
+                : (
+                    item.variant &&
+                    typeof item.variant === 'object' &&
+                    !Array.isArray(item.variant)
+                        ? item.variant
+                        : {}
+                )
+
+        const selectedVariantString =
+            typeof selectedVariantValue === 'string'
+                ? selectedVariantValue.trim()
+                : ''
+
+        // -----------------------------------------
+        // Variant ID / SKU
+        // -----------------------------------------
+
+        const variantSku =
+            item.variantSku ||
+            item.variantSKU ||
+            selectedVariant?.sku ||
+            item.sku ||
+            ''
+
+        const variantIdCandidate =
+            selectedVariant?._id ||
+            selectedVariant?.id ||
+            selectedVariant?.variantId ||
+            item.variantId ||
+            item.variant_id ||
+            selectedVariantString ||
+            (
+                typeof item.variant === 'string'
+                    ? item.variant
+                    : ''
+            ) ||
+            ''
+
+        // Do not erase a real variant id when it equals the SKU.
+        const variantId = variantIdCandidate
+
+
+        // -----------------------------------------
+        // Variant Attributes
+        // IMPORTANT FIX
+        // -----------------------------------------
+
+        const variantAttributes = {
+            ...(selectedVariant?.attributes || {}),
+            ...(item.attributes || {}),
+            ...(item.variantAttributes || {}),
+        }
+
+
+        // -----------------------------------------
+        // Variant Name
+        // -----------------------------------------
+
+        const variantName =
+            item.variantName ||
+            selectedVariant?.name ||
+            selectedVariant?.title ||
+            selectedVariant?.variantName ||
+            ''
+
+
+        // -----------------------------------------
+        // Variant SKU
+        // -----------------------------------------
+
+        // -----------------------------------------
+        // Normalized Variant Object
+        // -----------------------------------------
+
+        const normalizedVariant =
+            (
+                variantId ||
+                variantSku ||
+                variantName ||
+                Object.keys(variantAttributes).length
+            )
+                ? {
+                    variantId:
+                        variantId || null,
+
+                    sku:
+                        variantSku || '',
+
+                    name:
+                        variantName || '',
+
+                    attributes:
+                        variantAttributes,
+
+                    price:
+                        Number(
+                            selectedVariant?.price ??
+                            item.basePrice ??
+                            price
+                        ),
+                }
+                : null
+
+
+        // -----------------------------------------
+        // Addons
+        // -----------------------------------------
+
+        const addons =
+            (Array.isArray(item.addons)
+                ? item.addons
+                : []
+            ).map((addon) => {
+
+                const addonQuantity =
+                    Math.max(
+                        1,
+                        Number(
+                            addon.quantity
+                        ) || 1
+                    )
+
+                const addonPrice =
+                    Number(
+                        addon.price
+                    ) || 0
+
+                return {
+
+                    addonId:
+                        addon.addonId ||
+                        addon._id ||
+                        addon.id ||
+                        addon.key ||
+                        addon.name ||
+                        '',
+
+                    id:
+                        addon.addonId ||
+                        addon._id ||
+                        addon.id ||
+                        addon.key ||
+                        '',
+
+                    name:
+                        addon.name ||
+                        addon.title ||
+                        'Add-on',
+
+                    price:
+                        addonPrice,
+
+                    quantity:
+                        addonQuantity,
+
+                    total:
+                        Number(
+                            addon.total ??
+                            addonPrice *
+                            addonQuantity
+                        ) || 0,
+                }
+            })
+
+
+        // -----------------------------------------
+        // FINAL ORDER ITEM
+        // -----------------------------------------
+
         return {
-            product: productId,
-            productId,
-            key: item.key,
-            name: item.name || item.title || '',
-            title: item.title || item.name || '',
+
+            product:
+                productId,
+
+            productId:
+                productId,
+
+            key:
+                item.key,
+
+            name:
+                item.name ||
+                item.title ||
+                '',
+
+            title:
+                item.title ||
+                item.name ||
+                '',
+
             price,
+
             quantity,
-            qty: quantity,
-            amount: quantity,
-            image: item.image || '',
-            variantId: item.variantId || '',
-            variant: item.variantId || '',
-            variantSku: item.variantSku || '',
-            sku: item.variantSku || item.sku || '',
-            attributes: item.variantAttributes || {},
-            variantAttributes: item.variantAttributes || {},
-            addons: item.addons || [],
-            hsnCode: item.hsnCode || '',
-            gstRate: Number(item.gstRate) || 0,
-            taxableAmount: Number(item.taxableAmount) || 0,
-            cgstAmount: Number(item.cgstAmount) || 0,
-            sgstAmount: Number(item.sgstAmount) || 0,
-            igstAmount: Number(item.igstAmount) || 0,
-            gstAmount: Number(item.gstAmount) || 0,
+
+            qty:
+                quantity,
+
+            amount:
+                quantity,
+
+            image:
+                item.image || '',
+
+            basePrice:
+                Number(
+                    item.basePrice ??
+                    price
+                ),
+
+            addonTotal:
+                Number(
+                    item.addonTotal ??
+                    addons.reduce(
+                        (sum, addon) =>
+                            sum + addon.total,
+                        0
+                    )
+                ) || 0,
+
+            lineTotal:
+                Number(
+                    (
+                        price *
+                        quantity
+                    ).toFixed(2)
+                ),
+
+
+            // -------------------------------------
+            // VARIANT
+            // -------------------------------------
+
+            variantId,
+
+            variant:
+                normalizedVariant,
+
+            selectedVariant:
+                normalizedVariant,
+
+            variantName,
+
+            variantSku,
+
+            sku:
+                variantSku,
+
+            attributes:
+                variantAttributes,
+
+            variantAttributes:
+                variantAttributes,
+
+
+            // -------------------------------------
+            // ADDONS
+            // -------------------------------------
+
+            addons,
+
+
+            // -------------------------------------
+            // GST
+            // -------------------------------------
+
+            hsnCode:
+                item.hsnCode || '',
+
+            gstRate:
+                Number(
+                    item.gstRate
+                ) || 0,
+
+            taxableAmount:
+                Number(
+                    item.taxableAmount
+                ) || 0,
+
+            cgstAmount:
+                Number(
+                    item.cgstAmount
+                ) || 0,
+
+            sgstAmount:
+                Number(
+                    item.sgstAmount
+                ) || 0,
+
+            igstAmount:
+                Number(
+                    item.igstAmount
+                ) || 0,
+
+            gstAmount:
+                Number(
+                    item.gstAmount
+                ) || 0,
         }
     })
+
+const resolveCheckoutVariants = async (items, headers) => Promise.all(
+    items.map(async (item) => {
+        const response = await fetch(
+            `${API_URLS}/api/products/${encodeURIComponent(item.product)}`,
+            { credentials: 'include', headers },
+        )
+        if (!response.ok) {
+            throw new Error(`Unable to verify ${item.name || 'a product'} before checkout. Please refresh and try again.`)
+        }
+
+        const data = await response.json()
+        const product = data?.product || data?.data?.product || data?.data || data?.result || data
+        const variants = Array.isArray(product?.variants) ? product.variants : []
+        const requestedId = `${item.variantId || ''}`.trim()
+        const requestedSku = `${item.variantSku || ''}`.trim().toLowerCase()
+        const requestedAttributes = Object.entries(item.variantAttributes || {})
+            .filter(([, value]) => value !== null && value !== undefined && `${value}`.trim())
+
+        const matchesAttributes = (variant) => requestedAttributes.length > 0 && requestedAttributes.every(([name, value]) => {
+            const entry = Object.entries(variant.attributes || {}).find(([attributeName]) =>
+                attributeName.trim().toLowerCase() === name.trim().toLowerCase(),
+            )
+            return entry && `${entry[1]}`.trim().toLowerCase() === `${value}`.trim().toLowerCase()
+        })
+
+        const selectedVariant = variants.find((variant) =>
+            requestedId && `${variant._id || variant.id || variant.variantId || ''}` === requestedId,
+        ) || variants.find((variant) =>
+            requestedSku && `${variant.sku || ''}`.trim().toLowerCase() === requestedSku,
+        ) || variants.find(matchesAttributes)
+
+        if (!selectedVariant && variants.length > 0) {
+            throw new Error(`The selected variant for ${item.name || 'a product'} is no longer available. Remove it from your cart and select the current variant again.`)
+        }
+
+        if (!selectedVariant) {
+            return {
+                ...item,
+                variantId: '',
+                variant: null,
+                selectedVariant: null,
+                variantSku: '',
+                sku: '',
+                attributes: {},
+                variantAttributes: {},
+            }
+        }
+
+        const variantId = selectedVariant._id || selectedVariant.id || selectedVariant.variantId || ''
+        const variantAttributes = selectedVariant.attributes || item.variantAttributes || {}
+        const variantSku = selectedVariant.sku || item.variantSku || ''
+        const normalizedVariant = {
+            ...selectedVariant,
+            variantId: variantId || null,
+            sku: variantSku,
+            attributes: variantAttributes,
+        }
+
+        return {
+            ...item,
+            variantId,
+            variant: normalizedVariant,
+            selectedVariant: normalizedVariant,
+            variantName: selectedVariant.name || selectedVariant.title || selectedVariant.variantName || item.variantName,
+            variantSku,
+            sku: variantSku,
+            attributes: variantAttributes,
+            variantAttributes,
+        }
+    }),
+)
 
 const parseOrderResponseJson = async (response) => {
     try {
@@ -214,7 +589,7 @@ const getCreatedOrderNumber = (data, fallbackId = '') => {
     return fallbackId
 }
 
-const getRazorpayCheckoutConfig = (paymentResponse, fallbackAmount) => {
+const getRazorpayCheckoutConfig = (paymentResponse) => {
     const candidates = getObjectCandidates(paymentResponse)
     const keyCandidate = candidates.find((candidate) =>
         getFirstText(candidate.keyId, candidate.key_id, candidate.key, candidate.razorpayKeyId)
@@ -248,7 +623,7 @@ const getRazorpayCheckoutConfig = (paymentResponse, fallbackAmount) => {
             paymentResponse?.data?.amount,
             paymentResponse?.result?.amount,
         )
-    ) || Math.round(Number(fallbackAmount || 0) * 100)
+    ) || 0
     const currency = getFirstText(
         orderCandidate.currency,
         paymentResponse?.currency,
@@ -425,6 +800,8 @@ const Checkout = () => {
     const startRazorpayPayment = async ({
         amount,
         customer,
+        items,
+        pricing,
     }) => {
         dispatch(resetPayment())
         const isLoaded =  await loadRazorpay()
@@ -438,10 +815,15 @@ const Checkout = () => {
             )
         }
 
-    const paymentResponse =   await dispatch(createRazorpayOrder({amount: Number(amount || 0),currency:'INR',})).unwrap()
-    const checkoutConfig =  getRazorpayCheckoutConfig( paymentResponse, amount)
+    const paymentResponse = await dispatch(createRazorpayOrder({
+        amount: Number(amount || 0),
+        currency: 'INR',
+        items,
+        pricing,
+    })).unwrap()
+    const checkoutConfig = getRazorpayCheckoutConfig(paymentResponse)
     if (
-        !checkoutConfig.key ||  !checkoutConfig.orderId
+        !checkoutConfig.key || !checkoutConfig.orderId || checkoutConfig.amount <= 0
     ) {
         throw createPaymentFlowError(
             'Razorpay did not return a valid payment order.',
@@ -592,6 +974,15 @@ const Checkout = () => {
             return
         }
 
+        const unavailableVariantItem = selectedItems.find((item) => {
+            const status = `${item.selectedVariant?.status || ''}`.trim().toLowerCase()
+            return status && status !== 'active'
+        })
+        if (unavailableVariantItem) {
+            addToast(`The selected variant for ${unavailableVariantItem.name || unavailableVariantItem.title || 'this product'} is unavailable. Remove it from your cart and select an active variant.`, 'error')
+            return
+        }
+
         if (!API_URLS) {
             addToast('Order API is not configured.','error')
             return
@@ -642,10 +1033,26 @@ const Checkout = () => {
         const customerEmail = normalizeEmail( data.email || authContext.email || user?.email || '')
         const customerMobile =normalizeText( data.mobile || user?.mobile || user?.phone || '')
         const customerName = normalizeText( `${shippingAddress.firstName} ${shippingAddress.lastName}`)
+        let orderLineItems
+        try {
+            orderLineItems = await resolveCheckoutVariants(
+                buildCheckoutItems(selectedItems),
+                getOrderMutationHeaders({ token, customerEmail }),
+            )
+        } catch (variantError) {
+            console.error('[CHECKOUT] Variant verification failed:', variantError)
+            addToast(variantError.message || 'Unable to verify product variants. Please refresh and try again.', 'error')
+            return
+        }
+
         // Recalculated here for the payload/Razorpay amount; backend must still recompute and trust its own figures.
-        const gstSummary = calculateCartGst(selectedItems, shippingAddress.state)
-        const orderLineItems = buildCheckoutItems(gstSummary.items)
-        const grandTotal = Number(
+        const gstSummary = calculateCartGst( selectedItems, shippingAddress.state)
+              
+        console.log(
+            '[CHECKOUT] FINAL ORDER ITEMS:',
+            JSON.stringify(orderLineItems, null, 2)
+        )
+        const estimatedGrandTotal = Number(
             (subtotal + gstSummary.gstAmount - Number(discount || 0) + Number(shipping || 0)).toFixed(2)
         )
 
@@ -738,11 +1145,11 @@ const Checkout = () => {
             sgstAmount: gstSummary.sgstAmount,
             igstAmount: gstSummary.igstAmount,
             gstAmount: gstSummary.gstAmount,
-            total: grandTotal,
-            totalAmount: grandTotal,
-            totalPrice: grandTotal,
-            grandTotal: grandTotal,
-            amount: grandTotal,
+            total: estimatedGrandTotal,
+            totalAmount: estimatedGrandTotal,
+            totalPrice: estimatedGrandTotal,
+            grandTotal: estimatedGrandTotal,
+            amount: estimatedGrandTotal,
             items: orderLineItems,
             orderItems: orderLineItems,
             cartItems: orderLineItems,
@@ -776,7 +1183,20 @@ const Checkout = () => {
                 try {
 
                     paymentResult = await startRazorpayPayment({
-                            amount: grandTotal,
+                            amount: estimatedGrandTotal,
+                            items: orderLineItems,
+                            pricing: {
+                                subtotal: Number(subtotal || 0),
+                                discount: Number(discount || 0),
+                                shippingCost: Number(shipping || 0),
+                                coupon: coupon || null,
+                                taxableAmount: gstSummary.taxableAmount,
+                                cgstAmount: gstSummary.cgstAmount,
+                                sgstAmount: gstSummary.sgstAmount,
+                                igstAmount: gstSummary.igstAmount,
+                                gstAmount: gstSummary.gstAmount,
+                                shippingAddress,
+                            },
                             customer: {
                                 name: customerName || user?.name ||'',
                                 email: customerEmail,
@@ -887,7 +1307,16 @@ const Checkout = () => {
                 }
 
                 dispatch(removeSelectedItems())
-                addToast('Payment successful. Order placed successfully!','success')
+                const cartSynced = await replaceCurrentCartOnApi(apiUserIdentifier)
+                if (!cartSynced) {
+                    console.error('[CHECKOUT] Order succeeded but the updated cart could not be saved to the server.')
+                }
+                addToast(
+                    cartSynced
+                        ? 'Payment successful. Order placed successfully!'
+                        : 'Payment successful, but your cart could not be updated on the server.',
+                    cartSynced ? 'success' : 'error',
+                )
                 navigate( `/dashboard/order/${createdOrderId}`,
                     {
                         state: {
@@ -941,7 +1370,16 @@ const Checkout = () => {
             }
 
             dispatch(removeSelectedItems())
-            addToast( 'Order placed successfully!','success')
+            const cartSynced = await replaceCurrentCartOnApi(apiUserIdentifier)
+            if (!cartSynced) {
+                console.error('[CHECKOUT] Order succeeded but the updated cart could not be saved to the server.')
+            }
+            addToast(
+                cartSynced
+                    ? 'Order placed successfully!'
+                    : 'Order placed, but your cart could not be updated on the server.',
+                cartSynced ? 'success' : 'error',
+            )
             navigate(
                 `/dashboard/order/${createdOrderId}`,
                 {

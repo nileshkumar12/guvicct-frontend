@@ -28,20 +28,25 @@ const CheckoutOrderSummary = ({
                     <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
                     {/* Products */}
                     <div className="space-y-5">
-                                                {items.map(({ key, title, quantity, price, variantAttributes, variantSku, addons })=>(
+                                                {items.map(({ key, title, brand, quantity, price, basePrice, addonTotal, variantName, variantAttributes, variantSku, addons })=>(
                                 <div className="flex justify-between" key={key}>
                                                                 <span style={{ maxWidth: '70%' }}>
                                                                     {title} × <b>{quantity}</b>
+                                                                                            {brand && <small className="block text-gray-500">{brand}</small>}
                                                                     {Object.keys(variantAttributes || {}).length > 0 && (
                                                                         <small className="block text-gray-500 capitalize">
                                                                             {Object.entries(variantAttributes).map(([name, value]) => `${name}: ${value}`).join(', ')}{variantSku ? ` (${variantSku})` : ''}
                                                                         </small>
                                                                     )}
+                                                                    {(variantName || variantSku) && Object.keys(variantAttributes || {}).length === 0 && (
+                                                                        <small className="block text-gray-500">Variant: {variantName || 'Selected'}{variantSku ? ` · SKU: ${variantSku}` : ''}</small>
+                                                                    )}
                                                                     {addons?.length > 0 && (
                                                                         <small className="block text-gray-500">
-                                                                            Add-ons: {addons.map((addon) => `${addon.name} (+₹${Number(addon.price || 0).toFixed(2)})`).join(', ')}
+                                                                            Add-ons: {addons.map((addon) => `${addon.name} × ${Number(addon.quantity) || 1} (+₹${Number(addon.total ?? (Number(addon.price || 0) * (Number(addon.quantity) || 1))).toFixed(2)})`).join(', ')}
                                                                         </small>
                                                                     )}
+                                                                    <small className="block text-gray-500">₹{Number(basePrice ?? price ?? 0).toFixed(2)} product + ₹{Number(addonTotal || 0).toFixed(2)} addons / unit</small>
                                                                 </span>
                                 <span>₹ {Number(price || 0) * quantity}</span>
                                 </div>
@@ -88,7 +93,7 @@ const CheckoutOrderSummary = ({
                         </div>
                     
                         <div className="flex justify-between font-bold text-xl border-t pt-4">
-                            <span>Grand Total</span>
+                            <span>Estimated total</span>
                             <span>₹{total}</span>
                         </div>
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { API_URL } from '../utils/config'
 import vyasonImgfooter from "../../src/assets/vyason2.png";
-
+import WhatsAppButton from '../components/WhatsAppButton'
 const Footer = () => {
   const [categories, setCategories] = useState([])
   const [count, setCount] = useState(0)
@@ -76,6 +76,8 @@ const Footer = () => {
                 Submit
               </button>
             </form>
+
+              <WhatsAppButton/>
           </div>
         </div>
       </footer>

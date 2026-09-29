@@ -68,7 +68,7 @@ const SellerOrderDetails = () => {
     const OrderById = order?.find((o) => o._id === orderId);
     const OrdersellerById = OrderById?.items?.filter((item) => item.seller === userId);
 
-    console.log("orderbyId:", OrderById);
+    console.log("OrderById:", OrderById);
     console.log("OrdersellerById:", OrdersellerById);
 
     if (!OrderById) {
@@ -126,8 +126,6 @@ const SellerOrderDetails = () => {
 
                 <div className="grid gap-6">
                     <div className="space-y-6">
-
-
                         <section
                             key=""
                             className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
@@ -186,9 +184,22 @@ const SellerOrderDetails = () => {
                                                     <p className="mt-2 text-base font-bold text-slate-900">
                                                         ₹{seller.price.toLocaleString("en-IN")}
                                                     </p>
+
+                                                    <div className="w-full max-w-[12rem] flex-shrink-0 sm:max-w-[16rem]">
+                                                    <strong>Payment Details</strong>
+                                                    <p className="text-sm font-medium text-slate-900">
+                                                    Payment Method: {seller.paymentMethod}
+                                                    </p>
+                                                    <p className="text-sm font-medium text-slate-900">
+                                                    Payment Type: {seller.paymentType}
+                                                    </p>
+                                                </div>
                                                 </div>
 
+                                               
+
                                             </div>
+                                            
 
                                         </div>
                                     </div>

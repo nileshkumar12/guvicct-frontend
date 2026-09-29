@@ -37,7 +37,7 @@ const ProductDetails = () => {
 
   const addToCart = () => {
     if (!product) return
-    if (variants.length && !selectedVariant) {
+    if (hasVariants && !selectedVariant) {
       addToast('Please select a product variant.', 'error')
       return
     }
@@ -47,24 +47,33 @@ const ProductDetails = () => {
     }
 
     const idVal = product._id || product.id || product.sku || Date.now()
-    const variantId = selectedVariant?._id || selectedVariant?.id || selectedVariant?.sku || ''
+    const variantId = selectedVariant?._id || selectedVariant?.id || selectedVariant?.variantId || ''
     const basePrice = Number(selectedVariant?.price ?? product.price ?? 0)
-    const addonTotal = selectedAddons.reduce((sum, addon) => sum + Number(addon.price || 0), 0)
-    const addonKey = selectedAddons.map((addon) => addon.key).sort().join(',')
+    const addonTotal = selectedAddons.reduce((sum, addon) => sum + Number(addon.total ?? addon.price ?? 0), 0)
+    const addonKey = selectedAddons.map((addon) => addon.addonId || addon.key).sort().join(',')
+    const variantAttributes = { ...selectedVariant?.attributes, ...selectedAttributes }
     const cartItem = {
       id: idVal,
       key: `${idVal}${variantId ? `:${variantId}` : ''}${addonKey ? `:addons-${addonKey}` : ''}`,
       productId: idVal,
       variantId,
+      variantName: selectedVariant?.name || selectedVariant?.title || selectedVariant?.variantName || '',
       variantSku: selectedVariant?.sku || '',
-      variantAttributes: { ...selectedVariant?.attributes, ...selectedAttributes },
+      variantAttributes,
+      attributes: variantAttributes,
+      selectedVariant: selectedVariant ? { ...selectedVariant, attributes: variantAttributes } : null,
       name: product.name || product.title || '',
       title: product.name || product.title || '',
       image: productImage,
       basePrice,
       addonTotal,
       price: basePrice + addonTotal,
-      addons: selectedAddons,
+      addons: selectedAddons.map((addon) => ({
+        ...addon,
+        addonId: addon.addonId || addon._id || addon.id || addon.key,
+        quantity: Number(addon.quantity) || 1,
+        total: Number(addon.total ?? addon.price ?? 0),
+      })),
       quantity,
       stock: selectedVariant?.stock != null ? Number(selectedVariant.stock) : product.stock != null ? Number(product.stock) : Infinity,
       brand: product.brand || '',
@@ -156,8 +165,10 @@ const ProductDetails = () => {
 
   const getImageSrc = getImageUrl
 
-  const variants = (product?.variants || []).filter((variant) => variant.status === 'active')
-  const selectedVariant = variants.find((variant) => `${variant._id || variant.id || variant.sku || ''}` === selectedVariantId)
+  const allVariants = product?.variants || []
+  const hasVariants = allVariants.length > 0
+  const variants = allVariants.filter((variant) => `${variant.status || ''}`.trim().toLowerCase() === 'active')
+  const selectedVariant = variants.find((variant) => `${variant._id || variant.id || variant.variantId || variant.sku || ''}` === selectedVariantId)
   const normalizeAttributeValue = (value) => String(value ?? '').trim().toLowerCase()
   const getVariantAttributeValue = (variant, attributeName) => {
     const entry = Object.entries(variant?.attributes || {}).find(([name]) =>
@@ -218,7 +229,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const firstVariant = variants[0]
-    const variantId = firstVariant?._id || firstVariant?.id || firstVariant?.sku || ''
+    const variantId = firstVariant?._id || firstVariant?.id || firstVariant?.variantId || firstVariant?.sku || ''
     setSelectedVariantId(`${variantId}`)
     setSelectedAttributes(firstVariant?.attributes || {})
     setSelectedAddons((product?.addons || [])
@@ -255,7 +266,14 @@ const ProductDetails = () => {
 
   const toggleAddon = (addon, checked, index) => {
     const key = addon._id || addon.id || `${index}-${addon.name}`
-    const normalizedAddon = { ...addon, key, price: Number(addon.price) || 0 }
+    const normalizedAddon = {
+      ...addon,
+      addonId: addon._id || addon.id || key,
+      key,
+      price: Number(addon.price) || 0,
+      quantity: 1,
+      total: Number(addon.price) || 0,
+    }
     setSelectedAddons((current) => checked
       ? [...current.filter((item) => item.key !== key), normalizedAddon]
       : current.filter((item) => item.key !== key))
@@ -272,7 +290,7 @@ const ProductDetails = () => {
     )
     if (!matchingVariant) return
 
-    const variantId = matchingVariant._id || matchingVariant.id || matchingVariant.sku || ''
+    const variantId = matchingVariant._id || matchingVariant.id || matchingVariant.variantId || matchingVariant.sku || ''
     setSelectedVariantId(`${variantId}`)
     setSelectedAttributes(matchingVariant.attributes || nextAttributes)
     setSelectedImage(getImageUrl(matchingVariant.image || matchingVariant.images?.[0] || ''))

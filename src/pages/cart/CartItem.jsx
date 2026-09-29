@@ -49,12 +49,18 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
             </div>
           )}
 
+          {(item.variantName || item.variantSku) && Object.keys(variantAttributes).length === 0 && (
+            <p className="text-sm text-[#5d4e3f]">
+              Variant: {item.variantName || 'Selected'}{item.variantSku ? ` · SKU: ${item.variantSku}` : ''}
+            </p>
+          )}
+
           {item.addons?.length > 0 && (
             <div className="space-y-1 text-sm text-[#5d4e3f]">
               <p className="font-semibold text-[#1c1c1c]">Add-ons</p>
               {item.addons.map((addon) => (
                 <p key={addon.key || addon.name}>
-                  {addon.name}: +₹{Number(addon.price || 0).toFixed(2)}
+                  {addon.name} × {Number(addon.quantity) || 1}: +₹{Number(addon.total ?? (Number(addon.price || 0) * (Number(addon.quantity) || 1))).toFixed(2)}
                 </p>
               ))}
             </div>
@@ -83,7 +89,10 @@ const CartItem = ({ item, onQuantityChange, onRemove, onSelectionChange }) => {
           </div>
 
           <div className="space-y-2 text-right">
-            <p className="text-lg font-semibold text-[#1c1c1c]">₹{Number(item.price || 0).toFixed(2)} each</p>
+            <p className="text-sm text-[#5d4e3f]">₹{Number(item.basePrice ?? item.price ?? 0).toFixed(2)} product price</p>
+            {Number(item.addonTotal) > 0 && <p className="text-sm text-[#5d4e3f]">+₹{Number(item.addonTotal).toFixed(2)} addons / unit</p>}
+            <p className="text-sm font-medium text-[#1c1c1c]">₹{Number(item.price || 0).toFixed(2)} each</p>
+            <p className="text-lg font-semibold text-[#1c1c1c]">Line total: ₹{(Number(item.price || 0) * Number(item.quantity || 1)).toFixed(2)}</p>
             {Number(item.gstRate) > 0 && (
               <p className="text-xs text-[#5d4e3f]">
                 GST {item.gstRate}% {item.priceIncludesGST ? '(incl.)' : '(extra)'}

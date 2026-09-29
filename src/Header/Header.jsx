@@ -202,8 +202,7 @@ const Header = () => {
     return (
         <>
             <header className="sticky top-0 z-50 bg-white shadow-md">
-                {/* Top Bar */}
-                <div className="bg-[#111111] text-white text-sm">
+                 <div className="bg-[#111111] text-white text-sm">
                     <div className=" mx-auto flex justify-between items-center px-4 py-2">
                         <p>🚚 Free Shipping on Orders Over ₹1999</p>
                         <div className="flex gap-5">
@@ -214,15 +213,14 @@ const Header = () => {
                     </div>
                 </div>
 
-                {/* Main Header */}
                 <div className=" mx-auto px-4 py-4 flex items-center justify-between">
 
-                    {/* Logo */}
+                   
                     <div className="text-3xl font-bold text-[#1c1c1c]">
                         <Link to="/"> <img src={vyasonImg} style={{ maxWidth: "175px" }} /></Link>
                     </div>
 
-                    {/* Search */}
+          
                     <form onSubmit={handleSearchSubmit} className="hidden lg:flex flex-1 mx-10 relative">
                         <div className="flex-1 relative">
                             <input
@@ -484,7 +482,7 @@ const Header = () => {
                     </div>
                 </nav>
 
-                {/* Mobile Menu */}
+               
                 {mobileMenu && (
                     <div className="md:hidden border-t bg-white" onClick={() => setMobileMenu(false)}>
                         <div className="p-4">
@@ -556,8 +554,6 @@ const Header = () => {
                     </div>
                 )}
             </header>
-
-
         </>
     )
 }

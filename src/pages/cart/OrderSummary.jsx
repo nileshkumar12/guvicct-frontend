@@ -47,7 +47,7 @@ const OrderSummary = ({ subtotal, discount, shipping, total, coupon, gstSummary,
                     )}
                 </div>
                 <div className="border-t border-[#e9e2d9] pt-4 flex items-center justify-between text-xl font-semibold text-[#1c1c1c]">
-                    <span>Grand Total</span>
+                    <span>Estimated total</span>
                     <span>₹{total.toFixed(2)}</span>
                 </div>
             </div>

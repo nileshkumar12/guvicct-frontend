@@ -300,8 +300,6 @@ debugger;
     }
   };
 
-
-
   return (
     <>
     <PageTitle title="Sign In" />
@@ -326,6 +324,7 @@ debugger;
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />
@@ -342,6 +341,7 @@ debugger;
               placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="current-password"
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
             />

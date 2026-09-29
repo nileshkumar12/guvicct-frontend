@@ -88,8 +88,8 @@ const EditProductPage = () => {
           gstRate: item.gstRate ?? "",
           priceIncludesGST: item.priceIncludesGST === true,
         })
-              setSpecifications(Array.isArray(item.specifications) ? item.specifications : [])
-              setAddons(Array.isArray(item.addons) ? item.addons : [])
+        setSpecifications(Array.isArray(item.specifications) ? item.specifications : [])
+        setAddons(Array.isArray(item.addons) ? item.addons : [])
       } catch (fetchError) {
         setError(fetchError.message)
       } finally {
@@ -214,7 +214,7 @@ const EditProductPage = () => {
       formPayload.append("gallery", JSON.stringify(formData.gallery))
       formPayload.append("seller", formData.seller)
       formPayload.append("specifications", JSON.stringify(specifications))
-      formPayload.append("addons", JSON.stringify(addons))  
+      formPayload.append("addons", JSON.stringify(addons))
       formPayload.append("hsnCode", formData.hsnCode)
       formPayload.append("gstRate", Number(formData.gstRate) || 0)
       formPayload.append("priceIncludesGST", formData.priceIncludesGST)
@@ -294,7 +294,7 @@ const EditProductPage = () => {
               value={formData.brand}
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
-              required
+              // required
               disabled={optionsLoading}
             >
               <option value="">{optionsLoading ? "Loading brands..." : "Select brand"}</option>
@@ -351,7 +351,7 @@ const EditProductPage = () => {
               value={formData.subcategory}
               onChange={handleChange}
               className="mt-2 w-full rounded-lg border border-[#d5bea8] px-4 py-3 outline-none focus:ring-2 focus:ring-[#4254bf]"
-              required
+            // required
             />
           </div>
 

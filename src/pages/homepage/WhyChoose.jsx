@@ -1,132 +1,3 @@
-// import React from "react";
-// import {
-//   Truck,
-//   ShieldCheck,
-//   Headphones,
-//   Gift,
-//   ArrowRight,
-// } from "lucide-react";
-
-// const features = [
-//   {
-//     icon: Truck,
-//     title: "Free Shipping",
-//     description: (
-//       <>
-//         On orders over
-        
-//         ₹1899
-//       </>
-//     ),
-//   },
-//   {
-//     icon: ShieldCheck,
-//     title: "Secure Payments",
-//     description: (
-//       <>
-//         100% secure
-      
-//         transactions
-//       </>
-//     ),
-//   },
-//   {
-//     icon: Headphones,
-//     title: "24/7 Support",
-//     description: (
-//       <>
-//         We're here to
-       
-//         help you
-//       </>
-//     ),
-//   },
-//   {
-//     icon: Gift,
-//     title: "Personalized Gifts",
-//     description: (
-//       <>
-//         Make it extra
-        
-//         special
-//       </>
-//     ),
-//   },
-// ];
-
-// const WhyChoose = () => {
-//   return (
-//     <section className="w-full bg-gradient-to-r from-[#f5f9ff] to-[#eef6ff] py-10 sm:py-12 lg:py-14">
-//       <div className="mx-auto  px-5 sm:px-8">
-//         <div className="">
-
-//           {/* Left Content */}
-//           <div className="text-center  w-full mb-10">
-//             <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#4254bf]">
-//               Why Choose Vyason
-//             </p>
-
-//             <h2 className="text-3xl md:text-5xl font-light uppercase tracking-wide text-[#2c2c2c] leading-tight">
-//               Premium Products,
-              
-//               Thoughtful Gifting
-//             </h2>
-
-//             <p className="mb-5  text-[14px] leading-[1.55] text-[#60728c]">
-//               We bring you the best quality products with
-//               personalized options to make your special
-//               moments even more memorable.
-//             </p>
-
-           
-//           </div>
-
-//           {/* Feature Cards */}
-//           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-//             {features.map((feature, index) => {
-//               const Icon = feature.icon;
-
-//               return (
-//                 <div
-//                   key={index}
-//                   className="min-h-[164px] rounded-[9px] border border-[#e1e8f2] bg-white/90 px-6 py-6 shadow-[0_3px_12px_rgba(27,55,90,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_22px_rgba(27,55,90,0.10)]"
-//                 >
-//                   <Icon
-//                     size={32}
-//                     strokeWidth={1.8}
-//                     className="mb-5 text-[#2456d8]"
-//                   />
-
-//                   <h3 className="mb-2 text-[13px] font-bold text-[#14243d]">
-//                     {feature.title}
-//                   </h3>
-
-//                   <p className="text-[12px] leading-[1.45] text-[#718198]">
-//                     {feature.description}
-//                   </p>
-//                 </div>
-//               );
-//             })}
-//           </div>
-//             <div className="mt-8 text-center">
-//             <a
-//               href="/products"
-//               className="inline-flex items-center gap-2 rounded-full bg-[#4254bf] px-5 py-2.5 text-[12px] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#4254bf]"
-//             >
-//               Explore Products
-//               <ArrowRight size={15} strokeWidth={2} />
-//             </a>
-//             </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default WhyChoose;
-
-
-
 import React from "react";
 import {
   BadgeCheck,
@@ -136,6 +7,7 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const features = [
   {
@@ -180,7 +52,7 @@ const WhyChoose = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#f4f8ff] via-white to-[#eef5ff] px-4 py-16 sm:px-6 lg:px-8">
       
-      {/* Background Decorations */}
+     
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-100/40 blur-3xl" />
 
       <div className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-indigo-100/40 blur-3xl" />
@@ -198,7 +70,7 @@ const WhyChoose = () => {
 
       <div className="container relative mx-auto">
 
-        {/* Section Heading */}
+        
         <div className="mx-auto mb-12 max-w-5xl text-center">
 
           {/* Label */}
@@ -207,7 +79,7 @@ const WhyChoose = () => {
             WHY CHOOSE VYASON
           </div>
 
-          {/* Heading */}
+         
           <h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]">
             Premium Products,
             <b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">
@@ -215,7 +87,7 @@ const WhyChoose = () => {
             </b>
           </h2>
 
-          {/* Description */}
+         
           <p className="mx-auto mt-5 max-w-3xl text-sm leading-7 text-slate-500 sm:text-base">
             We bring you the best quality products with exceptional options
             to make your special moments even more memorable.
@@ -294,10 +166,11 @@ const WhyChoose = () => {
           })}
         </div>
 
-        {/* CTA */}
+      
         <div className="mt-12 flex justify-center">
 
-          <button
+          <Link
+            to="/products"
             type="button"
             className="
               group inline-flex items-center gap-3
@@ -317,7 +190,7 @@ const WhyChoose = () => {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 transition-transform duration-300 group-hover:translate-x-1">
               <ArrowRight size={16} />
             </span>
-          </button>
+          </Link>
 
         </div>
       </div>

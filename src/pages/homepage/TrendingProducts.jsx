@@ -1,11 +1,30 @@
-import React, { useRef, useState,useEffect } from "react";
-import { Heart, Star, ArrowRight, ChevronLeft, ChevronRight,ShoppingCart } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { Heart, Star, ArrowRight, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import {API_URL} from "../../utils/config";
+import { API_URL } from "../../utils/config";
+import { addItem } from "../../store/cartSlice";
+import { useToast } from "../../components/ToastProvider";
+
+const extractProducts = (response) => {
+    if (Array.isArray(response)) return response;
+    const candidates = [
+        response?.products,
+        response?.items,
+        response?.data?.products,
+        response?.data?.items,
+        response?.data,
+        response?.result?.products,
+        response?.result,
+    ];
+    return candidates.find(Array.isArray) || [];
+};
+
+const getProductId = (product) => product?._id || product?.id || product?.productId || '';
 
 const TrendingProducts = () => {
     const prevRef = useRef(null);
@@ -13,18 +32,43 @@ const TrendingProducts = () => {
     const [products, setProducts] = useState([]);
     const fetchProducts = async () => {
         try {
+
             const response = await fetch(`${API_URL}/api/products/trending`);
+            if (!response.ok) throw new Error(`Trending products request failed (${response.status})`);
             const data = await response.json();
-            setProducts(data.data);
-            console.log("Fetched products:", data.data);
-        } catch (error) {   
+            let productList = extractProducts(data);
+            if (productList.length < 4) {
+                const catalogResponse = await fetch(`${API_URL}/api/products`);
+                if (catalogResponse.ok) {
+                    const catalog = extractProducts(await catalogResponse.json());
+                    const knownIds = new Set(productList.map(getProductId).filter(Boolean).map(String));
+                    productList = [
+                        ...productList,
+                        ...catalog.filter((product) => {
+                            const id = getProductId(product);
+                            if (!id || knownIds.has(String(id))) return false;
+                            knownIds.add(String(id));
+                            return true;
+                        }),
+                    ];
+                }
+            }
+
+            const uniqueProducts = new Map();
+            productList.forEach((product) => {
+                const id = getProductId(product);
+                if (!id || `${product.status || 'active'}`.trim().toLowerCase() === 'inactive') return;
+                if (!uniqueProducts.has(String(id))) uniqueProducts.set(String(id), product);
+            });
+            setProducts(Array.from(uniqueProducts.values()));
+        } catch (error) {
             console.error("Error fetching products:", error);
         }
     };
 
     useEffect(() => {
         fetchProducts();
-    
+
     }, []);
 
 
@@ -41,15 +85,15 @@ const TrendingProducts = () => {
                             Handpicked Favorites for You
                         </h2> */}
 
-<h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]">
-Handpicked 
-            <b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">
-            Favorites
-            </b>
-            &nbsp;for You
-          </h2>
+                        <h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]">
+                            Handpicked
+                            <b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">
+                                Favorites
+                            </b>
+                            &nbsp;for You
+                        </h2>
                     </div>
-                    <button
+                    <Link to="/products"
                         type="button"
                         className="group hidden items-center gap-2 text-sm font-semibold text-[#3048d8] sm:flex"
                     >
@@ -59,7 +103,7 @@ Handpicked
                             size={16}
                             className="transition-transform duration-300 group-hover:translate-x-1"
                         />
-                    </button>
+                    </Link>
                 </div>
                 <div className="relative">
                     <button
@@ -89,7 +133,7 @@ Handpicked
                         modules={[Navigation]}
                         spaceBetween={16}
                         slidesPerView={2}
-                        loop={true}
+                        loop={products.length > 4}
                         speed={600}
                         navigation={{
                             prevEl: prevRef.current,
@@ -133,7 +177,7 @@ Handpicked
                         className=""
                     >
                         {products.map((product) => (
-                            <SwiperSlide key={product.id}>
+                            <SwiperSlide key={getProductId(product)}>
                                 <ProductCard product={product} />
                             </SwiperSlide>
                         ))}
@@ -182,165 +226,100 @@ Handpicked
 };
 
 const ProductCard = ({ product }) => {
-    const isWishlisted = false; // Replace with actual logic to determine if the product is wishlisted
-    const productId = product._id;
-    const productName = product.name;
+    const dispatch = useDispatch();
+    const { addToast } = useToast();
+    const productId = getProductId(product);
+    const productName = product.name || product.title || 'Product';
+    const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
     const stockLabel = product.stock <= 0 ? 'Out of Stock' : '';
     const stockClass = product.stock <= 0 ? 'bg-red-500 text-white' : '';
+
+    const handleAddToCart = () => {
+        if (hasVariants) {
+            addToast('Choose a product variant before adding it to your cart.', 'error');
+            return;
+        }
+        if (product.stock != null && Number(product.stock) <= 0) {
+            addToast('Sorry, this product is out of stock.', 'error');
+            return;
+        }
+
+        dispatch(addItem({
+            id: String(productId),
+            productId: String(productId),
+            key: String(productId),
+            name: productName,
+            title: productName,
+            image: product.image || product.imageUrl || product.image_url || '',
+            price: Number(product.price) || 0,
+            basePrice: Number(product.price) || 0,
+            quantity: 1,
+            stock: product.stock != null ? Number(product.stock) : Infinity,
+            brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || '',
+            category: typeof product.category === 'string' ? product.category : product.category?.name || product.category?.title || '',
+            sku: product.sku || '',
+            hsnCode: product.hsnCode || '',
+            gstRate: Number(product.gstRate) || 0,
+            priceIncludesGST: product.priceIncludesGST === true,
+        }));
+        addToast(`${productName} added to cart.`, 'success');
+    };
+
     return (
-
-<article
-                  key={product._id}
-                  className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
-                >
-                  <div className="relative text-center overflow-hidden pt-3">
-                    <Link to={`/product/${product._id}`}>
-                      {product.image ? (
-
+        <article
+            key={product._id}
+            className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
+        >
+            <div className="relative text-center overflow-hidden pt-3">
+                <Link to={`/product/${product._id}`}>
+                    {product.image ? (
                         <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-72 m-auto transition duration-500 group-hover:scale-105"
+                            src={product.image}
+                            alt={product.name}
+                            className="h-72 m-auto transition duration-500 group-hover:scale-105"
                         />
 
-                      ) : (
+                    ) : (
                         <div className="flex h-72 items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
-                          No image
+                            No image
                         </div>
-                      )}
-                      {product.stock <= 0 && (
-                      <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
-                        {stockLabel}
-                      </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
-                  </div>
+                    )}
+                    {product.stock <= 0 && (
+                        <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
+                            {stockLabel}
+                        </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
+            </div>
 
-                  <div className="space-y-4 p-6">
-                    <Link to={`/product/${productId}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
-                      {productName}
-                    </Link>
-                    <p className="text-sm text-[#5d4e3f]">{product.brand || product.category || 'Gift basket'}</p>
-                    <div className="text-2xl font-bold text-[#1aa184]">
-                      <div className='flex justify-between'>
+            <div className="space-y-4 p-6">
+                <p className="text-sm mb-0 text-[#5d4e3f]"><small>{(typeof product.brand === 'string' ? product.brand : product.brand?.name) || (typeof product.category === 'string' ? product.category : product.category?.name) || 'Gift basket'}</small></p>
+                <Link title={productName} to={`/product/${productId}`} className="text-lg truncate font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
+                    {productName}
+                </Link>
+
+                <div className="text-2xl font-bold text-[#1aa184]">
+                    <div className='flex justify-between'>
                         <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
-                        <Link to={`/product/${productId}`} className="inline-block text-right rounded-full bg-[#4254bf] px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3546ae]">
-                          Buy Now
-                        </Link>
-                      </div>
+                        <div className="flex flex-wrap justify-end gap-2">
+                            <Link to={`/product/${productId}`} className="inline-block rounded-full bg-[#4254bf] px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3546ae]">
+                                Buy Now
+                            </Link>
+                            {/* {!hasVariants && (
+                                <button
+                                    type="button"
+                                    onClick={handleAddToCart}
+                                    className="inline-flex items-center gap-2 rounded-full border border-[#4254bf] bg-white px-4 py-2 text-sm font-semibold text-[#4254bf] transition hover:bg-[#4254bf] hover:text-white"
+                                >
+                                    <ShoppingCart size={16} /> Add
+                                </button>
+                            )} */}
+                        </div>
                     </div>
-                  </div>
-                </article>
+                </div>
+            </div>
+        </article>
 
-    //     <article
-    //         className="
-    //     group relative h-full overflow-hidden
-    //     rounded-2xl
-    //     border border-slate-100
-    //     bg-white
-       
-    //     transition-all duration-300
-    //     hover:-translate-y-1
-    //     hover:border-blue-100
-    //     hover:shadow-[0_0px_5px_rgba(48,72,216,0.13)]
-    //   "
-    //     >
-
-    //         <div className="relative aspect-square overflow-hidden bg-[#f8fafc]">
-
-    //             <img
-    //                c
-    //                 loading="lazy"
-    //                 className="
-    //         h-full w-full
-    //         object-cover
-    //         transition-transform duration-500
-    //         group-hover:scale-105
-    //       "
-    //             />
-
-
-    //             <button
-    //                 type="button"
-    //                 aria-label={`Add ${product.name} to wishlist`}
-    //                 className="
-    //         absolute right-2.5 top-2.5
-    //         flex h-8 w-8
-    //         items-center justify-center
-    //         rounded-full
-    //         bg-white/95
-    //         text-[#26365f]
-    //         shadow-sm
-    //         backdrop-blur
-    //         transition-all duration-300
-    //         hover:bg-[#3048d8]
-    //         hover:text-white
-    //       "
-    //             >
-    //                 <Heart size={15} strokeWidth={1.8} />
-    //             </button>
-    //         </div>
-
-
-    //         <div className="p-3">
-
-
-    //             <p className="mb-1 text-[9px] font-medium text-slate-400">
-    //                 {product.category}
-    //             </p>
-
-
-    //             <h3 className="min-h-[34px] overflow-hidden text-[11px] font-medium leading-[17px] text-slate-700">
-    //                 {product.name}
-    //             </h3>
-
-
-    //             <div className="mt-2 flex items-center gap-1">
-
-    //                 <Star
-    //                     size={13}
-    //                     fill="currentColor"
-    //                     className="text-amber-400"
-    //                 />
-
-    //                 <span className="text-[11px] font-semibold text-slate-700">
-    //                     {product.rating}
-    //                 </span>
-
-    //                 <span className="text-[10px] text-slate-400">
-    //                     ({product.reviews})
-    //                 </span>
-    //             </div>
-
-
-    //             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-
-    //                 <span className="text-sm font-bold text-[#111a3a]">
-    //                     {product.price}
-    //                 </span>
-
-    //                 <span className="text-[10px] text-slate-400 line-through">
-    //                     {product.oldPrice}
-    //                 </span>
-    //             </div>
-
-
-    //             <div className="mt-2">
-    //                 <span
-    //                     className="
-    //           inline-flex rounded-full
-    //           bg-emerald-50
-    //           px-2 py-1
-    //           text-[9px]
-    //           font-bold
-    //           text-emerald-600
-    //         "
-    //                 >
-    //                     {product.discount}
-    //                 </span>
-    //             </div>
-    //         </div>
-    //     </article>
     );
 };
 

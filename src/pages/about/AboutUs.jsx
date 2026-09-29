@@ -1,416 +1,495 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-const AboutUs = () => {
-  const values = [
-    {
-      icon: "♡",
-      title: "Customer First",
-      description:
-        "We put our customers at the heart of everything we do.",
-    },
-    {
-      icon: "◇",
-      title: "Quality First",
-      description:
-        "We choose quality, so you get the best every time.",
-    },
-    {
-      icon: "▱",
-      title: "Fast & Reliable",
-      description:
-        "Quick delivery, real-time updates, and always on time.",
-    },
-    {
-      icon: "♧",
-      title: "Trust & Transparency",
-      description:
-        "Secure payments, easy returns, and honest service.",
-    },
-  ];
+import React from "react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Globe2,
+  Heart,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+  Users,
+  Zap,
+} from "lucide-react";
 
+const AboutUs = () => {
   const stats = [
     {
       value: "10K+",
-      label: "Happy Customers",
-      icon: "♧",
-    },
-    {
-      value: "5K+",
       label: "Products",
-      icon: "◇",
     },
     {
-      value: "50+",
-      label: "Top Brands",
-      icon: "♡",
+      value: "1K+",
+      label: "Trusted Sellers",
     },
     {
-      value: "24/7",
-      label: "Customer Support",
-      icon: "◌",
+      value: "25K+",
+      label: "Happy Customers",
+    },
+    {
+      value: "100%",
+      label: "Shopping Focus",
+    },
+  ];
+
+  const values = [
+    {
+      icon: ShieldCheck,
+      title: "Trust First",
+      description:
+        "We focus on creating a secure and transparent shopping experience where customers can shop with confidence.",
+    },
+    {
+      icon: Sparkles,
+      title: "Quality & Value",
+      description:
+        "We bring together products that offer a balance of quality, useful features and competitive pricing.",
+    },
+    {
+      icon: Heart,
+      title: "Customer Focus",
+      description:
+        "Every experience matters. We continuously work to make discovering, buying and receiving products easier.",
+    },
+    {
+      icon: Zap,
+      title: "Simple Shopping",
+      description:
+        "From product discovery to checkout, our goal is to keep online shopping simple, fast and convenient.",
+    },
+  ];
+
+  const features = [
+    {
+      icon: ShoppingBag,
+      title: "Wide Product Selection",
+      text: "Discover products across multiple categories in one convenient marketplace.",
+    },
+    {
+      icon: Users,
+      title: "Growing Seller Community",
+      text: "We provide sellers with a platform to showcase their products and reach more customers.",
+    },
+    {
+      icon: Truck,
+      title: "Convenient Delivery",
+      text: "We aim to make the journey from checkout to doorstep smooth and reliable.",
+    },
+    {
+      icon: Globe2,
+      title: "Built for Everyone",
+      text: "Vyason is designed to bring a modern shopping experience to customers across India.",
     },
   ];
 
   return (
-    <main className="bg-white text-[#172231]">
+    <main className="bg-white text-gray-900">
 
+      {/* ================= HERO ================= */}
+      <section className="relative overflow-hidden bg-[#0f172a]">
+        {/* Background decoration */}
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="absolute -bottom-40 right-0 h-[500px] w-[500px] rounded-full bg-purple-500/10 blur-3xl" />
 
-      <section className="border-b border-gray-100">
-        <div className="mx-auto max-w-[1440px]">
+        <div className="relative mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+          <div className="grid items-center gap-16 lg:grid-cols-2">
 
-          <div className="grid min-h-[620px] lg:grid-cols-2">
+            {/* Left */}
+            <div>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-300 backdrop-blur">
+                <Sparkles size={16} className="text-indigo-400" />
+                <span>Welcome to Vyason</span>
+              </div>
 
+              <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Shopping made
+                <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  simpler & smarter.
+                </span>
+              </h1>
 
-            <div className="flex items-center px-6 py-16 sm:px-10 lg:px-16 xl:px-20">
+              <p className="mt-6 max-w-xl text-base leading-8 text-gray-300 sm:text-lg">
+                Vyason is a modern online marketplace built to bring
+                customers and sellers together through a simple,
+                convenient and trusted shopping experience.
+              </p>
 
-              <div className="max-w-[600px]">
-
-                <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#ad7a36]">
-                  About Us
-                </p>
-
-                <h1 className=" text-5xl font-semibold leading-[1.05] tracking-[-0.03em] text-[#172231] sm:text-6xl xl:text-[72px]">
-                  More than a store.
-                  <br />
-                  We're your shopping
-                  <br />
-                  partner.
-                </h1>
-
-                <p className="mt-7 max-w-[520px] text-base leading-7 text-gray-600 sm:text-lg">
-                  ShopNest was built with a simple idea — to make online
-                  shopping easy, enjoyable and trustworthy for everyone.
-                </p>
-
-                <Link
-                  to="/products"
-                  className="mt-8 inline-flex items-center gap-4 rounded-md bg-[#172231] px-7 py-4 text-sm font-semibold text-white transition duration-300 hover:bg-[#27384b]"
+              <div className="mt-8 flex flex-wrap gap-4">
+                <a
+                  href="/shop"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-gray-900 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
                 >
-                  Explore Our Collection
+                  Explore Products
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </a>
 
-                  <span className="text-lg">→</span>
-                </Link>
+                <a
+                  href="/contact"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 font-semibold text-white backdrop-blur transition hover:bg-white/10"
+                >
+                  Contact Us
+                </a>
+              </div>
+            </div>
 
+            {/* Right Visual */}
+            <div className="relative">
+              <div className="relative mx-auto max-w-lg">
+                {/* Main card */}
+                <div className="rounded-3xl border border-white/10 bg-white/[0.07] p-5 shadow-2xl backdrop-blur-xl">
+                  <div className="rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/10 p-8">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-400">
+                          The Vyason Marketplace
+                        </p>
 
-                <div className="mt-12 grid grid-cols-1 gap-7 sm:grid-cols-3">
+                        <h3 className="mt-2 text-2xl font-bold text-white">
+                          Discover More.
+                        </h3>
+                      </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#eadfce] text-xl text-[#ad7a36]">
-                      ♧
+                      <div className="rounded-2xl bg-white/10 p-3">
+                        <ShoppingBag
+                          className="text-indigo-300"
+                          size={28}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-10 grid grid-cols-2 gap-3">
+                      {[
+                        "Fashion",
+                        "Electronics",
+                        "Home & Living",
+                        "Gifts & Toys",
+                      ].map((item) => (
+                        <div
+                          key={item}
+                          className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm font-medium text-gray-200"
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating card */}
+                <div className="absolute -bottom-6 -left-6 rounded-2xl border border-white/10 bg-white p-4 shadow-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-green-50 p-2.5">
+                      <CheckCircle2
+                        size={22}
+                        className="text-green-600"
+                      />
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-semibold text-[#172231]">
-                        Quality Products
-                      </h3>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        Carefully selected
+                      <p className="text-sm font-bold text-gray-900">
+                        Trusted Shopping
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Built around customers
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#eadfce] text-xl text-[#ad7a36]">
-                      ♢
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-[#172231]">
-                        Secure Shopping
-                      </h3>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        100% protected
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#eadfce] text-xl text-[#ad7a36]">
-                      ◌
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-[#172231]">
-                        Customer Support
-                      </h3>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        We're here for you
-                      </p>
-                    </div>
-                  </div>
-
                 </div>
               </div>
             </div>
 
-
-            <div className="relative min-h-[450px] overflow-hidden lg:min-h-full">
-
-              <img
-                src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1400&q=85"
-                alt="Premium shopping collection"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-
-              <div className="absolute inset-0 bg-black/5" />
-            </div>
-
           </div>
         </div>
       </section>
 
-
-      <section className="px-5 py-10 sm:px-8 lg:py-14">
-
-        <div className="mx-auto max-w-[1340px] rounded-3xl bg-[#faf8f5] px-5 py-8 sm:px-8 lg:px-12">
-
-          <div className="grid grid-cols-2 lg:grid-cols-4">
-
-            {stats.map((stat, index) => (
-              <div
-                key={stat.label}
-                className={`
-                  flex flex-col items-center justify-center px-4 py-6 text-center
-                  ${index !== stats.length - 1
-                    ? "border-r border-gray-200"
-                    : ""
-                  }
-                  ${index === 1
-                    ? "lg:border-r"
-                    : ""
-                  }
-                `}
-              >
-
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#f1e8dc] text-xl text-[#ad7a36]">
-                  {stat.icon}
-                </div>
-
-                <p className=" text-3xl font-semibold text-[#172231] sm:text-4xl">
-                  {stat.value}
-                </p>
-
-                <p className="mt-2 text-sm font-medium text-gray-600">
-                  {stat.label}
-                </p>
-
+      {/* ================= STATS ================= */}
+      <section className="border-b border-gray-100 bg-white">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-gray-100 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="px-6 py-10 text-center"
+            >
+              <div className="text-3xl font-bold tracking-tight text-gray-900">
+                {stat.value}
               </div>
-            ))}
 
-          </div>
-
+              <div className="mt-1 text-sm text-gray-500">
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="px-6 py-16 sm:px-10 lg:px-16 lg:py-24">
-        <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-2 lg:gap-20">
-          <div>
+      {/* ================= OUR STORY ================= */}
+      <section className="bg-gray-50 py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid items-center gap-14 lg:grid-cols-2">
 
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#ad7a36]">
-              Our Story
-            </p>
+            {/* Visual */}
+            <div className="relative">
+              <div className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-1">
+                <div className="rounded-[1.8rem] bg-gray-950 p-10 sm:p-14">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-300">
+                    Our Story
+                  </p>
 
-            <h2 className="mt-5 max-w-xl  text-4xl font-semibold leading-tight text-[#172231] sm:text-5xl">
-              Built with passion,
-              <br />
-              driven by purpose.
-            </h2>
+                  <h2 className="mt-5 text-3xl font-bold leading-tight text-white sm:text-4xl">
+                    More than a marketplace.
+                    <span className="block text-gray-400">
+                      A better way to shop.
+                    </span>
+                  </h2>
 
-            <p className="mt-6 max-w-xl text-base leading-7 text-gray-600">
-              We started ShopNest to bring the best products closer to
-              you. From quality selection to fast delivery, every detail
-              is designed around what matters most — you.
-            </p>
+                  <div className="mt-10 space-y-6">
+                    <div className="flex gap-4">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-indigo-400" />
+                      <p className="text-sm leading-7 text-gray-400">
+                        Vyason was created with a simple idea: online
+                        shopping should feel convenient, transparent and
+                        enjoyable.
+                      </p>
+                    </div>
 
-            <p className="mt-5 max-w-xl text-base leading-7 text-gray-600">
-              Our goal is simple: create an online shopping experience
-              that feels personal, reliable and effortless.
-            </p>
+                    <div className="flex gap-4">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-purple-400" />
+                      <p className="text-sm leading-7 text-gray-400">
+                        Our marketplace connects customers with a growing
+                        range of products and sellers through one seamless
+                        platform.
+                      </p>
+                    </div>
 
-            <div className="mt-8">
-              <span className=" text-2xl italic text-[#172231]">
-                Team ShopNest
-              </span>
+                    <div className="flex gap-4">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-pink-400" />
+                      <p className="text-sm leading-7 text-gray-400">
+                        We continue to build Vyason around the things that
+                        matter most — choice, value, trust and customer
+                        experience.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <span className="ml-3 text-2xl text-[#ad7a36]">
-                ♡
-              </span>
+            {/* Content */}
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
+                Who We Are
+              </p>
+
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                A marketplace designed around people.
+              </h2>
+
+              <p className="mt-6 text-base leading-8 text-gray-600">
+                Vyason brings together customers, brands and sellers in
+                one modern shopping destination. Our goal is to make it
+                easier to discover useful products, compare options and
+                complete purchases with confidence.
+              </p>
+
+              <p className="mt-5 text-base leading-8 text-gray-600">
+                From everyday essentials to products that add something
+                special to your life, we are building an experience that
+                puts convenience and choice at the centre of online
+                shopping.
+              </p>
+
+              <div className="mt-8 space-y-4">
+                {[
+                  "Easy product discovery",
+                  "Transparent shopping experience",
+                  "Growing seller ecosystem",
+                  "Customer-focused experience",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3"
+                  >
+                    <CheckCircle2
+                      size={20}
+                      className="shrink-0 text-indigo-600"
+                    />
+
+                    <span className="font-medium text-gray-700">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>
-          <div className="relative min-h-[430px]">
-            <div className="absolute right-0 top-0 h-[350px] w-[88%] overflow-hidden rounded-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=85"
-                alt="ShopNest workspace"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            <div className="absolute bottom-0 left-0 h-[190px] w-[42%] overflow-hidden rounded-xl border-8 border-white shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=700&q=85"
-                alt="Products"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-
-            <div className="absolute bottom-[-15px] left-[39%] h-[130px] w-[150px] overflow-hidden rounded-xl border-8 border-white shadow-lg sm:h-[145px] sm:w-[170px]">
-              <img
-                src="https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?auto=format&fit=crop&w=600&q=85"
-                alt="ShopNest package"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-          </div>
-
         </div>
       </section>
 
-      <section className="px-6 py-16 sm:px-10 lg:px-16 lg:py-20">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="mb-12 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#ad7a36]">
+      {/* ================= VALUES ================= */}
+      <section className="bg-white py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
               What We Believe
             </p>
-            <h2 className="mt-4  text-4xl font-semibold text-[#172231] sm:text-5xl">
-              Our Values
-            </h2>
+
+           
+            <h2 class="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]"> Built on simple <b class="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">principles</b></h2>
+
+            <p className="mt-5 text-gray-600">
+              Everything we build at Vyason is guided by a few simple
+              principles that help us create a better marketplace.
+            </p>
           </div>
-          <div className="grid border-y border-gray-200 md:grid-cols-2 lg:grid-cols-4">
 
-            {values.map((value, index) => (
-              <div
-                key={value.title}
-                className={`
-                  px-6 py-10
-                  ${index !== values.length - 1
-                    ? "border-b border-gray-200 lg:border-b-0 lg:border-r"
-                    : ""
-                  }
-                  ${index === 1
-                    ? "md:border-r lg:border-r"
-                    : ""
-                  }
-                `}
-              >
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {values.map((item) => {
+              const Icon = item.icon;
 
-                <div className="text-4xl font-light text-[#ad7a36]">
-                  {value.icon}
+              return (
+                <div
+                  key={item.title}
+                  className="group rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-indigo-100 hover:shadow-xl"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 ">
+                    <Icon size={23} className="group-hover:text-white" />
+                  </div>
+
+                  <h3 className="mt-6 text-lg font-bold text-gray-900">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-3 text-sm leading-7 text-gray-600">
+                    {item.description}
+                  </p>
                 </div>
-
-                <h3 className="mt-6  text-xl font-semibold text-[#172231]">
-                  {value.title}
-                </h3>
-
-                <p className="mt-3 text-sm leading-6 text-gray-600">
-                  {value.description}
-                </p>
-
-              </div>
-            ))}
-
+              );
+            })}
           </div>
 
         </div>
       </section>
 
+      {/* ================= FEATURES ================= */}
+      <section className="bg-gray-950 py-20 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
-      <section className="px-5 py-12 sm:px-8 lg:py-16">
+          <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
 
-        <div className="mx-auto max-w-[1340px] overflow-hidden rounded-3xl bg-[#172231]">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-400">
+                Why Vyason
+              </p>
 
-          <div className="relative min-h-[350px]">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Everything you need for a better shopping journey.
+              </h2>
 
+              <p className="mt-6 leading-8 text-gray-400">
+                We are creating a marketplace where discovery,
+                convenience and customer experience come together.
+              </p>
 
-            <img
-              src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1600&q=85"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-40"
-            />
+              <a
+                href="/shop"
+                className="group mt-8 inline-flex items-center gap-2 font-semibold text-white"
+              >
+                Start Shopping
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </a>
+            </div>
 
-            <div className="absolute inset-0 bg-[#172231]/80" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {features.map((item) => {
+                const Icon = item.icon;
 
-            <div className="relative z-10 flex min-h-[350px] items-center px-7 py-12 sm:px-12 lg:px-16">
+                return (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:bg-white/[0.07]"
+                  >
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-indigo-300">
+                      <Icon size={21} />
+                    </div>
 
-              <div className="max-w-xl">
+                    <h3 className="mt-5 font-bold text-white">
+                      {item.title}
+                    </h3>
 
-                <h2 className=" text-4xl font-semibold leading-tight text-white sm:text-5xl">
-                  Let's make shopping
-                  <br />
-                  simple for you.
-                </h2>
-
-                <p className="mt-5 max-w-lg text-sm leading-6 text-gray-300 sm:text-base">
-                  Join thousands who trust ShopNest for quality products,
-                  great prices and an amazing shopping experience.
-                </p>
-
-                <Link
-                  to="/products"
-                  className="mt-7 inline-flex items-center gap-4 rounded-md bg-[#f3e7d5] px-7 py-4 text-sm font-semibold text-[#172231] transition hover:bg-white"
-                >
-                  Start Shopping
-                  <span className="text-lg">→</span>
-                </Link>
-
-              </div>
-
+                    <p className="mt-2 text-sm leading-6 text-gray-400">
+                      {item.text}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
           </div>
         </div>
       </section>
 
+      {/* ================= MISSION ================= */}
+      <section className="relative overflow-hidden bg-white py-20 lg:py-28">
+        <div className="mx-auto max-w-4xl px-6 text-center lg:px-8">
 
-      <section className="px-6 pb-16 pt-5">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <Heart size={25} />
+          </div>
 
-        <div className="mx-auto max-w-[1100px]">
+          <p className="mt-7 text-sm font-bold uppercase tracking-[0.2em] text-indigo-600">
+            Our Mission
+          </p>
+    
+          <h2 class="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]"> Making everyday shopping <br/><b class="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent"> easier for everyone.</b></h2>
 
-          <p className="text-center text-sm text-gray-500">
-            Trusted by thousands of happy customers
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-gray-600 sm:text-lg">
+            Our mission is to create a marketplace where customers can
+            discover products they love, sellers can grow their businesses,
+            and every shopping journey feels simple and reliable.
           </p>
 
-          <div className="mt-8 grid grid-cols-2 items-center gap-8 text-center text-xl font-bold text-gray-400 sm:grid-cols-3 lg:grid-cols-6">
+        </div>
+      </section>
 
-            <span className="font-sans tracking-tight">
-              PUMA
-            </span>
+      {/* ================= CTA ================= */}
+      <section className="px-6 pb-20 lg:px-8 lg:pb-28">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 px-6 py-16 text-center shadow-2xl sm:px-12 lg:py-20">
 
-            <span className="font-sans italic">
-              adidas
-            </span>
+          <Sparkles
+            className="mx-auto text-white/80"
+            size={28}
+          />
 
-            <span className="">
-              Levi's
-            </span>
+          <h2 className="mt-5 text-3xl font-bold text-white sm:text-4xl">
+            Ready to discover something new?
+          </h2>
 
-            <span className=" tracking-wider">
-              ZARA
-            </span>
+          <p className="mx-auto mt-4 max-w-xl text-indigo-100">
+            Explore products, discover great deals and experience
+            shopping with Vyason.
+          </p>
 
-            <span className="text-3xl italic">
-              NIKE
-            </span>
-
-            <span className="font-sans tracking-wide">
-              PHILIPS
-            </span>
-
-          </div>
+          <a
+            href="/shop"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-semibold text-indigo-700 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            Explore Vyason
+            <ArrowRight size={18} />
+          </a>
 
         </div>
       </section>
 
     </main>
+  );
+};
 
-
-  )
-}
-
-export default AboutUs
+export default AboutUs;

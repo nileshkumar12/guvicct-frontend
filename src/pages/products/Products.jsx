@@ -244,10 +244,11 @@ const Products = () => {
                                 </div>
 
                                 <div className="space-y-4 p-6">
-                                    <Link to={`/product/${item._id}`} className="text-lg font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
+                                <p className="text-sm mb-0 text-[#5d4e3f]"><small>{item.brand || item.category || 'Gift basket'}</small></p>
+                                    <Link title={item.name} to={`/product/${item._id}`} className="text-lg truncate font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
                                         {item.name ? item.name : 'Unnamed Product'}
                                     </Link>
-                                    <p className="text-sm text-[#5d4e3f]">{item.brand || item.category}</p>
+                                    
                                     <div className="text-2xl font-bold text-[#1c1c1c]">
                                         <div className='flex justify-between'>
                                             <span className="text-sm font-bold text-4xl text-[#1aa184]"> {item.price != null ? `₹${Number(item.price).toLocaleString('en-IN')}` : '₹0.00'}</span>

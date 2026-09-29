@@ -166,18 +166,26 @@ const store = configureStore({
   },
 })
 
+const getBrandName = (brand) => {
+  if (typeof brand === 'string') return brand.trim()
+  if (!brand || typeof brand !== 'object') return ''
+  return `${brand.name || brand.brandName || brand.title || brand.label || ''}`.trim()
+}
+
 const normalizeCartResponse = (responseItems) => {
   if (!Array.isArray(responseItems)) return []
 
   return responseItems.map((item) => {
     const product = item.product || item.productId || item._id || item.id || {}
     const productId = typeof product === 'object' ? product._id || product.id : product
-    const selectedVariant = item.selectedVariant || item.variant || {}
-    const variantId = item.variantId || item.variant_id || selectedVariant._id || selectedVariant.id || selectedVariant.sku || ''
+    const selectedVariant = item.selectedVariant || (typeof item.variant === 'object' ? item.variant : {})
+    const variantSku = item.variantSku || item.variantSKU || selectedVariant.sku || item.sku || ''
+    const variantIdCandidate = selectedVariant._id || selectedVariant.id || selectedVariant.variantId || item.variantId || item.variant_id || (typeof item.variant === 'string' ? item.variant : '') || ''
+    const variantId = `${variantIdCandidate}` === `${variantSku}` ? '' : variantIdCandidate
     const variantAttributes = item.variantAttributes || item.attributes || selectedVariant.attributes || {}
     const quantity = Number(item.quantity || item.qty || 1)
     const price = Number(item.price || product.price || 0)
-    const key = item.key || `${productId || item.id || item._id || item.productId || 'item'}${variantId ? `:${variantId}` : ''}`
+    const key = item.key || `${productId || item.id || item._id || item.productId || 'item'}${variantId || variantSku ? `:${variantId || variantSku}` : ''}`
 
     return {
       id: productId || item.id || item._id || item.key,
@@ -185,13 +193,31 @@ const normalizeCartResponse = (responseItems) => {
       key,
       name: item.name || item.title || product.name || product.title || '',
       title: item.title || item.name || product.title || product.name || '',
+      brand: getBrandName(item.brand) || getBrandName(product.brand),
       price,
       quantity,
       stock: item.stock != null ? Number(item.stock) : Infinity,
       isSelected: item.isSelected !== false,
       variantId,
-      variantSku: item.variantSku || item.sku || selectedVariant.sku || '',
+      variantName: item.variantName || selectedVariant.name || selectedVariant.title || selectedVariant.variantName || '',
+      variantSku,
       variantAttributes,
+      selectedVariant,
+      hasVariantSnapshot: Boolean(
+        variantId || item.variantName || item.variantSku || Object.keys(variantAttributes).length ||
+        selectedVariant._id || selectedVariant.id || selectedVariant.variantId || selectedVariant.sku
+      ),
+      basePrice: item.basePrice != null ? Number(item.basePrice) : undefined,
+      addonTotal: item.addonTotal != null ? Number(item.addonTotal) : undefined,
+      addons: (item.addons || []).map((addon) => ({
+        ...addon,
+        addonId: addon.addonId || addon._id || addon.id || addon.key || addon.name || '',
+        name: addon.name || addon.title || 'Add-on',
+        price: Number(addon.price) || 0,
+        quantity: Math.max(1, Number(addon.quantity) || 1),
+        total: Number(addon.total ?? (Number(addon.price) || 0) * (Number(addon.quantity) || 1)) || 0,
+      })),
+      hasAddonSnapshot: Array.isArray(item.addons),
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
       image: item.image || selectedVariant.image || product.image || '',
@@ -369,13 +395,21 @@ const loadWishlistFromApi = async (apiUserIdentifier) => {
 
 const buildCartSyncSignature = (items = [], userIdentifier = 'guest') => {
   const normalized = (items || [])
-    .map((item) => `${item.key || item.id || item._id}:${Number(item.quantity) || 0}`)
+    .map((item) => JSON.stringify({
+      key: item.key || item.id || item._id,
+      quantity: Number(item.quantity) || 0,
+      variantId: item.variantId || '',
+      variantName: item.variantName || '',
+      variantSku: item.variantSku || '',
+      attributes: item.variantAttributes || {},
+      addons: item.addons || [],
+    }))
     .sort()
     .join('|')
   return `${userIdentifier}::${normalized}`
 }
 
-const syncCartToApi = async (cartState, apiUserIdentifier) => {
+const syncCartToApi = async (cartState, apiUserIdentifier, replace = false) => {
   if (!API_URLS) return
 
   const token = getAuthToken()
@@ -393,8 +427,19 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
       stock: Number(item.stock ?? 0),
       isSelected: item.isSelected !== false,
       variantId: item.variantId || '',
+      variantName: item.variantName || '',
       variantSku: item.variantSku || '',
       variantAttributes: item.variantAttributes || item.attributes || item.selectedVariant?.attributes || {},
+      selectedVariant: item.selectedVariant || null,
+      basePrice: Number(item.basePrice ?? item.price ?? 0),
+      addonTotal: Number(item.addonTotal) || 0,
+      addons: (item.addons || []).map((addon) => ({
+        addonId: addon.addonId || addon._id || addon.id || addon.key || addon.name || '',
+        name: addon.name || addon.title || 'Add-on',
+        price: Number(addon.price) || 0,
+        quantity: Math.max(1, Number(addon.quantity) || 1),
+        total: Number(addon.total ?? (Number(addon.price) || 0) * (Number(addon.quantity) || 1)) || 0,
+      })),
       selectedSize: item.selectedSize || '',
       selectedFinish: item.selectedFinish || '',
       image: item.image || '',
@@ -418,9 +463,14 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         title: item.title || item.name || '',
         key: item.key,
         variantId: item.variantId || '',
+        variantName: item.variantName || '',
         variantSku: item.variantSku || '',
         attributes: item.variantAttributes || {},
         variantAttributes: item.variantAttributes || {},
+        selectedVariant: item.selectedVariant || null,
+        basePrice: item.basePrice,
+        addonTotal: item.addonTotal,
+        addons: item.addons,
         hsnCode: item.hsnCode || '',
         gstRate: item.gstRate || 0,
         priceIncludesGST: item.priceIncludesGST === true,
@@ -435,9 +485,14 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
         title: item.title || item.name || '',
         key: item.key,
         variantId: item.variantId || '',
+        variantName: item.variantName || '',
         variantSku: item.variantSku || '',
         attributes: item.variantAttributes || {},
         variantAttributes: item.variantAttributes || {},
+        selectedVariant: item.selectedVariant || null,
+        basePrice: item.basePrice,
+        addonTotal: item.addonTotal,
+        addons: item.addons,
         hsnCode: item.hsnCode || '',
         gstRate: item.gstRate || 0,
         priceIncludesGST: item.priceIncludesGST === true,
@@ -450,7 +505,7 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
     }
 
     let response = await fetch(`${API_URLS}/api/cart`, {
-      method: 'POST',
+      method: replace ? 'PUT' : 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -463,7 +518,7 @@ const syncCartToApi = async (cartState, apiUserIdentifier) => {
 
     if (!response.ok && [404, 405].includes(response.status)) {
       response = await fetch(`${API_URLS}/api/cart`, {
-        method: 'PUT',
+        method: replace ? 'POST' : 'PUT',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
@@ -699,6 +754,15 @@ let lastSyncedCartSignature = ''
 let pendingSyncSignature = ''
 let lastSyncedWishlistSignature = ''
 let pendingWishlistSyncSignature = ''
+let cartSyncQueue = Promise.resolve(true)
+
+const enqueueCartSync = (cartState, apiUserIdentifier, replace = false) => {
+  const syncPromise = cartSyncQueue
+    .catch(() => false)
+    .then(() => syncCartToApi(cartState, apiUserIdentifier, replace))
+  cartSyncQueue = syncPromise
+  return syncPromise
+}
 
 store.subscribe(() => {
   try {
@@ -718,7 +782,7 @@ store.subscribe(() => {
       const signature = buildCartSyncSignature(state.cart.items, apiUserIdentifier)
       if (signature !== lastSyncedCartSignature && signature !== pendingSyncSignature) {
         pendingSyncSignature = signature
-        void syncCartToApi(state.cart, apiUserIdentifier).then((isSynced) => {
+        void enqueueCartSync(state.cart, apiUserIdentifier).then((isSynced) => {
           if (isSynced) {
             lastSyncedCartSignature = signature
           }
@@ -750,6 +814,19 @@ store.subscribe(() => {
   }
 })
 
+export const replaceCurrentCartOnApi = async (apiUserIdentifier = getApiUserIdentifier()) => {
+  if (!apiUserIdentifier) return false
+
+  const cartState = store.getState().cart
+  const signature = buildCartSyncSignature(cartState.items, apiUserIdentifier)
+  pendingSyncSignature = signature
+  const isSynced = await enqueueCartSync(cartState, apiUserIdentifier, true)
+
+  if (isSynced) lastSyncedCartSignature = signature
+  if (pendingSyncSignature === signature) pendingSyncSignature = ''
+  return isSynced
+}
+
 let lastHydratedUser = null
 let isHydratingFromApi = false
 let lastWishlistHydratedUser = null
@@ -765,6 +842,17 @@ const hydrateCartFromApi = async (apiUserIdentifier) => {
   try {
     const items = await loadCartFromApi(apiUserIdentifier)
     if (Array.isArray(items)) {
+      const localItems = store.getState().cart.items
+      if (items.length === 0 && localItems.length > 0) {
+        const localSignature = buildCartSyncSignature(localItems, apiUserIdentifier)
+        lastSyncedCartSignature = localSignature
+        pendingSyncSignature = localSignature
+        void syncCartToApi(store.getState().cart, apiUserIdentifier).then((isSynced) => {
+          if (isSynced) lastSyncedCartSignature = localSignature
+          if (pendingSyncSignature === localSignature) pendingSyncSignature = ''
+        })
+        return
+      }
       store.dispatch(replaceCartItems(items))
       const hydratedSignature = buildCartSyncSignature(items, apiUserIdentifier)
       lastSyncedCartSignature = hydratedSignature

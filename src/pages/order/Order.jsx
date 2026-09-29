@@ -177,6 +177,13 @@ const Order = () => {
                 key={item._id || item.product?._id || index}
                 className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
               >
+                {(() => {
+                  const attributes = item.variantAttributes || item.attributes || item.selectedVariant?.attributes || item.variant?.attributes || {}
+                  const addons = Array.isArray(item.addons) ? item.addons : []
+                  const quantity = Number(item.quantity) || 1
+                  const unitPrice = Number(item.price || 0)
+                  const lineTotal = Number(item.lineTotal ?? item.totalPrice ?? unitPrice * quantity)
+                  return (
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
                   <div>
@@ -185,6 +192,25 @@ const Order = () => {
                         item.product?.name ||
                         "Product"}
                     </h3>
+
+                    {(item.variantName || item.variantSku || Object.keys(attributes).length > 0) && (
+                      <div className="mt-2 text-sm text-gray-500">
+                        {/* <p>Variant: {item.variantName || Object.entries(attributes).map(([name, value]) => `${name}: ${value}`).join(', ') || 'Selected'}</p> */}
+                        {Object.keys(attributes).length > 0 && item.variantName && <p>{Object.entries(attributes).map(([name, value]) => `${name}: ${value}`).join(', ')}</p>}
+                        {item.variantSku && <p>SKU: {item.variantSku}</p>}
+                      </div>
+                    )}
+
+                    {addons.length > 0 && (
+                      <div className="mt-2 text-sm text-gray-500">
+                        <p className="font-medium text-gray-700">Add-ons</p>
+                        {addons.map((addon, addonIndex) => (
+                          <p key={addon.addonId || addon._id || addon.id || addonIndex}>
+                            {addon.name || addon.title || 'Add-on'} × {Number(addon.quantity) || 1}: {formatCurrency(addon.total ?? (Number(addon.price || 0) * (Number(addon.quantity) || 1)))}
+                          </p>
+                        ))}
+                      </div>
+                    )}
 
                     <p className="mt-1 text-sm text-gray-500">
                       Quantity:{" "}
@@ -195,15 +221,19 @@ const Order = () => {
                   </div>
 
                   <div className="text-left sm:text-right">
+                    {item.basePrice != null && (
+                      <p className="text-sm text-gray-500">
+                        {formatCurrency(item.basePrice)} product{Number(item.addonTotal) > 0 ? ` + ${formatCurrency(item.addonTotal)} addons / unit` : ''}
+                      </p>
+                    )}
                     <p className="text-lg font-semibold text-gray-900">
                       {formatCurrency(
-                        Number(item.price || 0) *
-                        Number(item.quantity || 0)
+                        lineTotal
                       )}
                     </p>
 
                     <p className="text-sm text-gray-500">
-                      {formatCurrency(item.price)} each
+                      {formatCurrency(unitPrice)} each
                     </p>
 
                     {Number(item.gstRate) > 0 && (
@@ -214,6 +244,8 @@ const Order = () => {
                   </div>
 
                 </div>
+                  )
+                })()}
               </div>
             ))}
 

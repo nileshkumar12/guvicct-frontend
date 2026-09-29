@@ -42,6 +42,8 @@ export const createRazorpayOrder =
             {
                 amount,
                 currency = 'INR',
+                items = [],
+                pricing = {},
             },
             thunkAPI
         ) => {
@@ -81,6 +83,8 @@ export const createRazorpayOrder =
                                         ),
 
                                     currency,
+                                    items,
+                                    pricing,
                                 }),
                         }
                     )

@@ -12,7 +12,7 @@ nav li.group .absolute { margin-top: 0;}
 .container { max-width: 1366px; margin: 0 auto; }
 header form input{border-color:#dddddd !important;  background-color:#ffffff !important; }
 header form button{ z-index: 999;  }
-
+article .truncate{display:block;}
 footer a, footer p{color:#7a7a7a; font-size:13px;}
 footer + div a, footer + div p{color:#7a7a7a; font-size:13px;}
 footer a:hover, footer + div a:hover{color:#4254bf;}
