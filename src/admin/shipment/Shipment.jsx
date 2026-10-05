@@ -3,6 +3,7 @@ import { API_URL } from "../../utils/config.js";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../components/ToastProvider.jsx";
+import Loader from "../../components/Loader.jsx";
 const Shipment = () => {
   const [selectedShipment, setSelectedShipment] = useState(null);
   const [shipments, setShipments] = useState([]);
@@ -10,14 +11,16 @@ const Shipment = () => {
   const [statusToUpdate, setStatusToUpdate] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const { addToast } = useToast();
- 
+ const [loading, setLoading] = useState(false);
 
 useEffect(() => {
   fetchShipments();
 }, []);
 
 const fetchShipments = async () => {
+
   try {
+    setLoading(true);
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_URL}/api/shipments`, {
       headers: {
@@ -38,6 +41,7 @@ const fetchShipments = async () => {
           }))
         : [];
       setShipments(normalizedShipments);
+      setLoading(false);
   } catch (error) {
     console.error("Error fetching shipments:", error);
   }
@@ -187,23 +191,17 @@ const fetchShipments = async () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-
+      <Loader loading={loading} />
       <div className="max-w-7xl mx-auto">
-
-        {/* ================= HEADER ================= */}
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-
+       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               Shipments
             </h1>
-
             <p className="text-gray-500 mt-1">
               Manage and track your customer shipments
             </p>
           </div>
-
           <Link
             to="/admin/addshipment"
             className="

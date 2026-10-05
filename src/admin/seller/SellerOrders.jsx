@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { API_URL } from "../../utils/config";
+import Loader from "../../components/Loader.jsx";
+import { set } from "react-hook-form";
+
 const statusStyles = {
   Pending: "bg-amber-50 text-amber-700 border-amber-200",
   Accepted: "bg-blue-50 text-blue-700 border-blue-200",
@@ -14,12 +17,14 @@ const statusStyles = {
 const SellerOrders = () => {
 
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
 
 
   useEffect(() => {
+  
     const fetchOrders = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`${API_URL}/api/seller/orders`, {
           headers: {
@@ -28,6 +33,7 @@ const SellerOrders = () => {
         });
         const data = await response.json();
         setOrders(data.data);
+        setLoading(false);
 
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -36,11 +42,13 @@ const SellerOrders = () => {
     fetchOrders();
     // Log the fetched orders for debugging
   }, []);
-  console.log("Fetched orders:", orders);
+ 
 
 
   if (!orders.length) {
     return (
+      <>
+      <Loader  loading={loading}/>
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
           <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
@@ -63,6 +71,7 @@ const SellerOrders = () => {
           </Link>
         </div>
       </div>
+      </>
     );
   }
 

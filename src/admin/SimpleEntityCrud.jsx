@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { API_URL, getImageUrl, uploadImageToCloudinary } from "../utils/config"
 import { useToast } from "../components/ToastProvider.jsx"
+import Loader from "../components/Loader.jsx"
 
 const getEntityList = (data, config) => {
   if (Array.isArray(data)) return data
@@ -145,7 +146,7 @@ export const SimpleEntityListPage = ({ config }) => {
         </div>
         <div className="overflow-x-auto p-6">
           {loading ? (
-            <div className="text-sm text-[#5d4e3f]">Loading {config.labelPluralLower}...</div>
+            <Loader loading={loading} />
           ) : error ? (
             <div className="text-sm text-red-600">{error}</div>
           ) : items.length === 0 ? (
@@ -367,7 +368,7 @@ export const SimpleEntityFormPage = ({ config, mode }) => {
   }
 
   if (loading) {
-    return <div className="text-[#5d4e3f]">Loading {config.labelLower}...</div>
+    return <Loader loading={loading} />
   }
 
   if (error) {

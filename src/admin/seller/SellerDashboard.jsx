@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, navigate } from "react";
 import { Link } from "react-router-dom";
 import { API_URL, API_URLS } from "../../utils/config";
-
+import Loader from "../../components/Loader.jsx";
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
 const decodeJwtPayload = (token) => {
@@ -116,7 +116,7 @@ const getOrderStatusLabel = (status) => {
 const SellerDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const sellerId = useMemo(() => getStoredSellerId(), []);
 
@@ -157,6 +157,9 @@ const SellerDashboard = () => {
                             const response = await fetch(endpoint, { headers, credentials: "include" });
                             if (!response.ok) {
                                 throw new Error(`Request failed with ${response.status}`);
+                            }
+                            if (response.status === 401) {
+                                navigate("/login");
                             }
 
                             return await response.json();
@@ -253,7 +256,7 @@ const SellerDashboard = () => {
 
             return sum + itemsTotal;
         }, 0);
-  
+
         const totalOrders = orders.length;
 
         const pendingOrders = orders.filter((order) => {
@@ -339,7 +342,7 @@ const SellerDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-
+            <Loader loading={loading} />
             <div className="max-w-7xl mx-auto">
 
                 {/* ================= HEADER ================= */}
@@ -382,9 +385,7 @@ const SellerDashboard = () => {
                 ) : null}
 
                 {loading ? (
-                    <div className="mb-4 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-500">
-                        Loading dashboard data...
-                    </div>
+                    <Loader />
                 ) : null}
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -732,7 +733,6 @@ const SellerDashboard = () => {
                         </div>
 
                     </div>
-
 
                     {/* LOW STOCK */}
 

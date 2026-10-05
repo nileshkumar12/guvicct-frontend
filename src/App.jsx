@@ -6,6 +6,8 @@ import Home from './pages/homepage/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import CategoryProducts from './pages/category/CategoryProducts'
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy'
+import TermsCondition from './pages/TermsCondition/TermsCondition'
 import Footer from "./Footer/Footer";
 import ProtectedRoute from './utils/ProtectedRoute'
 import AdminLayout from './admin/AdminLayout'
@@ -69,6 +71,8 @@ const App = () => {
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/about" element={<AboutUs />} />
          <Route path="/help" element={<Help />} />
+         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+         <Route path="/terms-condition" element={<TermsCondition />} />
         <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/wishlist" element={<ProtectedRoute><WishLists /></ProtectedRoute>} />

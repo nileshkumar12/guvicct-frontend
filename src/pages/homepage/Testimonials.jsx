@@ -48,7 +48,7 @@ const Testimonials = () => {
               Testimonials
             </span>
           </div>
-          <h2 class="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]"> What Our<b class="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">Customer</b> Say</h2>
+          <h2 className="text-3xl font-extrabold tracking-tight text-[#111a3a] sm:text-4xl md:text-5xl lg:text-[52px]"> What Our<b className="ml-2 bg-gradient-to-r from-[#3048d8] via-[#4059ee] to-[#1f35c8] bg-clip-text text-transparent">Customer</b> Say</h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-gray-500 sm:text-base">
             Real experiences from customers who shop, discover and
             celebrate with Vyason.

@@ -10,14 +10,17 @@ import {
     Clock,
 } from "lucide-react";
 import { API_URL } from "../../utils/config";
+import Loader from "../../components/Loader.jsx";
 
 const SellerNotifications = () => {
     const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("token");
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-
+                setLoading(true);
+                    
                 const url = `${API_URL}/api/seller/notifications`;
                 const response = await fetch(url, {
                     method: "GET",
@@ -40,6 +43,7 @@ const SellerNotifications = () => {
                 if (result.success) {
                     setNotifications(result.notifications || []
                     );
+                    setLoading(false);
                 }
 
             } catch (error) {
@@ -47,6 +51,8 @@ const SellerNotifications = () => {
                     "❌ Failed to fetch notifications:",
                     error
                 );
+            }finally {
+                setLoading(false);
             }
         };
         fetchNotifications();
@@ -150,10 +156,10 @@ const SellerNotifications = () => {
         }
 
     };
-    console.log("Notifications:", notifications);
+   
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-
+            <Loader loading={loading} />
             {/* Header */}
             <div className="">
 
@@ -227,7 +233,7 @@ const SellerNotifications = () => {
 
                 </div>
 
-                {/* Notification List */}
+   
                 <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
 
                     <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">

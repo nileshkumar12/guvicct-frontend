@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { API_URL, getImageUrl } from "../../utils/config.js"
 import { useToast } from "../../components/ToastProvider.jsx"
-
+import  Loader from "../../components/Loader.jsx"
 const ProductsPage = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -133,7 +133,7 @@ const ProductsPage = () => {
         </div>
         <div className="overflow-x-auto p-6">
           {loading ? (
-            <div className="text-sm text-[#5d4e3f]">Loading products...</div>
+            <Loader loading={loading} />
           ) : error ? (
             <div className="text-sm text-red-600">{error}</div>
           ) : products.length === 0 ? (

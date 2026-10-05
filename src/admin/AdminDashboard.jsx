@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../utils/config";
-
+import Loader from "../components/Loader.jsx";
 
 const AdminDashboard = () => {
 
@@ -18,16 +18,12 @@ const AdminDashboard = () => {
   const [growth, setGrowth] = useState(0);
   const [allSellers, setAllSellers] = useState([]);
 
-  console.log("Recent Orders dfff:", recentOrders);
-
   const token = localStorage.getItem("token");
 
-
   useEffect(() => {
+    setLoading(true);
     const fetchRecentOrders = async () => {
       try {
-        console.log("TOKEN:", token);
-
         const response = await fetch(
           `${API_URL}/api/admin/dashboard`,
           {
@@ -39,11 +35,13 @@ const AdminDashboard = () => {
           }
         );
         const data = await response.json();
-        console.log("Dashboard Data:", data);
-
         if (!response.ok) {
           console.error("Dashboard API Error:", data);
           return;
+        }
+
+        if (response.status === 401) {
+          navigate("/login");
         }
 
         setRecentOrders(data.recentOrders || []);
@@ -51,13 +49,15 @@ const AdminDashboard = () => {
         setStats(data.stats || []);
         setTopSellers(data.topSellers || []);
         setPlatform(data.platform || {});
-        console.log("Stats Data:", data.stats);
+        setLoading(false);
       } catch (error) {
         console.error("Dashboard fetch error:", error);
+       
       }
     };
 
     fetchRecentOrders();
+    setLoading(false);
 
   }, [token]);
 
@@ -91,11 +91,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-
+      <Loader loading={loading} />
       <div className="max-w-7xl mx-auto">
-
-        {/* HEADER */}
-
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
           <div>

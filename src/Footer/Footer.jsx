@@ -42,7 +42,7 @@ const Footer = () => {
             <h3 className="font-semibold text-white">Product by Category</h3>
             <ul className="mt-3 space-y-2 text-sm">
               {categories.map((category) => (
-                <li key={category.id}>
+                <li key={category._id}>
                   <Link to={`/category/${category.id}`} className="hover:text-[#4254bf]">
                     {category.name}
                   </Link>

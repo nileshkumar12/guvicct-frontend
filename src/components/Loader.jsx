@@ -1,7 +1,8 @@
 import React from "react";
 import logo from "../assets/fabicon.png";
 
-const Loader = ({ fullScreen = true }) => {
+const Loader = ({ fullScreen = true, loading  }) => {
+    if (!loading) return null;
     return (
         <div
             className={`
