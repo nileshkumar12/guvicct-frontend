@@ -154,6 +154,7 @@ const CategoryProducts = () => {
 
   useEffect(() => {
     const fetchCategoryProducts = async () => {
+      setLoading(true)
       if (!API_URL) {
         setError('API_URL is not configured')
         setLoading(false)
@@ -268,13 +269,14 @@ const CategoryProducts = () => {
 
   const getImageSrc = getImageUrl
 
-  const categoryName = category?.name || category?.title || category?.category || id || 'Search Results'
+  const categoryName = category?.name || category?.title || category?.category ||  'Search Results'
   const categoryDescription = category?.description || category?.summary || ''
 
   return (
     <>
     <PageTitle title={`${categoryName}`} />
     <section className="py-5">
+    <Loader loading={loading} />
       <div className="container mx-auto px-6">
         <div className="mb-5">
           <Link to="/" className="text-sm text-[#5d4e3f] hover:underline">

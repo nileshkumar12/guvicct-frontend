@@ -36,6 +36,7 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [userRole, setUserRole] = useState(() => {
         try {
             const u = localStorage.getItem('user')
@@ -63,6 +64,7 @@ const Header = () => {
 
     useEffect(() => {
         const loadCategories = async () => {
+            setLoading(true)
             if (!API_URL) return
 
             try {
@@ -74,10 +76,13 @@ const Header = () => {
                 }
             } catch (error) {
                 console.error('Failed to load categories', error)
+            } finally {
+                setLoading(false)
             }
         }
 
         const loadProducts = async () => {
+            setLoading(true)
             if (!API_URL) return
 
             try {
@@ -89,6 +94,8 @@ const Header = () => {
                 }
             } catch (error) {
                 console.error('Failed to load products', error)
+            } finally {
+                setLoading(false)
             }
         }
 
@@ -172,10 +179,7 @@ const Header = () => {
         const trimmedQuery = query.trim()
         if (!trimmedQuery) return location.pathname
 
-        const currentPath = location.pathname
-        return currentPath.startsWith('/category/')
-            ? `${currentPath}?search=${encodeURIComponent(trimmedQuery)}`
-            : `/category/all?search=${encodeURIComponent(trimmedQuery)}`
+        return `/category/all?search=${encodeURIComponent(trimmedQuery)}`
     }
 
     const handleSearchSubmit = (event) => {
