@@ -291,7 +291,7 @@ const CategoryProducts = () => {
 
 
         {loading ? (
-          <Loader />
+          <Loader loading={loading} />
         ) : error ? (
           <div className="text-red-600">{error}</div>
         ) : products.length === 0 ? (
