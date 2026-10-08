@@ -7,6 +7,7 @@ import { useToast } from '../../components/ToastProvider.jsx'
 import ProductReviews from './ProductReviews'
 import PageTitle from '../../components/PageTitle.jsx'
 import Loader from '../../components/Loader.jsx'
+import { set } from 'react-hook-form'
 const ProductDetails = () => {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
@@ -30,6 +31,7 @@ const ProductDetails = () => {
       if (product?.stock != null) {
         if (next < 1) return 1
         return Math.min(next, Number(product.stock))
+        
       }
       return Math.max(1, next)
     })
@@ -91,7 +93,9 @@ const ProductDetails = () => {
   }
 
   useEffect(() => {
+
     const fetchProduct = async () => {
+      setLoading(true);
       if (!API_URL) {
         setError('API_URL is not configured')
         setLoading(false)
@@ -325,7 +329,7 @@ const ProductDetails = () => {
           </div>
 
           {loading ? (
-            <Loader/>
+            <Loader loading={loading} />
           ) : error ? (
             <div className="mt-8 text-red-600">{error}</div>
           ) : !product ? (
