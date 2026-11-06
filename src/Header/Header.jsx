@@ -210,9 +210,9 @@ const Header = () => {
         <>
             <header className="sticky top-0 z-50 bg-white shadow-md">
                  <div className="bg-[#111111] text-white text-sm">
-                    <div className=" mx-auto flex justify-between items-center px-4 py-2">
-                        <p>🚚 Free Shipping on Orders Over ₹1999</p>
-                        <div className="flex gap-5">
+                    <div className="mx-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-3 py-2 sm:px-4">
+                        <p className="text-xs sm:text-sm">🚚 Free Shipping on Orders Over ₹1999</p>
+                        <div className="flex gap-3 sm:gap-5">
                             {/* <a href="#">Track Order</a> */}
                             <Link to="/help">Help</Link>
                             <Link to="/contact">Contact</Link>
@@ -220,15 +220,15 @@ const Header = () => {
                     </div>
                 </div>
 
-                <div className=" mx-auto px-4 py-4 flex items-center justify-between">
+                <div className="mx-auto flex items-center justify-between gap-3 px-3 py-3 sm:px-4 sm:py-4">
 
                    
-                    <div className="text-3xl font-bold text-[#1c1c1c]">
-                        <Link to="/"> <img src={vyasonImg} style={{ maxWidth: "175px" }} /></Link>
+                    <div className="shrink-0 text-3xl font-bold text-[#1c1c1c]">
+                        <Link to="/"> <img src={vyasonImg} alt="Vyason" className="w-full max-w-[112px] sm:max-w-[150px] md:max-w-[175px]" /></Link>
                     </div>
 
           
-                    <form onSubmit={handleSearchSubmit} className="hidden lg:flex flex-1 mx-10 relative">
+                    <form onSubmit={handleSearchSubmit} className="relative mx-4 hidden min-w-0 flex-1 lg:flex">
                         <div className="flex-1 relative">
                             <input
                                 type="text"
@@ -286,7 +286,8 @@ const Header = () => {
 
                         <button
                             type="submit"
-                            className="bg-[#4254bf] text-white px-3 rounded-[25px] hover:bg-[#3546ae]" style={{ marginLeft: "-43px" }}
+                            aria-label="Search products"
+                            className="absolute right-0 top-0 flex h-full items-center rounded-r-[25px] bg-[#4254bf] px-3 text-white hover:bg-[#3546ae]"
                         >
                             <Search size={20} />
                         </button>
@@ -356,49 +357,108 @@ const Header = () => {
                     </div>
 
                     {/* Mobile */}
-                    <div className="md:hidden">
+                    <div className="flex shrink-0 items-center gap-1.5 md:hidden">
+                        <Link to="/wishlist" aria-label="Wishlist" className="relative flex h-9 w-9 items-center justify-center">
+                            <Heart size={20} />
+                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] text-white">
+                                {wishlistCount}
+                            </span>
+                        </Link>
+                        <Link to="/cart" aria-label="Cart" className="relative flex h-9 w-9 items-center justify-center">
+                            <ShoppingCart size={20} />
+                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#4254bf] px-1 text-[10px] text-white">
+                                {cartQuantity}
+                            </span>
+                        </Link>
                         {isLogged ? (
                             <div className="relative">
-                                <div className="flex items-center gap-4">
-                                    <Link to="/wishlist" className="relative">
-                                        <Heart />
-                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
-                                            {wishlistCount}
-                                        </span>
-                                    </Link>
-
-                                    <Link to="/cart" className="relative">
-                                        <ShoppingCart />
-                                        <span className="absolute -top-2 -right-2 bg-[#4254bf] text-white rounded-full text-xs h-5 w-5 flex items-center justify-center">
-                                            {cartQuantity}
-                                        </span>
-                                    </Link>
-                                </div>
+                                <button
+                                    type="button"
+                                    aria-label="Account menu"
+                                    aria-expanded={accountOpen}
+                                    onClick={() => setAccountOpen(!accountOpen)}
+                                    className="flex h-9 w-9 items-center justify-center"
+                                >
+                                    <User size={20} />
+                                </button>
+                                {accountOpen && (
+                                    <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded border border-gray-200 bg-white shadow-lg">
+                                        {userEmail && <div className="break-all border-b border-gray-100 px-4 py-3 text-sm text-gray-700">{userEmail}</div>}
+                                        <Link to="/dashboard" className="block px-4 py-3 hover:bg-gray-100">Dashboard</Link>
+                                        <button onClick={handleSignOut} className="w-full px-4 py-3 text-left hover:bg-gray-100">Sign Out</button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
-                            <div className="flex items-center gap-4">
-                                <Link to="/login" className="text-[#5d4e3f] hover:text-[#4254bf]">
-                                    Login
-                                </Link>
-                                <Link to="/register" className="bg-[#4254bf] text-white px-3 py-1 rounded hover:bg-[#3546ae]">
-                                    Register
-                                </Link>
-                            </div>
+                            <Link to="/login" aria-label="Sign in" className="flex h-9 w-9 items-center justify-center">
+                                <User size={20} />
+                            </Link>
                         )}
+                        <button
+                            type="button"
+                            aria-label={mobileMenu ? "Close menu" : "Open menu"}
+                            aria-expanded={mobileMenu}
+                            className="flex h-9 w-9 items-center justify-center"
+                            onClick={() => setMobileMenu(!mobileMenu)}
+                        >
+                            {mobileMenu ? <X size={22} /> : <Menu size={22} />}
+                        </button>
                     </div>
-                    <button
-                        className="md:hidden"
-                        onClick={() => setMobileMenu(!mobileMenu)}
-                    >
-                        {mobileMenu ? <X /> : <><Menu /> </>}
-                    </button>
                 </div>
 
-                {/* Navigation */}
-                <nav className="hidden md:block"  style={{ boxShadow: '0 0 5px #ccc' }}>
+                <form onSubmit={handleSearchSubmit} className="relative mx-3 mb-5 flex lg:hidden sm:mx-4">
+                    <input
+                        type="search"
+                        value={searchQuery}
+                        onChange={(event) => {
+                            const nextValue = event.target.value
+                            setSearchQuery(nextValue)
+                            setShowSearchResults(nextValue.trim().length > 0)
+                        }}
+                        placeholder="Search products..."
+                        aria-label="Search products"
+                        className="w-full min-w-0 rounded-full border px-4 py-2 pr-12 outline-none"
+                    />
+                    <button
+                        type="submit"
+                        aria-label="Search products"
+                        className="absolute right-0 top-0 flex h-full items-center rounded-r-full bg-[#4254bf] px-3 text-white hover:bg-[#3546ae]"
+                    >
+                        <Search size={20} />
+                    </button>
+                    {showSearchResults && searchQuery.trim() && (
+                        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                            {searchResults.length > 0 ? searchResults.map((product) => {
+                                const productId = product._id || product.id || product.slug
+                                const productName = product.name || product.title || 'Product'
+                                const categoryName = product.category?.name || product.category?.title || product.category || ''
+                                return (
+                                    <Link
+                                        key={productId}
+                                        to={buildSearchPath(productName)}
+                                        className="block border-b border-gray-100 px-4 py-3 text-sm hover:bg-gray-50"
+                                        onClick={() => {
+                                            setSearchResults([])
+                                            setShowSearchResults(false)
+                                            setSearchQuery(productName)
+                                        }}
+                                    >
+                                        <div className="font-semibold text-gray-900">{productName}</div>
+                                        {categoryName && <div className="text-xs text-gray-500">{categoryName}</div>}
+                                    </Link>
+                                )
+                            }) : (
+                                <div className="px-4 py-3 text-sm text-gray-500">No products found</div>
+                            )}
+                        </div>
+                    )}
+                </form>
 
-                    <div className="mx-auto">
-                        <ul className="flex gap-8 px-4 py-4 font-medium">
+                {/* Navigation */}
+                <nav className="hidden md:block" style={{ boxShadow: '0 0 5px #ccc' }}>
+
+                    <div className="mx-auto overflow-x-auto">
+                        <ul className="flex w-max min-w-full gap-4 whitespace-nowrap px-4 py-4 font-medium lg:gap-8">
                             <li>
                                 <Link to="/" className="hover:text-[#4254bf]">
                                     Home
@@ -493,15 +553,11 @@ const Header = () => {
 
                
                 {mobileMenu && (
-                    <div className="md:hidden border-t bg-white" onClick={() => setMobileMenu(false)}>
+                    <div className="max-h-[calc(100vh-7rem)] overflow-y-auto border-t bg-white md:hidden">
                         <div className="p-4">
-                            <input
-                                placeholder="Search..."
-                                className="w-full border rounded-lg p-3 mb-4"
-                            />
-                            <ul className="space-y-4">
+                            <ul className="space-y-1">
                                 <li>
-                                    <Link to="/" className="hover:text-[#4254bf]">
+                                    <Link to="/" onClick={() => setMobileMenu(false)} className="block rounded px-2 py-3 hover:text-[#4254bf]">
                                         Home
                                     </Link>
                                 </li>
@@ -521,7 +577,8 @@ const Header = () => {
                                                 <Link
                                                     to={`/category/${categoryId}`}
                                                     aria-current={isActive ? 'page' : undefined}
-                                                    className={isActive ? 'font-semibold text-[#4254bf]' : 'hover:text-[#4254bf]'}
+                                                    onClick={() => setMobileMenu(false)}
+                                                    className={`${isActive ? 'font-semibold text-[#4254bf]' : 'hover:text-[#4254bf]'} block rounded px-2 py-3`}
                                                 >
                                                     {categoryName}
                                                 </Link>
@@ -533,28 +590,15 @@ const Header = () => {
                                 )}
 
                                 <li>
-                                    <Link to="/about" className="hover:text-[#4254bf]">About Us</Link>
+                                    <Link to="/about" onClick={() => setMobileMenu(false)} className="block rounded px-2 py-3 hover:text-[#4254bf]">About Us</Link>
                                 </li>
                                 <li>
-                                    <Link to="/contact" className="hover:text-[#4254bf]">Contact Us</Link>
+                                    <Link to="/contact" onClick={() => setMobileMenu(false)} className="block rounded px-2 py-3 hover:text-[#4254bf]">Contact Us</Link>
                                 </li>
-                                 {accountOpen && (
+                                {!isLogged && (
                                     <>
-                                        {userEmail && (
-                                            <li className="px-4 py-3 border-b border-gray-100 text-sm text-gray-700 break-all">
-                                                {userEmail}
-                                            </li>
-                                        )}
-                                        <li>
-                                        <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
-                                            Dashboard
-                                        </Link>
-                                        </li>
-                                        <li>
-                                        <button onClick={handleSignOut} className="w-full text-left px-4 py-2 hover:bg-gray-100">
-                                            Sign Out
-                                        </button>
-                                    </li>
+                                        <li><Link to="/login" onClick={() => setMobileMenu(false)} className="block rounded px-2 py-3 hover:text-[#4254bf]">Login</Link></li>
+                                        <li><Link to="/register" onClick={() => setMobileMenu(false)} className="block rounded px-2 py-3 hover:text-[#4254bf]">Register</Link></li>
                                     </>
                                 )}
                             </ul>

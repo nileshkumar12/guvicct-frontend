@@ -26,7 +26,7 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="bg-[#111111] px-4 py-10 text-[#d4c5a4] sm:px-6 lg:px-8">
+      <footer className="bg-[#111111] px-3 py-8 text-[#d4c5a4] sm:px-6 sm:py-10 lg:px-8">
         <div className="container mx-auto grid  gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <h2 className="text-lg font-semibold text-white"><Link to="/"><img style={{ maxWidth: "175px", borderRadius: "5px" }} src={vyasonImgfooter} /></Link></h2>
@@ -81,10 +81,10 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <div className="w-full bg-[#111111] px-8 py-4 border-t border-[#222222] text-[#d4c5a4]">
+      <div className="w-full border-t border-[#222222] bg-[#111111] px-3 py-4 text-[#d4c5a4] sm:px-8">
         <div className="container mx-auto flex  flex-col items-center justify-between gap-2 text-sm text-slate-300 sm:flex-row">
           <p>© 2026 Vyason. All rights reserved.</p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <a href="#" className="hover:text-white transition-colors">
               Privacy Policy
             </a>

@@ -42,11 +42,11 @@ const Categories = () => {
 
   return (
     <>
-      <section className="py-16">
+      <section className="py-9 sm:py-12 lg:py-16">
 
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-3 sm:px-6">
 
-          <div className="text-center mb-14">
+          <div className="mb-8 text-center sm:mb-14">
             <p className="text-sm font-semibold uppercase tracking-widest text-[#4254bf]">Shop by category</p>
             {/* <h2 className="text-5xl font-light tracking-wide uppercase">
                             Product Categories
@@ -58,22 +58,22 @@ const Categories = () => {
               </b>
             </h2>
 
-            <p className="mt-3 text-[#5d4e3f] text-xl">
+            <p className="mt-3 text-base leading-relaxed text-[#5d4e3f] sm:text-xl">
               — Everything You Need, All in One Place —
             </p>
 
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-3 max-[414px]:grid-cols-1 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {loading ? (
 
               <Loader loading={loading} />
 
             ) : error ? (
-              <div className="col-span-1 text-center text-red-600">
+              <div className="col-span-full text-center text-red-600">
                 {error}
               </div>
             ) : categories.length === 0 ? (
-              <div className="col-span-1 text-center text-[#5d4e3f]">
+              <div className="col-span-full text-center text-[#5d4e3f]">
                 No categories available.
               </div>
             ) : (
@@ -87,7 +87,7 @@ const Categories = () => {
 
                     className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
                   >
-                    <div className="relative overflow-hidden pt-3">
+                    <div className="relative overflow-hidden p-2 sm:p-3">
                       <Link
                         key={category._id || category.id || category.slug || index}
                         to={`/category/${category._id || category.id || category.slug || index}`}
@@ -98,15 +98,17 @@ const Categories = () => {
                           <img
                             src={imageSrc}
                             alt={categoryName}
-                            className="mx-auto h-72  group-hover:scale-105 duration-300"
+                            loading="lazy"
+                            decoding="async"
+                            className="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="mx-auto flex h-72 w-full items-center justify-center rounded-lg bg-[#f9f5f0] text-sm text-[#5d4e3f]">
+                          <div className="flex aspect-[4/5] w-full items-center justify-center rounded-lg bg-[#f9f5f0] text-sm text-[#5d4e3f]">
                             No image
                           </div>
                         )}
 
-                        <h3 className="px-4 py-2 overflow-hidden tracking-wide mt-5 text-lg text-[#ffffff] bg-[#4254bf]">
+                        <h3 className="mt-2 overflow-hidden bg-[#4254bf] px-2 py-2 text-sm leading-tight tracking-wide text-[#ffffff] sm:mt-3 sm:px-4 sm:text-lg">
                           {categoryName}
                         </h3>
                       </Link>

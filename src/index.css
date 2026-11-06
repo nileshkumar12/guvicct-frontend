@@ -28,22 +28,6 @@ body {
   color: var(--text);
 }
 
-body,
-button,
-input,
-textarea,
-select,
-label,
-span,
-a,
-li,
-th,
-td,
-div,
-p {
-  font-size: 15px !important;
-}
-
 .bg-white {
   background-color: var(--surface) !important;
 }
@@ -141,4 +125,3 @@ p {
 .hover\:bg-white\/20:hover {
   background-color: rgba(255, 253, 250, 0.2) !important;
 }
-

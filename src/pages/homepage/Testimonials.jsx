@@ -40,7 +40,7 @@ const Testimonials = () => {
     <section className="relative overflow-hidden bg-[#e7ebef] py-10 sm:py-10 lg:py-15">
       <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-indigo-100/60 blur-3xl" />
       <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-purple-100/50 blur-3xl" />
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white px-4 py-2 shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" />
@@ -62,14 +62,14 @@ const Testimonials = () => {
             loop
             speed={500}
             breakpoints={{
-              640: { slidesPerView: 3, spaceBetween: 24 },
+              768: { slidesPerView: 3, spaceBetween: 24 },
             }}
             className="!overflow-visible"
           >
             {testimonials.map((testimonial) => (
               <SwiperSlide key={`${testimonial.name}-${testimonial.initials}`} className="">
                 <article
-                  className="group relative h-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-indigo-100 hover:shadow-[0_20px_50px_rgba(15,23,42,0.10)] sm:p-8"
+                  className="group relative h-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-indigo-100 hover:shadow-[0_20px_50px_rgba(15,23,42,0.10)] sm:p-8"
                 >
 
                   {/* Top accent */}

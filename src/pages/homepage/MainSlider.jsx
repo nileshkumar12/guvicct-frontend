@@ -37,7 +37,7 @@ const MainSlider = () => {
     <section className="bg-[#fffdfa]">
 
         <Swiper
-          modules={[Autoplay, Pagination]}
+          modules={[Autoplay, Navigation, Pagination]}
           spaceBetween={24}
           slidesPerView={1}
           loop={true}
@@ -45,33 +45,18 @@ const MainSlider = () => {
           autoplay={{ delay: 4000, disableOnInteraction: false }}
           navigation={true}
           pagination={{ clickable: true }}
+          className="home-hero-swiper"
         >
           {slides.map((slide, index) => (
             <SwiperSlide key={index}>
-              <div className="relative overflow-hidden  min-h-[450px] shadow-xl">
-                <Link to={slide.link} className="absolute inset-0 z-20">
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
+              <div className="overflow-hidden shadow-xl">
+                <Link to={slide.link} aria-label={`View featured products, slide ${index + 1}`} className="block">
+                  <img
+                    src={slide.image}
+                    alt={`Featured products, slide ${index + 1}`}
+                    className="block h-auto w-full"
+                  />
                 </Link>
-                <div className="relative z-10 flex min-h-[360px] items-center p-8 md:p-16 text-white">
-                  <div className="max-w-2xl">
-                    <span className="inline-block mb-4 rounded-full bg-white/10 px-4 py-2 text-sm uppercase tracking-[0.25em] text-white/90">
-                      Featured
-                    </span>
-                    <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
-                      {slide.title}
-                    </h2>
-                    <p className="text-lg md:text-xl text-white/90 mb-8">
-                      {slide.subtitle}
-                    </p>
-                    <Link to="/products" className="inline-flex items-center justify-center rounded-full bg-[#fffdfa] px-8 py-3 text-sm font-semibold text-[#1c1c1c] shadow-lg shadow-slate-900/10 transition hover:bg-[#f4e9d7]">
-                      {slide.button}
-                    </Link>
-                  </div>
-                </div>
               </div>
             </SwiperSlide>
           ))}

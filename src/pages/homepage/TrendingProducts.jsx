@@ -76,7 +76,7 @@ const TrendingProducts = () => {
         <section className="relative overflow-hidden bg-white px-4 py-12 sm:px-6 lg:px-8">
             <div className="pointer-events-none absolute left-1/2 top-0 h-56 w-[600px] -translate-x-1/2 rounded-full bg-blue-50/70 blur-3xl" />
             <div className="container relative mx-auto">
-                <div className="mb-8 flex items-end justify-between">
+                <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.28em] text-[#3d55d9]">
                             Trending Now
@@ -145,6 +145,11 @@ const TrendingProducts = () => {
                         }}
                         breakpoints={{
                             0: {
+                                slidesPerView: 1,
+                                spaceBetween: 10,
+                            },
+
+                            415: {
                                 slidesPerView: 2,
                                 spaceBetween: 10,
                             },
@@ -154,14 +159,9 @@ const TrendingProducts = () => {
                                 spaceBetween: 12,
                             },
 
-                            640: {
+                            768: {
                                 slidesPerView: 3,
                                 spaceBetween: 14,
-                            },
-
-                            768: {
-                                slidesPerView: 4,
-                                spaceBetween: 16,
                             },
 
                             1024: {
@@ -169,8 +169,8 @@ const TrendingProducts = () => {
                                 spaceBetween: 16,
                             },
 
-                            1280: {
-                                slidesPerView: 4,
+                            1367: {
+                                slidesPerView: 5,
                                 spaceBetween: 18,
                             },
                         }}
@@ -212,13 +212,14 @@ const TrendingProducts = () => {
 
 
                 <div className="mt-6 flex justify-center sm:hidden">
-                    <button
+                    <Link
+                        to="/products"
                         type="button"
-                        className="flex items-center gap-2 text-sm font-semibold text-[#3048d8]"
+                        className="flex min-h-11 items-center gap-2 text-sm font-semibold text-[#3048d8]"
                     >
                         View All
                         <ArrowRight size={16} />
-                    </button>
+                    </Link>
                 </div>
             </div>
         </section>
@@ -270,39 +271,41 @@ const ProductCard = ({ product }) => {
             key={product._id}
             className="group relative overflow-hidden rounded-2xl border border-[#e9e2d9] bg-white shadow-sm"
         >
-            <div className="relative text-center overflow-hidden pt-3">
+            <div className="relative overflow-hidden p-2 text-center sm:p-3">
                 <Link to={`/product/${product._id}`}>
                     {product.image ? (
                         <img
                             src={product.image}
                             alt={product.name}
-                            className="h-72 m-auto transition duration-500 group-hover:scale-105"
+                            loading="lazy"
+                            decoding="async"
+                            className="aspect-square w-full object-contain transition duration-500 group-hover:scale-105"
                         />
 
                     ) : (
-                        <div className="flex h-72 items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
+                        <div className="flex aspect-square items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
                             No image
                         </div>
                     )}
                     {product.stock <= 0 && (
-                        <div className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg ${stockClass}`}>
+                        <div className={`absolute left-2 top-2 rounded-full px-2 py-1 text-[10px] font-semibold uppercase shadow-lg sm:left-4 sm:top-4 sm:px-3 sm:text-xs sm:tracking-[0.2em] ${stockClass}`}>
                             {stockLabel}
                         </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition duration-300 group-hover:opacity-100"></div></Link>
             </div>
 
-            <div className="space-y-4 p-6">
-                <p className="text-sm mb-0 text-[#5d4e3f]"><small>{(typeof product.brand === 'string' ? product.brand : product.brand?.name) || (typeof product.category === 'string' ? product.category : product.category?.name) || 'Gift basket'}</small></p>
-                <Link title={productName} to={`/product/${productId}`} className="text-lg truncate font-semibold text-[#1c1c1c] hover:text-[#4254bf]">
+            <div className="space-y-2 p-2.5 sm:space-y-4 sm:p-4 lg:p-6">
+                <p className="mb-0 truncate text-xs text-[#5d4e3f] sm:text-sm"><small>{(typeof product.brand === 'string' ? product.brand : product.brand?.name) || (typeof product.category === 'string' ? product.category : product.category?.name) || 'Gift basket'}</small></p>
+                <Link title={productName} to={`/product/${productId}`} className="block truncate text-sm font-semibold text-[#1c1c1c] hover:text-[#4254bf] sm:text-lg">
                     {productName}
                 </Link>
 
-                <div className="text-2xl font-bold text-[#1aa184]">
-                    <div className='flex justify-between'>
-                        <span className="text-sm font-bold text-4xl text-[#1aa184]">  {product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
+                <div className="text-lg font-bold text-[#1aa184] sm:text-2xl">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-base font-bold text-[#1aa184] sm:text-lg">  {product.price != null ? `₹${Number(product.price).toLocaleString('en-IN')}` : '₹0.00'}</span>
                         <div className="flex flex-wrap justify-end gap-2">
-                            <Link to={`/product/${productId}`} className="inline-block rounded-full bg-[#4254bf] px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3546ae]">
+                            <Link to={`/product/${productId}`} className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#4254bf] px-3 py-2 text-xs font-semibold text-white shadow-lg transition hover:bg-[#3546ae] sm:px-4 sm:text-sm">
                                 Buy Now
                             </Link>
                             {/* {!hasVariants && (

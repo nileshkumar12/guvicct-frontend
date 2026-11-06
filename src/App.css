@@ -16,3 +16,16 @@ article .truncate{display:block;}
 footer a, footer p{color:#7a7a7a; font-size:13px;}
 footer + div a, footer + div p{color:#7a7a7a; font-size:13px;}
 footer a:hover, footer + div a:hover{color:#4254bf;}
+
+@media (max-width: 415px) {
+  .home-hero-swiper .swiper-button-prev,
+  .home-hero-swiper .swiper-button-next {
+    width: 28px;
+    height: 28px;
+  }
+
+  .home-hero-swiper .swiper-button-prev::after,
+  .home-hero-swiper .swiper-button-next::after {
+    font-size: 14px;
+  }
+}

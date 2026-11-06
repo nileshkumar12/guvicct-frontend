@@ -50,7 +50,7 @@ const features = [
 
 const WhyChoose = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#f4f8ff] via-white to-[#eef5ff] px-4 py-16 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#f4f8ff] via-white to-[#eef5ff] px-3 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
       
      
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-100/40 blur-3xl" />

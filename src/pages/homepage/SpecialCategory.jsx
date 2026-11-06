@@ -41,11 +41,11 @@ const SpecialCategory = () => {
 
   return (
     <>
-    <section className="py-16 bg-[#fffdfa]">
+    <section className="bg-[#fffdfa] py-9 sm:py-12 lg:py-16">
     <div className="container mx-auto px-4">
 
 
-        <div className="text-center mb-14">
+        <div className="mb-8 text-center sm:mb-14">
             {/* <h2 className="text-3xl md:text-5xl font-light uppercase tracking-wide text-[#2c2c2c] leading-tight">
                 Show Someone They Are Special
                 <br/>
@@ -58,37 +58,39 @@ const SpecialCategory = () => {
             </b>
           </h2>
 
-            <p className="mt-4 text-[#5d4e3f] text-lg">
+            <p className="mt-3 text-base leading-relaxed text-[#5d4e3f] sm:mt-4 sm:text-lg">
                 Our products come with lots of different options to make your product extra special
             </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 gap-3 max-[414px]:grid-cols-1 sm:gap-6 md:grid-cols-4">
           {loading ? (
-            <div className="col-span-2 text-center text-[#5d4e3f]">Loading brands...</div>
+            <div className="col-span-full text-center text-[#5d4e3f]">Loading brands...</div>
           ) : error ? (
-            <div className="col-span-2 text-center text-red-600">{error}</div>
+            <div className="col-span-full text-center text-red-600">{error}</div>
           ) : brands.length === 0 ? (
-            <div className="col-span-2 text-center text-[#5d4e3f]">No brands available.</div>
+            <div className="col-span-full text-center text-[#5d4e3f]">No brands available.</div>
           ) : (
             brands.map((brand, index) => {
               const brandName = brand.name || brand.title || brand.brand || `Brand ${index + 1}`
               const imageSrc = getImageSrc(brand.image || brand.imageUrl || brand.image_url || '')
               return (
-                <a key={brand._id || brand.id || index} href="/products" className="group relative overflow-hidden shadow-md">
+                <a key={brand._id || brand.id || index} href="/products" className="group relative aspect-[4/3] overflow-hidden shadow-md sm:aspect-[3/2]">
                   {imageSrc ? (
                     <img
                       src={imageSrc}
                       alt={brandName}
-                      className="w-full h-56 object-cover group-hover:scale-110 duration-500"
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     />
                   ) : (
-                    <div className="w-full h-56 flex items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
+                    <div className="flex h-full w-full items-center justify-center bg-[#f9f5f0] text-[#5d4e3f]">
                       No image
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 w-full bg-black/55 py-4">
-                    <h3 className="text-center text-white uppercase tracking-wide text-lg">
+                  <div className="absolute bottom-0 left-0 w-full bg-black/55 py-2 sm:py-4">
+                    <h3 className="px-1 text-center text-sm uppercase leading-tight tracking-wide text-white sm:text-lg">
                       {brandName}
                     </h3>
                   </div>
