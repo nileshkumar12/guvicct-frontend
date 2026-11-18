@@ -48,6 +48,7 @@ import Help from './pages/help/Help'
 import RoleBasedRedirect from './Header/RoleBasedRedirect'
 import SellerOrders from './admin/seller/SellerOrders'
 import SellerOrderDetails from './admin/seller/SellerOrderDetails'
+import ChatbotWidget from './components/chatbot/ChatbotWidget'
 const App = () => {
   const location = useLocation();
 
@@ -120,6 +121,7 @@ const App = () => {
         </Route>
       </Routes>
       {!hideHeader && <Footer />}
+      {!location.pathname.startsWith('/admin') && <ChatbotWidget />}
     </>
   )
 }

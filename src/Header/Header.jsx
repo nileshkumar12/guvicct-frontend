@@ -406,7 +406,7 @@ const Header = () => {
                     </div>
                 </div>
 
-                <form onSubmit={handleSearchSubmit} className="relative mx-3 mb-5 flex lg:hidden sm:mx-4">
+                <form onSubmit={handleSearchSubmit} className="relative mx-3  flex lg:hidden sm:mx-4">
                     <input
                         type="search"
                         value={searchQuery}

@@ -125,3 +125,12 @@ body {
 .hover\:bg-white\/20:hover {
   background-color: rgba(255, 253, 250, 0.2) !important;
 }
+@media(max-width: 767px) {
+  .swiper .swiper-button-prev,.swiper .swiper-button-next{ display:none !important; }
+}
+@media(max-width: 415px) {
+  header, section,footer, footer +div{width:100%; float:left}
+  header form{ margin-bottom:10px;}
+}
+
+
